@@ -281,17 +281,50 @@ mediconnect-pro/
 └── README.md
 ```
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
-### Prerequisites
+**Get MediConnect Pro running in 3 commands:**
 
-- **Docker**: 20.10+ and Docker Compose 2.0+
-- **Node.js**: 18+ (for local development)
-- **Python**: 3.11+ (for ML service development)
-- **8GB RAM minimum**
+```bash
+git clone https://github.com/Federicojaviermartino/mediconnect-pro.git
+cd mediconnect-pro
+docker-compose up -d
+```
+
+Then visit **http://localhost** in your browser! 🎉
+
+For detailed instructions, see **[QUICKSTART.md](QUICKSTART.md)**
+
+### Automated Setup (Recommended)
+
+**Windows:**
+```bash
+scripts\setup.bat
+```
+
+**Mac/Linux:**
+```bash
+chmod +x scripts/setup.sh
+./scripts/setup.sh
+```
+
+The setup script will:
+- ✅ Check prerequisites
+- ✅ Create environment files
+- ✅ Start all services
+- ✅ Verify health endpoints
+- ✅ Display access URLs
+
+### Manual Setup
+
+#### Prerequisites
+
+- **Docker Desktop** 20.10+ - [Download](https://www.docker.com/products/docker-desktop)
+- **Docker Compose** 2.0+ (included with Docker Desktop)
+- **8GB RAM minimum** (16GB recommended)
 - **20GB disk space**
 
-### Installation
+#### Installation Steps
 
 1. **Clone the repository**
    ```bash
@@ -302,47 +335,74 @@ mediconnect-pro/
 2. **Setup environment variables**
    ```bash
    cp .env.example .env
-   # Edit .env with your configuration (JWT_SECRET, MQTT_PASSWORD, etc.)
+   # The default values work out of the box for local development
    ```
 
-3. **Start all services with Docker Compose**
+3. **Start all services**
    ```bash
    docker-compose up -d
    ```
 
-   This command starts:
-   - PostgreSQL (3 databases: auth, patients, consultations)
-   - MongoDB (vitals, ML predictions)
-   - Redis (cache)
-   - Kafka + Zookeeper (messaging)
-   - MQTT Broker (IoT devices)
-   - All microservices (Auth, Patient, Vitals, Consultation, ML)
-   - API Gateway
-   - Web Frontend
-   - Nginx (reverse proxy)
-
-4. **Check services status**
-   ```bash
-   docker-compose ps
-   ```
-
-5. **View logs**
+4. **Wait for services to initialize** (2-3 minutes on first run)
    ```bash
    docker-compose logs -f
    ```
 
-### Access Points
+5. **Verify services are running**
+   ```bash
+   docker-compose ps
+   ```
 
-- **Web Application**: http://localhost:80
-- **API Gateway**: http://localhost:3000
-- **API Documentation**:
-  - Auth: http://localhost:3001/api/docs
-  - Patient: http://localhost:3002/api/docs
-  - Vitals: http://localhost:3003/api/docs
-  - Consultation: http://localhost:3004/api/docs
-  - ML: http://localhost:8000/api/docs
+### 🌐 Access Points
 
-For detailed deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md)
+Once running, access the application at:
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| **Web App** | http://localhost | Main application (via Nginx) |
+| **Web App (direct)** | http://localhost:3100 | Direct access to frontend |
+| **API Gateway** | http://localhost:3000 | REST API endpoint |
+| **API Docs** | http://localhost:3000/api-docs | Swagger documentation |
+
+#### Service Endpoints
+
+| Service | URL | Swagger Docs |
+|---------|-----|--------------|
+| Auth Service | http://localhost:3001 | http://localhost:3001/api-docs |
+| Patient Service | http://localhost:3002 | http://localhost:3002/api-docs |
+| Vitals Service | http://localhost:3003 | http://localhost:3003/api-docs |
+| Consultation Service | http://localhost:3004 | http://localhost:3004/api-docs |
+| ML Service | http://localhost:8000 | http://localhost:8000/docs |
+
+### 🧪 Quick API Test
+
+```bash
+# Register a new user
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "doctor@example.com",
+    "password": "SecurePass123!",
+    "firstName": "John",
+    "lastName": "Doe",
+    "role": "DOCTOR"
+  }'
+
+# Login
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "doctor@example.com",
+    "password": "SecurePass123!"
+  }'
+```
+
+### 📚 Documentation
+
+- **[QUICKSTART.md](QUICKSTART.md)** - Detailed quick start guide with troubleshooting
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production deployment instructions
+- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Testing guidelines
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guide
 
 ## 💻 Development
 
