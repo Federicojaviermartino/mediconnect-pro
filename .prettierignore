@@ -1,0 +1,53 @@
+# Dependencies
+node_modules
+bower_components
+
+# Build outputs
+dist
+build
+out
+.next
+.nuxt
+.output
+.cache
+
+# Package lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Logs
+*.log
+logs
+
+# Coverage
+coverage
+.nyc_output
+
+# Environment files
+.env
+.env.*
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated files
+*.tsbuildinfo
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Documentation build
+docs/_build
+
+# Terraform
+.terraform
+*.tfstate
+*.tfstate.*
