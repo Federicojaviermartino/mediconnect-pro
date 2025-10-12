@@ -295,7 +295,7 @@ mediconnect-pro/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/mediconnect-pro.git
+   git clone https://github.com/Federicojaviermartino/mediconnect-pro.git
    cd mediconnect-pro
    ```
 

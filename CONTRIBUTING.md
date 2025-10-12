@@ -28,7 +28,7 @@ By participating in this project, you agree to maintain a respectful and collabo
 
 3. **Add upstream remote**:
    ```bash
-   git remote add upstream https://github.com/original-username/mediconnect-pro.git
+   git remote add upstream https://github.com/Federicojaviermartino/mediconnect-pro.git
    ```
 
 4. **Install dependencies**:
@@ -340,7 +340,7 @@ Any other context, screenshots, or examples.
 If you have questions, please:
 
 1. Check the [documentation](./README.md)
-2. Search [existing issues](https://github.com/yourusername/mediconnect-pro/issues)
+2. Search [existing issues](https://github.com/Federicojaviermartino/mediconnect-pro/issues)
 3. Open a new issue with the `question` label
 
 Thank you for contributing to MediConnect Pro!
