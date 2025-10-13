@@ -1,26 +1,18 @@
-# Simple Dockerfile for Railway
+# Ultra-simple Dockerfile for Railway demo
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy only what we need
+COPY package.json ./
+COPY server.js ./
+COPY healthcheck.js ./
 
-# Install dependencies
-RUN npm install --legacy-peer-deps
-
-# Copy all source code
-COPY . .
-
-# Build the project
-RUN npm run build || echo "Build completed with warnings"
+# Install only express
+RUN npm install express --no-save
 
 # Expose port
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD node healthcheck.js || exit 1
-
-# Start the application
-CMD ["npm", "start"]
+# Start the application directly
+CMD ["node", "server.js"]
