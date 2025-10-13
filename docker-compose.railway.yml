@@ -1,0 +1,120 @@
+version: '3.8'
+
+services:
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: mediconnect-api-gateway
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      AUTH_SERVICE_URL: http://auth-service:3001
+      PATIENT_SERVICE_URL: http://patient-service:3002
+      VITALS_SERVICE_URL: http://vitals-service:3003
+      CONSULTATION_SERVICE_URL: http://consultation-service:3004
+      ML_SERVICE_URL: http://ml-service:8000
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "${PORT:-3000}:3000"
+    depends_on:
+      - auth-service
+      - patient-service
+      - vitals-service
+      - consultation-service
+      - ml-service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    container_name: mediconnect-auth-service
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DB_HOST: ${POSTGRES_HOST:-postgres}
+      DB_PORT: ${POSTGRES_PORT:-5432}
+      DB_USERNAME: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      DB_NAME: mediconnect_auth
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: 15m
+      REFRESH_TOKEN_EXPIRES_IN: 7d
+    restart: unless-stopped
+
+  # Patient Service
+  patient-service:
+    build:
+      context: ./services/patient-service
+      dockerfile: Dockerfile
+    container_name: mediconnect-patient-service
+    environment:
+      NODE_ENV: production
+      PORT: 3002
+      DB_HOST: ${POSTGRES_HOST:-postgres}
+      DB_PORT: ${POSTGRES_PORT:-5432}
+      DB_USERNAME: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      DB_NAME: mediconnect_patients
+    restart: unless-stopped
+
+  # Vitals Service
+  vitals-service:
+    build:
+      context: ./services/vitals-service
+      dockerfile: Dockerfile
+    container_name: mediconnect-vitals-service
+    environment:
+      NODE_ENV: production
+      PORT: 3003
+      MONGODB_URI: ${MONGODB_URI:-mongodb://root:mongo123@mongodb:27017/mediconnect_vitals?authSource=admin}
+    restart: unless-stopped
+
+  # Consultation Service
+  consultation-service:
+    build:
+      context: ./services/consultation-service
+      dockerfile: Dockerfile
+    container_name: mediconnect-consultation-service
+    environment:
+      NODE_ENV: production
+      PORT: 3004
+      DB_HOST: ${POSTGRES_HOST:-postgres}
+      DB_PORT: ${POSTGRES_PORT:-5432}
+      DB_USERNAME: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      DB_NAME: mediconnect_consultations
+    restart: unless-stopped
+
+  # ML Service
+  ml-service:
+    build:
+      context: ./services/ml-service
+      dockerfile: Dockerfile
+    container_name: mediconnect-ml-service
+    environment:
+      ENVIRONMENT: production
+      PORT: 8000
+      MONGODB_URI: ${MONGODB_URI:-mongodb://root:mongo123@mongodb:27017/mediconnect_ml?authSource=admin}
+    restart: unless-stopped
+
+  # Web Frontend
+  web-frontend:
+    build:
+      context: ./frontend/web
+      dockerfile: Dockerfile
+    container_name: mediconnect-web
+    environment:
+      NEXT_PUBLIC_API_URL: ${RAILWAY_PUBLIC_DOMAIN:-http://localhost:3000}
+      NODE_ENV: production
+    restart: unless-stopped
