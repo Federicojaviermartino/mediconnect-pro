@@ -7,6 +7,21 @@
 [![Node.js](https://img.shields.io/badge/Node.js-20+-green)](https://nodejs.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue)](https://www.docker.com/)
 
+## 🎭 Live Demo
+
+> **Try it now!** Experience the platform without installing anything.
+
+🔗 **[View Live Demo](DEMO.md)** | 📚 **[API Documentation](#)** (Coming Soon)
+
+**Demo Credentials:**
+- Doctor: `dr.smith@mediconnect.demo` / `Demo2024!Doctor`
+- Patient: `john.doe@mediconnect.demo` / `Demo2024!Patient`
+- Admin: `admin@mediconnect.demo` / `Demo2024!Admin`
+
+See [DEMO.md](DEMO.md) for complete demo guide and all credentials.
+
+---
+
 ## 📋 Table of Contents
 
 - [Overview](#overview)

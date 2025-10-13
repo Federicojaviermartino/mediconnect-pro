@@ -1,0 +1,10 @@
+[build]
+builder = "nixpacks"
+buildCommand = "echo 'Building MediConnect Pro services...'"
+
+[deploy]
+startCommand = "docker-compose up"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "on-failure"
+restartPolicyMaxRetries = 3
