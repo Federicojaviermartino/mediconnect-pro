@@ -24,6 +24,10 @@ out/
 *.sublime-project
 *.sublime-workspace
 
+# Claude AI Assistant
+.claude/
+.claude-code/
+
 # Environment variables
 .env
 .env.local
