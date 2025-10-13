@@ -1,0 +1,104 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "name": "MediConnect Pro",
+  "description": "Enterprise-grade telemedicine platform with AI-powered risk prediction and remote patient monitoring",
+  "icon": "https://raw.githubusercontent.com/Federicojaviermartino/mediconnect-pro/main/docs/logo.png",
+  "repository": "https://github.com/Federicojaviermartino/mediconnect-pro",
+  "services": [
+    {
+      "name": "postgres",
+      "type": "postgresql",
+      "plan": "hobby"
+    },
+    {
+      "name": "mongodb",
+      "type": "mongodb",
+      "plan": "hobby"
+    },
+    {
+      "name": "redis",
+      "type": "redis",
+      "plan": "hobby"
+    },
+    {
+      "name": "api-gateway",
+      "source": {
+        "repo": "Federicojaviermartino/mediconnect-pro",
+        "directory": "services/api-gateway"
+      },
+      "variables": {
+        "NODE_ENV": "production",
+        "PORT": "3000"
+      },
+      "healthcheck": {
+        "path": "/health",
+        "intervalSeconds": 30
+      }
+    },
+    {
+      "name": "auth-service",
+      "source": {
+        "repo": "Federicojaviermartino/mediconnect-pro",
+        "directory": "services/auth-service"
+      },
+      "variables": {
+        "NODE_ENV": "production",
+        "PORT": "3001"
+      }
+    },
+    {
+      "name": "patient-service",
+      "source": {
+        "repo": "Federicojaviermartino/mediconnect-pro",
+        "directory": "services/patient-service"
+      },
+      "variables": {
+        "NODE_ENV": "production",
+        "PORT": "3002"
+      }
+    },
+    {
+      "name": "vitals-service",
+      "source": {
+        "repo": "Federicojaviermartino/mediconnect-pro",
+        "directory": "services/vitals-service"
+      },
+      "variables": {
+        "NODE_ENV": "production",
+        "PORT": "3003"
+      }
+    },
+    {
+      "name": "consultation-service",
+      "source": {
+        "repo": "Federicojaviermartino/mediconnect-pro",
+        "directory": "services/consultation-service"
+      },
+      "variables": {
+        "NODE_ENV": "production",
+        "PORT": "3004"
+      }
+    },
+    {
+      "name": "ml-service",
+      "source": {
+        "repo": "Federicojaviermartino/mediconnect-pro",
+        "directory": "services/ml-service"
+      },
+      "variables": {
+        "ENVIRONMENT": "production",
+        "PORT": "8000"
+      }
+    },
+    {
+      "name": "web-frontend",
+      "source": {
+        "repo": "Federicojaviermartino/mediconnect-pro",
+        "directory": "frontend/web"
+      },
+      "variables": {
+        "NODE_ENV": "production"
+      }
+    }
+  ]
+}
