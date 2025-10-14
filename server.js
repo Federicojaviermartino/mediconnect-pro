@@ -14,6 +14,9 @@ const PORT = process.env.PORT || 3000;
 const db = initDatabase();
 console.log('✅ Database initialized');
 
+// Trust proxy (required for Render)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,8 +28,9 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: true, // HTTPS on Render
     httpOnly: true,
+    sameSite: 'lax',
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
