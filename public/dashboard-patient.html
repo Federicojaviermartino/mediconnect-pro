@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard - MediConnect Pro</title>
+    <link rel="stylesheet" href="/dashboard-styles.css">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🏥</span>
+                <span class="logo-text">MediConnect Pro</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="#" class="nav-item">
+                    <span>❤️</span> My Vitals
+                </a>
+                <a href="#" class="nav-item">
+                    <span>📅</span> Appointments
+                </a>
+                <a href="#" class="nav-item">
+                    <span>💊</span> Medications
+                </a>
+                <a href="#" class="nav-item">
+                    <span>📝</span> Medical Records
+                </a>
+            </nav>
+            <button onclick="logout()" class="logout-btn">
+                <span>🚪</span> Logout
+            </button>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h1>🧑‍💼 Patient Dashboard</h1>
+                <div class="user-info">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <span class="user-role">Patient</span>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">❤️</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Heart Rate</div>
+                            <div class="stat-value" id="heartRate">--</div>
+                            <div class="stat-unit">bpm</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🩸</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Blood Pressure</div>
+                            <div class="stat-value" id="bloodPressure">--</div>
+                            <div class="stat-unit">mmHg</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🌡️</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Temperature</div>
+                            <div class="stat-value" id="temperature">--</div>
+                            <div class="stat-unit">°C</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💨</div>
+                        <div class="stat-info">
+                            <div class="stat-label">SpO2</div>
+                            <div class="stat-value" id="spo2">--</div>
+                            <div class="stat-unit">%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>My Vital Signs History</h2>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>Heart Rate</th>
+                                    <th>Blood Pressure</th>
+                                    <th>Temperature</th>
+                                    <th>SpO2</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vitalsTable">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 40px;">
+                                        <div class="loading">Loading vitals...</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Health Tips</h2>
+                    <div class="tips-grid">
+                        <div class="tip-card">
+                            <div class="tip-icon">💧</div>
+                            <h3>Stay Hydrated</h3>
+                            <p>Drink at least 8 glasses of water daily for optimal health.</p>
+                        </div>
+                        <div class="tip-card">
+                            <div class="tip-icon">🏃</div>
+                            <h3>Exercise Regularly</h3>
+                            <p>Aim for 30 minutes of moderate exercise most days of the week.</p>
+                        </div>
+                        <div class="tip-card">
+                            <div class="tip-icon">🥗</div>
+                            <h3>Healthy Diet</h3>
+                            <p>Eat a balanced diet rich in fruits, vegetables, and whole grains.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/dashboard-scripts.js"></script>
+    <script>
+        async function loadVitals() {
+            try {
+                const response = await fetch('/api/vitals');
+                const data = await response.json();
+
+                if (response.ok && data.vitals) {
+                    const tbody = document.getElementById('vitalsTable');
+
+                    if (data.vitals.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px;">No vital signs recorded yet</td></tr>';
+                        return;
+                    }
+
+                    // Update current vitals
+                    const latest = data.vitals[0];
+                    document.getElementById('heartRate').textContent = latest.heart_rate;
+                    document.getElementById('bloodPressure').textContent = latest.blood_pressure;
+                    document.getElementById('temperature').textContent = latest.temperature;
+                    document.getElementById('spo2').textContent = latest.oxygen_saturation;
+
+                    // Populate table
+                    tbody.innerHTML = data.vitals.map(vital => {
+                        const date = new Date(vital.recorded_at);
+                        const status = vital.heart_rate < 60 || vital.heart_rate > 100 ? '⚠️ Check' : '✅ Normal';
+                        return `
+                            <tr>
+                                <td>${date.toLocaleString()}</td>
+                                <td>${vital.heart_rate} bpm</td>
+                                <td>${vital.blood_pressure} mmHg</td>
+                                <td>${vital.temperature}°C</td>
+                                <td>${vital.oxygen_saturation}%</td>
+                                <td>${status}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                } else {
+                    throw new Error('Failed to load vitals');
+                }
+            } catch (error) {
+                console.error('Error loading vitals:', error);
+                document.getElementById('vitalsTable').innerHTML =
+                    '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #dc2626;">Error loading vital signs</td></tr>';
+            }
+        }
+
+        window.addEventListener('load', loadVitals);
+    </script>
+</body>
+</html>

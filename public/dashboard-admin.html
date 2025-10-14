@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - MediConnect Pro</title>
+    <link rel="stylesheet" href="/dashboard-styles.css">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🏥</span>
+                <span class="logo-text">MediConnect Pro</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="#" class="nav-item">
+                    <span>👥</span> Users
+                </a>
+                <a href="#" class="nav-item">
+                    <span>⚙️</span> System Settings
+                </a>
+                <a href="#" class="nav-item">
+                    <span>📝</span> Audit Logs
+                </a>
+                <a href="#" class="nav-item">
+                    <span>📈</span> Analytics
+                </a>
+            </nav>
+            <button onclick="logout()" class="logout-btn">
+                <span>🚪</span> Logout
+            </button>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h1>👑 Admin Dashboard</h1>
+                <div class="user-info">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <span class="user-role">Administrator</span>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Total Users</div>
+                            <div class="stat-value" id="totalUsers">--</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🧑‍💼</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Patients</div>
+                            <div class="stat-value" id="totalPatients">--</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👨‍⚕️</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Doctors</div>
+                            <div class="stat-value" id="totalDoctors">--</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <div class="stat-label">Vital Signs</div>
+                            <div class="stat-value" id="totalVitals">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>System Overview</h2>
+                    <div class="overview-grid">
+                        <div class="overview-card">
+                            <h3>🟢 System Status</h3>
+                            <div class="status-item">
+                                <span>API Gateway:</span>
+                                <span class="status-badge success">Online</span>
+                            </div>
+                            <div class="status-item">
+                                <span>Database:</span>
+                                <span class="status-badge success">Connected</span>
+                            </div>
+                            <div class="status-item">
+                                <span>Auth Service:</span>
+                                <span class="status-badge success">Running</span>
+                            </div>
+                        </div>
+
+                        <div class="overview-card">
+                            <h3>📈 Platform Metrics</h3>
+                            <div class="metric-item">
+                                <span>Uptime:</span>
+                                <strong>99.9%</strong>
+                            </div>
+                            <div class="metric-item">
+                                <span>Response Time:</span>
+                                <strong>142ms</strong>
+                            </div>
+                            <div class="metric-item">
+                                <span>Active Sessions:</span>
+                                <strong>1</strong>
+                            </div>
+                        </div>
+
+                        <div class="overview-card">
+                            <h3>🔐 Security</h3>
+                            <div class="metric-item">
+                                <span>Failed Logins (24h):</span>
+                                <strong>0</strong>
+                            </div>
+                            <div class="metric-item">
+                                <span>Last Backup:</span>
+                                <strong>2 hours ago</strong>
+                            </div>
+                            <div class="metric-item">
+                                <span>Security Status:</span>
+                                <span class="status-badge success">Secure</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Recent Activity</h2>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <span class="activity-icon">✅</span>
+                            <div class="activity-content">
+                                <div class="activity-title">Admin logged in</div>
+                                <div class="activity-time">Just now</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <span class="activity-icon">👤</span>
+                            <div class="activity-content">
+                                <div class="activity-title">New user registered</div>
+                                <div class="activity-time">1 hour ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <span class="activity-icon">🔄</span>
+                            <div class="activity-content">
+                                <div class="activity-title">Database backup completed</div>
+                                <div class="activity-time">2 hours ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Quick Actions</h2>
+                    <div class="actions-grid">
+                        <button class="action-btn" onclick="alert('This would open the user management interface')">
+                            <span>👥</span> Manage Users
+                        </button>
+                        <button class="action-btn" onclick="alert('This would open system settings')">
+                            <span>⚙️</span> System Settings
+                        </button>
+                        <button class="action-btn" onclick="alert('This would generate a system report')">
+                            <span>📊</span> Generate Report
+                        </button>
+                        <button class="action-btn" onclick="alert('This would open audit logs')">
+                            <span>📝</span> View Audit Logs
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/dashboard-scripts.js"></script>
+    <script>
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+
+                if (response.ok && data.stats) {
+                    document.getElementById('totalUsers').textContent = data.stats.totalUsers;
+                    document.getElementById('totalPatients').textContent = data.stats.totalPatients;
+                    document.getElementById('totalDoctors').textContent = data.stats.totalDoctors;
+                    document.getElementById('totalVitals').textContent = data.stats.totalVitals;
+                } else {
+                    throw new Error('Failed to load stats');
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        window.addEventListener('load', loadStats);
+    </script>
+</body>
+</html>

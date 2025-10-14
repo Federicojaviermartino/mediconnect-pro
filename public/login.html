@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - MediConnect Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #1e293b;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+        }
+
+        .btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .demo-credentials {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .demo-credentials h3 {
+            color: #0369a1;
+            margin-bottom: 12px;
+            font-size: 1em;
+        }
+
+        .credential-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .credential-item strong {
+            color: #667eea;
+        }
+
+        .credential-item code {
+            background: #f8fafc;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #334155;
+        }
+
+        .quick-login {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 8px;
+            background: white;
+            border: 2px solid #0ea5e9;
+            color: #0369a1;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quick-btn:hover {
+            background: #0ea5e9;
+            color: white;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">🏥</div>
+        <h1>MediConnect Pro</h1>
+        <p class="subtitle">Sign in to your account</p>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required placeholder="your@email.com">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password">
+            </div>
+
+            <button type="submit" class="btn" id="loginBtn">Sign In</button>
+        </form>
+
+        <div class="demo-credentials">
+            <h3>🎭 Demo Credentials - Click to autofill:</h3>
+            <div class="quick-login">
+                <button class="quick-btn" onclick="quickLogin('doctor')">👨‍⚕️ Doctor</button>
+                <button class="quick-btn" onclick="quickLogin('patient')">🧑‍💼 Patient</button>
+                <button class="quick-btn" onclick="quickLogin('admin')">👑 Admin</button>
+            </div>
+            <div style="margin-top: 15px; font-size: 0.85em; color: #64748b;">
+                <div class="credential-item">
+                    <strong>Doctor:</strong> <code>dr.smith@mediconnect.demo</code> / <code>Demo2024!Doctor</code>
+                </div>
+                <div class="credential-item">
+                    <strong>Patient:</strong> <code>john.doe@mediconnect.demo</code> / <code>Demo2024!Patient</code>
+                </div>
+                <div class="credential-item">
+                    <strong>Admin:</strong> <code>admin@mediconnect.demo</code> / <code>Demo2024!Admin</code>
+                </div>
+            </div>
+        </div>
+
+        <div class="back-link">
+            <a href="/">← Back to homepage</a>
+        </div>
+    </div>
+
+    <script>
+        const credentials = {
+            doctor: {
+                email: 'dr.smith@mediconnect.demo',
+                password: 'Demo2024!Doctor'
+            },
+            patient: {
+                email: 'john.doe@mediconnect.demo',
+                password: 'Demo2024!Patient'
+            },
+            admin: {
+                email: 'admin@mediconnect.demo',
+                password: 'Demo2024!Admin'
+            }
+        };
+
+        function quickLogin(role) {
+            const creds = credentials[role];
+            document.getElementById('email').value = creds.email;
+            document.getElementById('password').value = creds.password;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Signing in...';
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // Redirect based on role
+                    const role = data.user.role;
+                    window.location.href = `/dashboard-${role}.html`;
+                } else {
+                    showError(data.error || 'Login failed');
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Sign In';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Network error. Please try again.');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Sign In';
+            }
+        });
+    </script>
+</body>
+</html>
