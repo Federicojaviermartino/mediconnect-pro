@@ -14,19 +14,19 @@
                 <span class="logo-text">MediConnect Pro</span>
             </div>
             <nav class="nav-menu">
-                <a href="#" class="nav-item active">
+                <a href="#" class="nav-item active" onclick="event.preventDefault(); showNotification('You are on the Dashboard', 'info')">
                     <span>📊</span> Dashboard
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('My Vitals')">
                     <span>❤️</span> My Vitals
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Appointments')">
                     <span>📅</span> Appointments
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Medications')">
                     <span>💊</span> Medications
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Medical Records')">
                     <span>📝</span> Medical Records
                 </a>
             </nav>
@@ -106,6 +106,24 @@
                 </div>
 
                 <div class="section">
+                    <h2>Quick Actions</h2>
+                    <div class="actions-grid">
+                        <button class="action-btn" onclick="scheduleAppointment()">
+                            <span>📅</span> Schedule Appointment
+                        </button>
+                        <button class="action-btn" onclick="requestPrescription()">
+                            <span>💊</span> Request Prescription
+                        </button>
+                        <button class="action-btn" onclick="contactDoctor()">
+                            <span>💬</span> Contact Doctor
+                        </button>
+                        <button class="action-btn" onclick="exportVitals()">
+                            <span>📊</span> Export Vitals Data
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section">
                     <h2>Health Tips</h2>
                     <div class="tips-grid">
                         <div class="tip-card">
@@ -130,6 +148,7 @@
     </div>
 
     <script src="/dashboard-scripts.js"></script>
+    <script src="/dashboard-interactive.js"></script>
     <script>
         async function loadVitals() {
             try {

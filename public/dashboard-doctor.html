@@ -14,19 +14,19 @@
                 <span class="logo-text">MediConnect Pro</span>
             </div>
             <nav class="nav-menu">
-                <a href="#" class="nav-item active">
+                <a href="#" class="nav-item active" onclick="event.preventDefault(); showNotification('You are on the Dashboard', 'info')">
                     <span>📊</span> Dashboard
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Patients')">
                     <span>👥</span> Patients
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" onclick="event.preventDefault(); scheduleAppointment()">
                     <span>📅</span> Appointments
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Prescriptions')">
                     <span>💊</span> Prescriptions
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Analytics')">
                     <span>📈</span> Analytics
                 </a>
             </nav>
@@ -132,6 +132,7 @@
     </div>
 
     <script src="/dashboard-scripts.js"></script>
+    <script src="/dashboard-interactive.js"></script>
     <script>
         async function loadPatients() {
             try {
@@ -155,7 +156,7 @@
                             <td>${patient.conditions || 'None'}</td>
                             <td>${patient.allergies || 'None'}</td>
                             <td>
-                                <button class="btn-small" onclick="viewPatient(${patient.id})">View Details</button>
+                                <button class="btn-small" onclick="viewPatientDetails(${patient.id}, '${patient.name}')">View Details</button>
                             </td>
                         </tr>
                     `).join('');
@@ -167,10 +168,6 @@
                 document.getElementById('patientsTable').innerHTML =
                     '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #dc2626;">Error loading patients</td></tr>';
             }
-        }
-
-        function viewPatient(patientId) {
-            alert(`Viewing details for patient #${patientId}\n\nThis feature would show:\n- Complete medical history\n- Vital signs trends\n- Medications\n- Consultation history\n- AI risk predictions`);
         }
 
         window.addEventListener('load', loadPatients);

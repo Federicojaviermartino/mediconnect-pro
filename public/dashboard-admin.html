@@ -14,19 +14,19 @@
                 <span class="logo-text">MediConnect Pro</span>
             </div>
             <nav class="nav-menu">
-                <a href="#" class="nav-item active">
+                <a href="#" class="nav-item active" onclick="event.preventDefault(); showNotification('You are on the Dashboard', 'info')">
                     <span>📊</span> Dashboard
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Users')">
                     <span>👥</span> Users
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('System Settings')">
                     <span>⚙️</span> System Settings
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Audit Logs')">
                     <span>📝</span> Audit Logs
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Analytics')">
                     <span>📈</span> Analytics
                 </a>
             </nav>
@@ -159,16 +159,16 @@
                 <div class="section">
                     <h2>Quick Actions</h2>
                     <div class="actions-grid">
-                        <button class="action-btn" onclick="alert('This would open the user management interface')">
+                        <button class="action-btn" onclick="manageUsers()">
                             <span>👥</span> Manage Users
                         </button>
-                        <button class="action-btn" onclick="alert('This would open system settings')">
+                        <button class="action-btn" onclick="systemSettings()">
                             <span>⚙️</span> System Settings
                         </button>
-                        <button class="action-btn" onclick="alert('This would generate a system report')">
+                        <button class="action-btn" onclick="generateReport()">
                             <span>📊</span> Generate Report
                         </button>
-                        <button class="action-btn" onclick="alert('This would open audit logs')">
+                        <button class="action-btn" onclick="viewAuditLogs()">
                             <span>📝</span> View Audit Logs
                         </button>
                     </div>
@@ -178,6 +178,7 @@
     </div>
 
     <script src="/dashboard-scripts.js"></script>
+    <script src="/dashboard-interactive.js"></script>
     <script>
         async function loadStats() {
             try {
