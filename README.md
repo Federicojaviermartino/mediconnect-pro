@@ -9,16 +9,25 @@
 
 ## 🎭 Live Demo
 
-> **Try it now!** Experience the platform without installing anything.
+> **🎉 Try it now!** Experience the platform without installing anything.
 
-🔗 **[View Live Demo](DEMO.md)** | 📚 **[API Documentation](#)** (Coming Soon)
+🌐 **[https://mediconnect-pro.onrender.com](https://mediconnect-pro.onrender.com)** | 📚 **[View Demo Guide](DEMO.md)**
+
+**Quick Test:**
+```bash
+# Check service health
+curl https://mediconnect-pro.onrender.com/health
+
+# Get demo information
+curl https://mediconnect-pro.onrender.com/
+```
 
 **Demo Credentials:**
 - Doctor: `dr.smith@mediconnect.demo` / `Demo2024!Doctor`
 - Patient: `john.doe@mediconnect.demo` / `Demo2024!Patient`
 - Admin: `admin@mediconnect.demo` / `Demo2024!Admin`
 
-See [DEMO.md](DEMO.md) for complete demo guide and all credentials.
+See [DEMO.md](DEMO.md) for complete demo guide and all test scenarios.
 
 ---
 

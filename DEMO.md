@@ -4,15 +4,15 @@ Welcome to the MediConnect Pro live demonstration! This document contains everyt
 
 ## 🌐 Live Demo Links
 
-> **Note**: The live demo will be available once deployed to Railway. Check back soon!
+> **🎉 Live Now!** The demo is deployed and running on Render.
 
 ### Access Points
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| **Web Application** | 🔗 [Coming Soon](#) | Main application interface |
-| **API Documentation** | 📚 [Coming Soon](#) | Interactive API docs (Swagger) |
-| **API Gateway** | 🔌 [Coming Soon](#) | REST API endpoint |
+| **Web Application** | 🔗 [https://mediconnect-pro.onrender.com](https://mediconnect-pro.onrender.com) | Main application interface |
+| **API Documentation** | 📚 [https://mediconnect-pro.onrender.com/api-docs](https://mediconnect-pro.onrender.com/api-docs) | Interactive API docs |
+| **Health Check** | 🏥 [https://mediconnect-pro.onrender.com/health](https://mediconnect-pro.onrender.com/health) | Service health status |
 
 ## 👥 Demo Credentials
 
@@ -154,43 +154,24 @@ Password: Demo2024!Patient
 ### Using Postman/Insomnia
 
 1. **Import the API Collection** (coming soon)
-2. **Set the base URL**: `https://your-demo-url.railway.app`
-3. **Login to get token**:
+2. **Set the base URL**: `https://mediconnect-pro.onrender.com`
+3. **Test the health endpoint**:
 
 ```bash
-POST /api/auth/login
-Content-Type: application/json
-
-{
-  "email": "dr.smith@mediconnect.demo",
-  "password": "Demo2024!Doctor"
-}
-```
-
-4. **Use the returned token** in subsequent requests:
-
-```bash
-Authorization: Bearer <your-token-here>
+GET /health
 ```
 
 ### Using cURL
 
 ```bash
-# Login
-curl -X POST https://your-demo-url.railway.app/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "dr.smith@mediconnect.demo",
-    "password": "Demo2024!Doctor"
-  }'
+# Check service health
+curl https://mediconnect-pro.onrender.com/health
 
-# Get patients (replace TOKEN with actual token)
-curl https://your-demo-url.railway.app/api/patients \
-  -H "Authorization: Bearer TOKEN"
+# Get API information
+curl https://mediconnect-pro.onrender.com/
 
-# Get vitals for a patient
-curl https://your-demo-url.railway.app/api/vitals/patient/123 \
-  -H "Authorization: Bearer TOKEN"
+# Test API endpoint
+curl https://mediconnect-pro.onrender.com/api
 ```
 
 ## 📊 Demo Data
@@ -250,8 +231,8 @@ This is a fully functional telemedicine platform that can be:
 **Want to know more?**
 
 - 📖 Read the [Full Documentation](README.md)
-- 🚂 Learn about [Railway Deployment](RAILWAY-DEPLOY.md)
-- 🏗️ Check the [Architecture Guide](DEPLOYMENT.md)
+- 🎨 Learn about [Render Deployment](RENDER-DEPLOY.md)
+- 🏗️ Check the [Quick Start Guide](QUICKSTART.md)
 - 🤝 Review [Contributing Guidelines](CONTRIBUTING.md)
 
 ## 📈 Performance
@@ -273,9 +254,9 @@ The demo environment is configured with:
 
 ### Documentation
 - [Quick Start Guide](QUICKSTART.md)
-- [API Documentation](https://your-demo-url.railway.app/api-docs)
+- [Render Deployment Guide](RENDER-DEPLOY.md)
 - [Testing Guide](TESTING_GUIDE.md)
-- [Deployment Guide](DEPLOYMENT.md)
+- [Full Documentation](README.md)
 
 ---
 
