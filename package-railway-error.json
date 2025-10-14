@@ -1,0 +1,9 @@
+{
+  "name": "mediconnect-railway-redirect",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "echo 'Please configure Root Directory to services/api-gateway' && exit 1",
+    "start": "echo 'Please configure Root Directory to services/api-gateway' && exit 1"
+  },
+  "description": "This should not be used - configure Root Directory to services/api-gateway"
+}

@@ -1,0 +1,69 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "admin@mediconnect.demo",
+      "password": "$2a$10$sZdg4aiwZ8ughaEF.FTqFuIBTVveVBUTMQx7bbTr9TtzuLHpTZa/C",
+      "role": "admin",
+      "name": "Admin User",
+      "specialization": null,
+      "created_at": "2025-10-14T09:31:21.104Z"
+    },
+    {
+      "id": 2,
+      "email": "dr.smith@mediconnect.demo",
+      "password": "$2a$10$qjtb7DAxrNOQeULKajpOXe/MArmWI9kU3nF9SNrMU6vLCxC62g/tq",
+      "role": "doctor",
+      "name": "Dr. Sarah Smith",
+      "specialization": "General Practitioner",
+      "created_at": "2025-10-14T09:31:21.106Z"
+    },
+    {
+      "id": 3,
+      "email": "john.doe@mediconnect.demo",
+      "password": "$2a$10$GbzG8N/FxxXQOHWrTfNn6eHv.qrBIGbtYhHTkVcAFLl9xIXhu1Bx2",
+      "role": "patient",
+      "name": "John Doe",
+      "specialization": null,
+      "created_at": "2025-10-14T09:31:21.106Z"
+    }
+  ],
+  "patients": [
+    {
+      "id": 1,
+      "user_id": 3,
+      "blood_type": "A+",
+      "allergies": "Penicillin",
+      "conditions": "Hypertension"
+    }
+  ],
+  "vitalSigns": [
+    {
+      "id": 1,
+      "patient_id": 1,
+      "heart_rate": 72,
+      "blood_pressure": "120/80",
+      "temperature": 36.6,
+      "oxygen_saturation": 98,
+      "recorded_at": "2025-10-14T08:31:21.106Z"
+    },
+    {
+      "id": 2,
+      "patient_id": 1,
+      "heart_rate": 75,
+      "blood_pressure": "125/82",
+      "temperature": 36.7,
+      "oxygen_saturation": 97,
+      "recorded_at": "2025-10-14T07:31:21.106Z"
+    },
+    {
+      "id": 3,
+      "patient_id": 1,
+      "heart_rate": 68,
+      "blood_pressure": "118/78",
+      "temperature": 36.5,
+      "oxygen_saturation": 99,
+      "recorded_at": "2025-10-14T06:31:21.106Z"
+    }
+  ]
+}

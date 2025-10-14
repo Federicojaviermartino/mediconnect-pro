@@ -11,7 +11,7 @@ function setupAuthRoutes(app, db) {
     }
 
     try {
-      const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+      const user = db.getUserByEmail(email);
 
       if (!user) {
         return res.status(401).json({ error: 'Invalid credentials' });
