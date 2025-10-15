@@ -163,6 +163,14 @@ function initDatabase() {
       return db.users.find(u => u.email === email);
     },
 
+    getUserById: (userId) => {
+      return db.users.find(u => u.id === parseInt(userId));
+    },
+
+    getAllUsers: () => {
+      return db.users;
+    },
+
     getPatientByUserId: (userId) => {
       return db.patients.find(p => p.user_id === userId);
     },

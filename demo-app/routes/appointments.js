@@ -12,8 +12,8 @@ function setupAppointmentRoutes(app, db) {
 
       // Enrich with user names
       const enrichedAppointments = appointments.map(apt => {
-        const patient = db.users.find(u => u.id === apt.patient_id);
-        const doctor = db.users.find(u => u.id === apt.doctor_id);
+        const patient = db.getUserById(apt.patient_id);
+        const doctor = db.getUserById(apt.doctor_id);
         return {
           ...apt,
           patient_name: patient?.name || 'Unknown',

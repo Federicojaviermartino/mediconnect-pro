@@ -12,8 +12,8 @@ function setupPrescriptionRoutes(app, db) {
 
       // Enrich with user names
       const enrichedPrescriptions = prescriptions.map(presc => {
-        const patient = db.users.find(u => u.id === presc.patient_id);
-        const doctor = db.users.find(u => u.id === presc.doctor_id);
+        const patient = db.getUserById(presc.patient_id);
+        const doctor = db.getUserById(presc.doctor_id);
         return {
           ...presc,
           patient_name: patient?.name || 'Unknown',
