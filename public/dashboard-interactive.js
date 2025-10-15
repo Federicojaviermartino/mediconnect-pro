@@ -23,13 +23,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Navigation between pages
 function navigateTo(page) {
-    // Show notification
-    showNotification(`Navigating to ${page}...`, 'info');
+    // Close mobile menu if open
+    if (window.innerWidth <= 768) {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.querySelector('.mobile-overlay');
+        if (sidebar.classList.contains('mobile-active')) {
+            sidebar.classList.remove('mobile-active');
+            overlay.classList.remove('active');
+        }
+    }
 
-    // In a real app, this would navigate to the actual page
-    setTimeout(() => {
-        showNotification(`${page} page would load here in the full application`, 'info');
-    }, 500);
+    // Route to specific functions based on page
+    switch(page) {
+        case 'Patients':
+            viewAllPatients();
+            break;
+        case 'My Vitals':
+            viewMyVitals();
+            break;
+        case 'Appointments':
+            viewAppointments();
+            break;
+        case 'Medications':
+            viewMedications();
+            break;
+        case 'Medical Records':
+            viewMedicalRecords();
+            break;
+        case 'Prescriptions':
+            viewPrescriptions();
+            break;
+        case 'Analytics':
+            viewAnalytics();
+            break;
+        case 'Users':
+            manageUsers();
+            break;
+        case 'Reports':
+            viewReports();
+            break;
+        case 'Settings':
+            systemSettings();
+            break;
+        default:
+            showNotification(`${page} feature is being developed`, 'info');
+    }
 }
 
 // Show notifications
@@ -363,4 +401,295 @@ function exportVitals() {
     setTimeout(() => {
         showNotification('Data exported successfully! Download started.', 'success');
     }, 1500);
+}
+
+// View all patients (Doctor)
+async function viewAllPatients() {
+    try {
+        const response = await fetch('/api/patients');
+        const data = await response.json();
+
+        if (response.ok && data.patients) {
+            const modal = createModal('All Patients', `
+                <div class="table-container" style="max-height: 500px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Blood Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.patients.map(patient => `
+                                <tr>
+                                    <td><strong>${patient.name}</strong></td>
+                                    <td>${patient.email}</td>
+                                    <td><span class="badge">${patient.blood_type || 'N/A'}</span></td>
+                                    <td>
+                                        <button class="btn-small" onclick="viewPatientDetails(${patient.id}, '${patient.name}')">View</button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        } else {
+            throw new Error('Failed to load patients');
+        }
+    } catch (error) {
+        showNotification('Error loading patients', 'error');
+    }
+}
+
+// View appointments
+async function viewAppointments() {
+    try {
+        const response = await fetch('/api/appointments');
+        const data = await response.json();
+
+        if (response.ok && data.appointments) {
+            const modal = createModal('My Appointments', `
+                <div class="table-container" style="max-height: 500px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.appointments.length > 0 ? data.appointments.map(apt => `
+                                <tr>
+                                    <td>${apt.date}</td>
+                                    <td>${apt.time}</td>
+                                    <td>${apt.reason}</td>
+                                    <td><span class="badge">${apt.status}</span></td>
+                                </tr>
+                            `).join('') : '<tr><td colspan="4" style="text-align: center; padding: 40px;">No appointments found</td></tr>'}
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 20px;">
+                        <button onclick="this.closest('.modal-overlay').remove(); scheduleAppointment();" class="btn-primary-modal">Schedule New Appointment</button>
+                    </div>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+    } catch (error) {
+        showNotification('Error loading appointments', 'error');
+    }
+}
+
+// View prescriptions
+async function viewPrescriptions() {
+    try {
+        const response = await fetch('/api/prescriptions');
+        const data = await response.json();
+
+        if (response.ok && data.prescriptions) {
+            const modal = createModal('My Prescriptions', `
+                <div class="table-container" style="max-height: 500px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Medication</th>
+                                <th>Dosage</th>
+                                <th>Frequency</th>
+                                <th>Pharmacy</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.prescriptions.length > 0 ? data.prescriptions.map(presc => `
+                                <tr>
+                                    <td><strong>${presc.medication}</strong></td>
+                                    <td>${presc.dosage}</td>
+                                    <td>${presc.frequency}</td>
+                                    <td>${presc.pharmacy}</td>
+                                    <td><span class="badge">${presc.status}</span></td>
+                                </tr>
+                            `).join('') : '<tr><td colspan="5" style="text-align: center; padding: 40px;">No prescriptions found</td></tr>'}
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 20px;">
+                        <button onclick="this.closest('.modal-overlay').remove(); requestPrescription();" class="btn-primary-modal">Request Prescription</button>
+                    </div>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+    } catch (error) {
+        showNotification('Error loading prescriptions', 'error');
+    }
+}
+
+// View my vitals (Patient)
+function viewMyVitals() {
+    const modal = createModal('My Vital Signs', `
+        <div style="max-height: 500px; overflow-y: auto;">
+            <div class="stats-grid" style="margin-bottom: 20px;">
+                <div class="stat-card">
+                    <div class="stat-icon">❤️</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Heart Rate</div>
+                        <div class="stat-value">72 <span class="stat-unit">bpm</span></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🩺</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Blood Pressure</div>
+                        <div class="stat-value">120/80</div>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container">
+                <h3 style="margin-bottom: 12px;">Recent Readings</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Heart Rate</th>
+                            <th>BP</th>
+                            <th>Temp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Today</td>
+                            <td>72 bpm</td>
+                            <td>120/80</td>
+                            <td>36.6°C</td>
+                        </tr>
+                        <tr>
+                            <td>Yesterday</td>
+                            <td>75 bpm</td>
+                            <td>125/82</td>
+                            <td>36.7°C</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top: 20px;">
+                <button onclick="exportVitals()" class="btn-primary-modal">Export Data</button>
+            </div>
+        </div>
+    `);
+    document.body.appendChild(modal);
+}
+
+// View medications (Patient)
+function viewMedications() {
+    viewPrescriptions(); // Reuse prescriptions view
+}
+
+// View medical records (Patient)
+function viewMedicalRecords() {
+    const modal = createModal('Medical Records', `
+        <div style="max-height: 500px; overflow-y: auto;">
+            <div class="detail-grid" style="margin-bottom: 20px;">
+                <div class="detail-item">
+                    <strong>Blood Type:</strong> A+
+                </div>
+                <div class="detail-item">
+                    <strong>Allergies:</strong> Penicillin
+                </div>
+                <div class="detail-item">
+                    <strong>Conditions:</strong> Hypertension
+                </div>
+                <div class="detail-item">
+                    <strong>Last Checkup:</strong> 2 weeks ago
+                </div>
+            </div>
+            <h3 style="margin: 20px 0 12px;">Recent Visits</h3>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <span class="activity-icon">🏥</span>
+                    <div class="activity-content">
+                        <div class="activity-title">General Checkup</div>
+                        <div class="activity-time">2 weeks ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <span class="activity-icon">💉</span>
+                    <div class="activity-content">
+                        <div class="activity-title">Blood Test</div>
+                        <div class="activity-time">1 month ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `);
+    document.body.appendChild(modal);
+}
+
+// View analytics
+function viewAnalytics() {
+    const modal = createModal('Analytics Dashboard', `
+        <div style="max-height: 500px; overflow-y: auto;">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Total Users</div>
+                        <div class="stat-value">3</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Active Sessions</div>
+                        <div class="stat-value">1</div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 20px; padding: 40px; background: #f8fafc; border-radius: 8px; text-align: center;">
+                <p style="color: #64748b; margin-bottom: 16px;">📊 Advanced analytics charts and visualizations coming soon!</p>
+                <button onclick="generateReport()" class="btn-primary-modal">Generate Report</button>
+            </div>
+        </div>
+    `);
+    document.body.appendChild(modal);
+}
+
+// View reports (Admin)
+function viewReports() {
+    const modal = createModal('System Reports', `
+        <div style="max-height: 500px; overflow-y: auto;">
+            <div class="overview-card" style="margin-bottom: 16px;">
+                <h3>Available Reports</h3>
+                <div class="activity-list">
+                    <div class="activity-item" style="cursor: pointer;" onclick="generateReport()">
+                        <span class="activity-icon">📄</span>
+                        <div class="activity-content">
+                            <div class="activity-title">User Activity Report</div>
+                            <div class="activity-time">Generate comprehensive user activity</div>
+                        </div>
+                    </div>
+                    <div class="activity-item" style="cursor: pointer;" onclick="generateReport()">
+                        <span class="activity-icon">💊</span>
+                        <div class="activity-content">
+                            <div class="activity-title">Prescription Report</div>
+                            <div class="activity-time">View all prescriptions data</div>
+                        </div>
+                    </div>
+                    <div class="activity-item" style="cursor: pointer;" onclick="generateReport()">
+                        <span class="activity-icon">📅</span>
+                        <div class="activity-content">
+                            <div class="activity-title">Appointments Report</div>
+                            <div class="activity-time">Analyze appointment trends</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button onclick="viewAuditLogs()" class="btn-primary-modal">View Audit Logs</button>
+        </div>
+    `);
+    document.body.appendChild(modal);
 }
