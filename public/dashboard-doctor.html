@@ -20,6 +20,9 @@
                 <a href="#" class="nav-item active" onclick="event.preventDefault(); showNotification('You are on the Dashboard', 'info')">
                     <span>📊</span> Dashboard
                 </a>
+                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('AI Assistant')">
+                    <span>🤖</span> AI Assistant
+                </a>
                 <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Patients')">
                     <span>👥</span> Patients
                 </a>
@@ -136,6 +139,7 @@
 
     <script src="/dashboard-scripts.js"></script>
     <script src="/dashboard-interactive.js"></script>
+    <script src="/ai-assistant.js"></script>
     <script>
         async function loadPatients() {
             try {
