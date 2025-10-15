@@ -6,6 +6,8 @@ const path = require('path');
 const { initDatabase } = require('./demo-app/database/init');
 const { setupAuthRoutes } = require('./demo-app/routes/auth');
 const { setupApiRoutes } = require('./demo-app/routes/api');
+const { setupAppointmentRoutes } = require('./demo-app/routes/appointments');
+const { setupPrescriptionRoutes } = require('./demo-app/routes/prescriptions');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -51,6 +53,8 @@ app.get('/health', (req, res) => {
 // Setup routes
 setupAuthRoutes(app, db);
 setupApiRoutes(app, db);
+setupAppointmentRoutes(app, db);
+setupPrescriptionRoutes(app, db);
 
 // API info endpoint
 app.get('/api/info', (req, res) => {

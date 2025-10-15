@@ -9,7 +9,10 @@ const DB_FILE = path.join(__dirname, 'database.json');
 let db = {
   users: [],
   patients: [],
-  vitalSigns: []
+  vitalSigns: [],
+  appointments: [],
+  prescriptions: [],
+  messages: []
 };
 
 function loadDatabase() {
@@ -117,6 +120,37 @@ function seedDatabase() {
     }
   ];
 
+  // Create sample appointments
+  db.appointments = [
+    {
+      id: 1,
+      patient_id: 3,
+      doctor_id: 2,
+      date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+      time: '10:00',
+      reason: 'Regular checkup',
+      status: 'scheduled',
+      created_at: new Date().toISOString()
+    }
+  ];
+
+  // Create sample prescriptions
+  db.prescriptions = [
+    {
+      id: 1,
+      patient_id: 3,
+      doctor_id: 2,
+      medication: 'Lisinopril',
+      dosage: '10mg',
+      frequency: 'Once daily',
+      pharmacy: 'Main Street Pharmacy',
+      status: 'active',
+      created_at: new Date(Date.now() - 86400000).toISOString()
+    }
+  ];
+
+  db.messages = [];
+
   saveDatabase();
   console.log('✅ Demo users seeded successfully!');
 }
@@ -180,6 +214,69 @@ function initDatabase() {
         totalDoctors: db.users.filter(u => u.role === 'doctor').length,
         totalVitals: db.vitalSigns.length
       };
+    },
+
+    // Appointments
+    getAppointments: (userId, role) => {
+      if (role === 'patient') {
+        return db.appointments.filter(a => a.patient_id === userId);
+      } else if (role === 'doctor') {
+        return db.appointments.filter(a => a.doctor_id === userId);
+      }
+      return db.appointments;
+    },
+
+    createAppointment: (appointmentData) => {
+      const newId = db.appointments.length > 0 ? Math.max(...db.appointments.map(a => a.id)) + 1 : 1;
+      const appointment = {
+        id: newId,
+        ...appointmentData,
+        status: 'scheduled',
+        created_at: new Date().toISOString()
+      };
+      db.appointments.push(appointment);
+      saveDatabase();
+      return appointment;
+    },
+
+    // Prescriptions
+    getPrescriptions: (userId, role) => {
+      if (role === 'patient') {
+        return db.prescriptions.filter(p => p.patient_id === userId);
+      } else if (role === 'doctor') {
+        return db.prescriptions.filter(p => p.doctor_id === userId);
+      }
+      return db.prescriptions;
+    },
+
+    createPrescription: (prescriptionData) => {
+      const newId = db.prescriptions.length > 0 ? Math.max(...db.prescriptions.map(p => p.id)) + 1 : 1;
+      const prescription = {
+        id: newId,
+        ...prescriptionData,
+        status: 'pending',
+        created_at: new Date().toISOString()
+      };
+      db.prescriptions.push(prescription);
+      saveDatabase();
+      return prescription;
+    },
+
+    // Messages
+    getMessages: (userId) => {
+      return db.messages.filter(m => m.to_user_id === userId || m.from_user_id === userId);
+    },
+
+    createMessage: (messageData) => {
+      const newId = db.messages.length > 0 ? Math.max(...db.messages.map(m => m.id)) + 1 : 1;
+      const message = {
+        id: newId,
+        ...messageData,
+        created_at: new Date().toISOString()
+      };
+      db.messages.push(message);
+      saveDatabase();
+      return message;
     }
   };
 }

@@ -99,22 +99,22 @@ function scheduleAppointment() {
         <div class="appointment-form">
             <div class="form-group">
                 <label>Select Date</label>
-                <input type="date" class="form-input" min="${new Date().toISOString().split('T')[0]}">
+                <input type="date" id="apt-date" class="form-input" min="${new Date().toISOString().split('T')[0]}">
             </div>
             <div class="form-group">
                 <label>Select Time</label>
-                <select class="form-input">
-                    <option>09:00 AM</option>
-                    <option>10:00 AM</option>
-                    <option>11:00 AM</option>
-                    <option>02:00 PM</option>
-                    <option>03:00 PM</option>
-                    <option>04:00 PM</option>
+                <select id="apt-time" class="form-input">
+                    <option>09:00</option>
+                    <option>10:00</option>
+                    <option>11:00</option>
+                    <option>14:00</option>
+                    <option>15:00</option>
+                    <option>16:00</option>
                 </select>
             </div>
             <div class="form-group">
                 <label>Reason for Visit</label>
-                <textarea class="form-input" rows="3" placeholder="Brief description..."></textarea>
+                <textarea id="apt-reason" class="form-input" rows="3" placeholder="Brief description..."></textarea>
             </div>
             <button onclick="confirmAppointment()" class="btn-primary-modal">Confirm Appointment</button>
         </div>
@@ -122,9 +122,35 @@ function scheduleAppointment() {
     document.body.appendChild(modal);
 }
 
-function confirmAppointment() {
-    showNotification('Appointment scheduled successfully!', 'success');
-    document.querySelector('.modal-overlay').remove();
+async function confirmAppointment() {
+    const date = document.getElementById('apt-date').value;
+    const time = document.getElementById('apt-time').value;
+    const reason = document.getElementById('apt-reason').value;
+
+    if (!date || !time || !reason) {
+        showNotification('Please fill all fields', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/appointments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date, time, reason })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            showNotification('Appointment scheduled successfully!', 'success');
+            document.querySelector('.modal-overlay').remove();
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification(data.error || 'Failed to schedule appointment', 'error');
+        }
+    } catch (error) {
+        showNotification('Network error. Please try again.', 'error');
+    }
 }
 
 // Request prescription
@@ -133,11 +159,15 @@ function requestPrescription() {
         <div class="prescription-form">
             <div class="form-group">
                 <label>Medication Name</label>
-                <input type="text" class="form-input" placeholder="Enter medication name">
+                <input type="text" id="presc-medication" class="form-input" placeholder="Enter medication name">
+            </div>
+            <div class="form-group">
+                <label>Dosage (optional)</label>
+                <input type="text" id="presc-dosage" class="form-input" placeholder="e.g., 10mg">
             </div>
             <div class="form-group">
                 <label>Pharmacy</label>
-                <select class="form-input">
+                <select id="presc-pharmacy" class="form-input">
                     <option>Main Street Pharmacy</option>
                     <option>HealthPlus Pharmacy</option>
                     <option>MediCare Pharmacy</option>
@@ -145,7 +175,7 @@ function requestPrescription() {
             </div>
             <div class="form-group">
                 <label>Additional Notes</label>
-                <textarea class="form-input" rows="2" placeholder="Any special instructions..."></textarea>
+                <textarea id="presc-notes" class="form-input" rows="2" placeholder="Any special instructions..."></textarea>
             </div>
             <button onclick="confirmPrescription()" class="btn-primary-modal">Submit Request</button>
         </div>
@@ -153,9 +183,36 @@ function requestPrescription() {
     document.body.appendChild(modal);
 }
 
-function confirmPrescription() {
-    showNotification('Prescription request submitted!', 'success');
-    document.querySelector('.modal-overlay').remove();
+async function confirmPrescription() {
+    const medication = document.getElementById('presc-medication').value;
+    const dosage = document.getElementById('presc-dosage').value;
+    const pharmacy = document.getElementById('presc-pharmacy').value;
+    const notes = document.getElementById('presc-notes').value;
+
+    if (!medication || !pharmacy) {
+        showNotification('Please fill required fields', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/prescriptions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ medication, dosage, pharmacy, notes })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            showNotification('Prescription request submitted!', 'success');
+            document.querySelector('.modal-overlay').remove();
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification(data.error || 'Failed to submit prescription', 'error');
+        }
+    } catch (error) {
+        showNotification('Network error. Please try again.', 'error');
+    }
 }
 
 // Manage users (admin)
