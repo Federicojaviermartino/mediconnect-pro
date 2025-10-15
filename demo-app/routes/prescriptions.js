@@ -5,8 +5,16 @@ function setupPrescriptionRoutes(app, db) {
   // Get prescriptions
   app.get('/api/prescriptions', requireAuth, (req, res) => {
     try {
+      // Validate session and user data
+      if (!req.session || !req.session.user || !req.session.user.id) {
+        console.error('Invalid session in prescriptions GET:', req.session);
+        return res.status(401).json({ error: 'Invalid session. Please login again.' });
+      }
+
       const userId = req.session.user.id;
       const role = req.session.user.role;
+
+      console.log(`Fetching prescriptions for user ${userId} (${role})`);
 
       const prescriptions = db.getPrescriptions(userId, role);
 
@@ -21,16 +29,24 @@ function setupPrescriptionRoutes(app, db) {
         };
       });
 
+      console.log(`Found ${enrichedPrescriptions.length} prescriptions`);
       res.json({ prescriptions: enrichedPrescriptions });
     } catch (error) {
       console.error('Get prescriptions error:', error);
-      res.status(500).json({ error: 'Failed to fetch prescriptions' });
+      console.error('Error stack:', error.stack);
+      res.status(500).json({ error: 'Failed to fetch prescriptions', details: error.message });
     }
   });
 
   // Create prescription request
   app.post('/api/prescriptions', requireAuth, (req, res) => {
     try {
+      // Validate session and user data
+      if (!req.session || !req.session.user || !req.session.user.id) {
+        console.error('Invalid session in prescriptions POST:', req.session);
+        return res.status(401).json({ error: 'Invalid session. Please login again.' });
+      }
+
       const { medication, dosage, pharmacy, notes } = req.body;
       const userId = req.session.user.id;
 
@@ -49,10 +65,12 @@ function setupPrescriptionRoutes(app, db) {
       };
 
       const prescription = db.createPrescription(prescriptionData);
+      console.log(`Created prescription ${prescription.id} for user ${userId}`);
       res.json({ success: true, prescription });
     } catch (error) {
       console.error('Create prescription error:', error);
-      res.status(500).json({ error: 'Failed to create prescription request' });
+      console.error('Error stack:', error.stack);
+      res.status(500).json({ error: 'Failed to create prescription request', details: error.message });
     }
   });
 }
