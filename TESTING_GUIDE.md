@@ -1,457 +1,846 @@
-# 🧪 Guía de Pruebas - MediConnect Pro Auth Service
+# MediConnect Pro - Manual Testing Guide
 
-## 📋 Pre-requisitos
+This guide provides comprehensive manual testing procedures for MediConnect Pro, covering all features, user workflows, and edge cases.
 
-1. ✅ Dependencias instaladas (`npm install`) - **COMPLETADO**
-2. ⏳ Docker Desktop iniciado y corriendo
-3. ⏳ Contenedores Docker levantados
-4. ⏳ Base de datos creada
-5. ⏳ Auth Service corriendo
+## Table of Contents
 
----
-
-## 🚀 Pasos para Probar
-
-### 1️⃣ Iniciar Docker Desktop
-
-**Windows**: Busca "Docker Desktop" en el menú inicio y ejecútalo.
-
-Espera hasta que veas el ícono de Docker en la bandeja del sistema y diga "Docker Desktop is running".
-
-Verifica que Docker está corriendo:
-```bash
-docker ps
-```
+1. [Testing Prerequisites](#testing-prerequisites)
+2. [Test Accounts](#test-accounts)
+3. [Frontend Testing](#frontend-testing)
+4. [User Workflow Testing](#user-workflow-testing)
+5. [Cross-Browser Testing](#cross-browser-testing)
+6. [Performance Testing](#performance-testing)
+7. [Security Testing](#security-testing)
+8. [Accessibility Testing](#accessibility-testing)
+9. [Issue Reporting Template](#issue-reporting-template)
 
 ---
 
-### 2️⃣ Levantar Contenedores
+## Testing Prerequisites
 
-```bash
-# Desde la raíz del proyecto
-cd "c:\Users\feder\OneDrive\Escritorio\Federico 2025\Freelance_projects\mediconnect-pro"
+### Required Tools
+- [ ] Web browser (Chrome, Firefox, Safari, or Edge)
+- [ ] Browser DevTools open (F12)
+- [ ] Network throttling available (for performance testing)
+- [ ] Screenshot tool for documenting issues
 
-# Levantar todos los contenedores
-npm run docker:up
+### Test Environments
+- **Local**: `http://localhost:3000`
+- **Production**: `https://mediconnect-pro.onrender.com`
 
-# O directamente con docker-compose
-docker-compose -f infrastructure/docker/docker-compose.yml up -d
-```
-
-**Contenedores que se levantarán**:
-- ✅ PostgreSQL (puerto 5432)
-- ✅ TimescaleDB (puerto 5433)
-- ✅ MongoDB (puerto 27017)
-- ✅ Redis (puerto 6379)
-- ✅ Kafka + Zookeeper (puertos 9092, 9093)
-- ✅ Mosquitto MQTT (puertos 1883, 9001)
-- ✅ Mailhog (puertos 1025, 8025)
-- ✅ Kafka UI (puerto 8080)
-- ✅ pgAdmin (puerto 5050)
-- ✅ Mongo Express (puerto 8081)
-
-**Verificar que todos están UP**:
-```bash
-docker ps
-```
-
-Deberías ver ~11 contenedores corriendo.
+### Before Each Test Session
+1. [ ] Clear browser cache and cookies
+2. [ ] Open DevTools Console tab
+3. [ ] Open DevTools Network tab
+4. [ ] Note any console errors/warnings
+5. [ ] Check network requests for failures
 
 ---
 
-### 3️⃣ Crear Base de Datos
+## Test Accounts
 
-```bash
-# Conectarse a PostgreSQL
-docker exec -it mediconnect-postgres psql -U mediconnect_admin -d mediconnect_db
+### Admin Account
+- **Email**: `admin@mediconnect.demo`
+- **Password**: `Demo2024!Admin`
+- **Access**: Full system access, statistics, all patients
 
-# Dentro de psql, ejecutar:
-CREATE DATABASE mediconnect_auth;
+### Doctor Account
+- **Email**: `dr.smith@mediconnect.demo`
+- **Password**: `Demo2024!Doctor`
+- **Access**: Patient records, appointments, prescriptions, AI tools
 
-# Verificar que se creó:
-\l
+### Patient Account
+- **Email**: `john.doe@mediconnect.demo`
+- **Password**: `Demo2024!Patient`
+- **Access**: Own records, vitals, appointments, prescriptions, AI assistant
 
-# Salir:
-\q
+---
+
+## Frontend Testing
+
+### Login Page Tests
+
+#### Test 1.1: Successful Login
+- [ ] Navigate to `/login.html`
+- [ ] Enter valid credentials (doctor account)
+- [ ] Click "Sign In"
+- [ ] **Expected**: Redirect to appropriate dashboard
+- [ ] **Check**: No console errors
+- [ ] **Check**: Session cookie set
+
+#### Test 1.2: Failed Login - Invalid Credentials
+- [ ] Navigate to `/login.html`
+- [ ] Enter invalid email/password
+- [ ] Click "Sign In"
+- [ ] **Expected**: Error message displayed
+- [ ] **Check**: User remains on login page
+- [ ] **Check**: No console errors
+
+#### Test 1.3: Failed Login - Empty Fields
+- [ ] Navigate to `/login.html`
+- [ ] Leave email/password empty
+- [ ] Click "Sign In"
+- [ ] **Expected**: HTML5 validation error or custom error
+- [ ] **Check**: Form does not submit
+
+#### Test 1.4: UI/UX Elements
+- [ ] Logo displays correctly
+- [ ] Form fields are properly aligned
+- [ ] Password field masks input
+- [ ] "Remember me" checkbox works
+- [ ] Responsive on mobile (if applicable)
+
+---
+
+### Dashboard Tests - Common Elements
+
+#### Test 2.1: Navigation Bar
+- [ ] Logo/branding visible
+- [ ] User name displayed
+- [ ] Role badge visible (Patient/Doctor/Admin)
+- [ ] Logout button present
+- [ ] All navigation links functional
+
+#### Test 2.2: Sidebar Navigation
+- [ ] All menu items visible
+- [ ] Active page highlighted
+- [ ] Icons display correctly
+- [ ] Mobile menu toggle works (if applicable)
+
+#### Test 2.3: Page Load
+- [ ] Dashboard loads within 3 seconds
+- [ ] No JavaScript errors in console
+- [ ] All images/icons load
+- [ ] Loading states display correctly
+
+---
+
+### Patient Dashboard Tests
+
+#### Test 3.1: Dashboard Overview
+- [ ] Navigate to patient dashboard
+- [ ] **Check**: Vital signs widget displays
+- [ ] **Check**: Upcoming appointments visible
+- [ ] **Check**: Recent prescriptions visible
+- [ ] **Check**: Quick action buttons present
+
+#### Test 3.2: Vital Signs Display
+- [ ] Vital signs chart renders
+- [ ] Latest readings displayed
+- [ ] Units shown correctly (bpm, mmHg, �C, %)
+- [ ] Historical data visible
+- [ ] Refresh button works
+- [ ] **Expected**: Heart rate, blood pressure, temperature, oxygen saturation
+
+#### Test 3.3: Appointments Section
+- [ ] Appointments list displays
+- [ ] Date/time formatted correctly
+- [ ] Doctor name shown
+- [ ] Status indicator visible
+- [ ] "Book Appointment" button works
+- [ ] Empty state displays if no appointments
+
+#### Test 3.4: Prescriptions Section
+- [ ] Prescriptions list displays
+- [ ] Medication names visible
+- [ ] Dosage and frequency shown
+- [ ] Pharmacy information present
+- [ ] Status indicator (active/pending)
+- [ ] "Request Prescription" button works
+
+#### Test 3.5: AI Assistant Access
+- [ ] AI Assistant button visible
+- [ ] Click button opens modal
+- [ ] Form fields present
+- [ ] Submit button functional
+- [ ] Close button works
+
+---
+
+### Doctor Dashboard Tests
+
+#### Test 4.1: Dashboard Overview
+- [ ] Navigate to doctor dashboard
+- [ ] **Check**: Patient list displays
+- [ ] **Check**: Today's appointments visible
+- [ ] **Check**: Recent prescriptions visible
+- [ ] **Check**: Statistics/metrics shown
+
+#### Test 4.2: Patients List
+- [ ] All patients displayed
+- [ ] Patient names visible
+- [ ] Medical information shown (conditions, allergies)
+- [ ] Search/filter functionality works
+- [ ] Click patient opens details
+
+#### Test 4.3: Patient Details View
+- [ ] Patient information complete
+- [ ] Vitals history displays
+- [ ] Chart/graph renders correctly
+- [ ] Medical history visible
+- [ ] Action buttons present (prescribe, schedule)
+
+#### Test 4.4: Appointments Management
+- [ ] Today's appointments highlighted
+- [ ] Upcoming appointments listed
+- [ ] Past appointments accessible
+- [ ] Schedule new appointment works
+- [ ] Appointment details complete
+
+#### Test 4.5: Prescription Management
+- [ ] Create prescription form works
+- [ ] All fields available (medication, dosage, frequency, pharmacy)
+- [ ] Form validation works
+- [ ] Submission successful
+- [ ] Prescription appears in list
+
+#### Test 4.6: AI Tools Access
+- [ ] AI Assistant available
+- [ ] Transcription tool accessible
+- [ ] Note generation works
+- [ ] Report generation functions
+- [ ] Triage assessment available
+
+---
+
+### Admin Dashboard Tests
+
+#### Test 5.1: Dashboard Overview
+- [ ] Navigate to admin dashboard
+- [ ] **Check**: System statistics displayed
+- [ ] **Check**: User metrics visible
+- [ ] **Check**: Activity charts render
+- [ ] **Check**: All KPIs present
+
+#### Test 5.2: Statistics Display
+- [ ] Total users count
+- [ ] Total patients count
+- [ ] Total doctors count
+- [ ] Total appointments count
+- [ ] System health status
+- [ ] Database status
+
+#### Test 5.3: User Management
+- [ ] User list displays
+- [ ] Filter by role works
+- [ ] User details accessible
+- [ ] Search functionality works
+
+#### Test 5.4: System Monitoring
+- [ ] Health check status
+- [ ] API status indicators
+- [ ] AI services status
+- [ ] Database connection status
+
+---
+
+### AI Assistant Feature Tests
+
+#### Test 6.1: Opening AI Assistant
+- [ ] Click "AI Assistant" button
+- [ ] **Expected**: Modal opens smoothly
+- [ ] **Check**: Form visible
+- [ ] **Check**: Close button works
+- [ ] **Check**: Background overlay present
+
+#### Test 6.2: Symptom Triage
+- [ ] Enter symptoms in textarea
+- [ ] Example: "headache, fever, and sore throat for 2 days"
+- [ ] Click "Analyze Symptoms"
+- [ ] **Expected**: Loading indicator appears
+- [ ] **Expected**: Results display within 10 seconds
+- [ ] **Check**: Urgency level shown
+- [ ] **Check**: Recommendations provided
+- [ ] **Check**: Differential diagnosis listed
+
+#### Test 6.3: AI Assistant - Edge Cases
+- [ ] Submit empty form
+- [ ] **Expected**: Validation error
+- [ ] Submit very long text (>1000 characters)
+- [ ] **Expected**: Handles gracefully
+- [ ] Submit special characters
+- [ ] **Expected**: No errors
+
+#### Test 6.4: AI Assistant - Demo Mode
+- [ ] Test when API keys not configured
+- [ ] **Expected**: Demo mode message
+- [ ] **Expected**: Mock results displayed
+- [ ] **Expected**: No real API calls
+
+---
+
+### Vitals Monitoring Tests
+
+#### Test 7.1: Real-Time Vitals Display
+- [ ] Navigate to vitals monitoring section
+- [ ] **Expected**: Live data displays
+- [ ] **Check**: Auto-refresh works (every 5-10 seconds)
+- [ ] **Check**: Charts update smoothly
+- [ ] **Check**: No flickering
+
+#### Test 7.2: Vitals Chart Rendering
+- [ ] Heart rate chart displays
+- [ ] Blood pressure chart displays
+- [ ] Temperature chart displays
+- [ ] Oxygen saturation chart displays
+- [ ] **Check**: X-axis (time) labeled correctly
+- [ ] **Check**: Y-axis (values) labeled correctly
+- [ ] **Check**: Legends visible
+
+#### Test 7.3: Anomaly Detection
+- [ ] Check for alert indicators
+- [ ] High values highlighted in red
+- [ ] Low values highlighted in yellow
+- [ ] Normal values in green
+- [ ] Alert messages display
+
+#### Test 7.4: Historical Data
+- [ ] Select date range
+- [ ] **Expected**: Data filters correctly
+- [ ] **Check**: Charts update
+- [ ] **Check**: Statistics recalculate
+- [ ] Export functionality works (if available)
+
+---
+
+## User Workflow Testing
+
+### Workflow 1: Patient Books Appointment
+
+**Scenario**: Patient John Doe wants to book a checkup with Dr. Smith
+
+1. [ ] Login as patient
+2. [ ] Navigate to "Appointments" section
+3. [ ] Click "Book Appointment"
+4. [ ] **Check**: Form opens
+5. [ ] Select doctor (Dr. Smith)
+6. [ ] Select date (tomorrow or later)
+7. [ ] Select time slot
+8. [ ] Enter reason: "Annual checkup"
+9. [ ] Click "Submit"
+10. [ ] **Expected**: Success message
+11. [ ] **Expected**: Appointment appears in list
+12. [ ] **Check**: Status is "scheduled"
+13. [ ] Logout
+14. [ ] Login as doctor
+15. [ ] **Check**: Appointment visible in doctor's dashboard
+
+**Pass/Fail**: ___________
+
+**Notes**: _______________________________
+
+---
+
+### Workflow 2: Doctor Prescribes Medication
+
+**Scenario**: Dr. Smith prescribes medication for patient John Doe
+
+1. [ ] Login as doctor
+2. [ ] Navigate to "Patients" section
+3. [ ] Find and click on "John Doe"
+4. [ ] **Check**: Patient details display
+5. [ ] Click "Prescribe Medication"
+6. [ ] **Check**: Form opens
+7. [ ] Enter medication: "Amoxicillin"
+8. [ ] Enter dosage: "500mg"
+9. [ ] Enter frequency: "Three times daily"
+10. [ ] Enter pharmacy: "Main Street Pharmacy"
+11. [ ] Click "Submit"
+12. [ ] **Expected**: Success message
+13. [ ] **Expected**: Prescription appears in list
+14. [ ] Logout
+15. [ ] Login as patient
+16. [ ] Navigate to "Prescriptions"
+17. [ ] **Check**: New prescription visible
+18. [ ] **Check**: Status is "pending" or "active"
+
+**Pass/Fail**: ___________
+
+**Notes**: _______________________________
+
+---
+
+### Workflow 3: Patient Uses AI Assistant
+
+**Scenario**: Patient uses AI triage for symptoms
+
+1. [ ] Login as patient
+2. [ ] Click "AI Assistant" button
+3. [ ] **Check**: Modal opens
+4. [ ] Enter symptoms: "persistent cough, mild fever, fatigue for 3 days"
+5. [ ] Click "Analyze Symptoms"
+6. [ ] **Expected**: Loading indicator
+7. [ ] **Expected**: Results within 10 seconds
+8. [ ] **Check**: Urgency level displayed (Low/Medium/High)
+9. [ ] **Check**: Possible conditions listed
+10. [ ] **Check**: Recommendations provided
+11. [ ] **Check**: "Seek immediate care" flag if appropriate
+12. [ ] Click "Close" or "Book Appointment"
+13. [ ] **Check**: Modal closes properly
+
+**Pass/Fail**: ___________
+
+**Notes**: _______________________________
+
+---
+
+### Workflow 4: Admin Views Statistics
+
+**Scenario**: Admin checks system health and user statistics
+
+1. [ ] Login as admin
+2. [ ] Navigate to admin dashboard
+3. [ ] **Check**: Total users count displays
+4. [ ] **Check**: Patient count displays
+5. [ ] **Check**: Doctor count displays
+6. [ ] **Check**: Appointment statistics visible
+7. [ ] **Check**: System health indicator shows "healthy"
+8. [ ] Navigate to "Users" section (if available)
+9. [ ] **Check**: All users listed
+10. [ ] Filter by role: "doctor"
+11. [ ] **Expected**: Only doctors shown
+12. [ ] **Check**: Export functionality (if available)
+
+**Pass/Fail**: ___________
+
+**Notes**: _______________________________
+
+---
+
+### Workflow 5: Doctor Monitors Patient Vitals
+
+**Scenario**: Dr. Smith checks real-time vitals for a patient
+
+1. [ ] Login as doctor
+2. [ ] Navigate to "Patients" section
+3. [ ] Select patient "John Doe"
+4. [ ] Navigate to "Vitals" tab
+5. [ ] **Check**: Latest vitals display
+6. [ ] **Check**: Charts render correctly
+7. [ ] **Check**: Auto-refresh works
+8. [ ] Look for any alerts/warnings
+9. [ ] **Check**: Historical data available
+10. [ ] Select date range filter
+11. [ ] **Expected**: Chart updates
+12. [ ] Hover over data points
+13. [ ] **Expected**: Tooltip shows exact values
+
+**Pass/Fail**: ___________
+
+**Notes**: _______________________________
+
+---
+
+## Cross-Browser Testing
+
+Test the application on multiple browsers and document results:
+
+### Desktop Browsers
+
+#### Google Chrome (Latest)
+- [ ] Login page loads correctly
+- [ ] Dashboards display properly
+- [ ] Charts/graphs render
+- [ ] Forms submit successfully
+- [ ] AI Assistant works
+- [ ] No console errors
+- [ ] Performance acceptable
+
+**Issues Found**: _______________________________
+
+---
+
+#### Mozilla Firefox (Latest)
+- [ ] Login page loads correctly
+- [ ] Dashboards display properly
+- [ ] Charts/graphs render
+- [ ] Forms submit successfully
+- [ ] AI Assistant works
+- [ ] No console errors
+- [ ] Performance acceptable
+
+**Issues Found**: _______________________________
+
+---
+
+#### Microsoft Edge (Latest)
+- [ ] Login page loads correctly
+- [ ] Dashboards display properly
+- [ ] Charts/graphs render
+- [ ] Forms submit successfully
+- [ ] AI Assistant works
+- [ ] No console errors
+- [ ] Performance acceptable
+
+**Issues Found**: _______________________________
+
+---
+
+#### Safari (Latest - macOS)
+- [ ] Login page loads correctly
+- [ ] Dashboards display properly
+- [ ] Charts/graphs render
+- [ ] Forms submit successfully
+- [ ] AI Assistant works
+- [ ] No console errors
+- [ ] Performance acceptable
+
+**Issues Found**: _______________________________
+
+---
+
+### Mobile Browsers
+
+#### Mobile Chrome (Android)
+- [ ] Responsive layout works
+- [ ] Touch interactions smooth
+- [ ] Forms usable on mobile
+- [ ] Navigation accessible
+- [ ] Performance acceptable
+
+**Issues Found**: _______________________________
+
+---
+
+#### Mobile Safari (iOS)
+- [ ] Responsive layout works
+- [ ] Touch interactions smooth
+- [ ] Forms usable on mobile
+- [ ] Navigation accessible
+- [ ] Performance acceptable
+
+**Issues Found**: _______________________________
+
+---
+
+## Performance Testing
+
+### Page Load Time Tests
+
+#### Test Environment: Fast 3G (Throttled)
+1. [ ] Open DevTools
+2. [ ] Go to Network tab
+3. [ ] Enable throttling: "Fast 3G"
+4. [ ] Clear cache
+5. [ ] Navigate to login page
+6. [ ] **Measure**: Time to interactive
+7. [ ] **Expected**: < 5 seconds
+8. [ ] Login and measure dashboard load
+9. [ ] **Expected**: < 3 seconds
+
+**Results**:
+- Login page: _______ seconds
+- Dashboard: _______ seconds
+
+---
+
+#### Test Environment: Regular 4G (Throttled)
+1. [ ] Enable throttling: "Regular 4G"
+2. [ ] Repeat above steps
+3. [ ] **Expected**: < 3 seconds for all pages
+
+**Results**:
+- Login page: _______ seconds
+- Dashboard: _______ seconds
+
+---
+
+### API Response Time Tests
+
+1. [ ] Open Network tab
+2. [ ] Login as doctor
+3. [ ] Navigate to patients list
+4. [ ] **Measure**: `/api/patients` response time
+5. [ ] **Expected**: < 500ms
+6. [ ] Navigate to appointments
+7. [ ] **Measure**: `/api/appointments` response time
+8. [ ] **Expected**: < 500ms
+
+**Results**:
+- `/api/patients`: _______ ms
+- `/api/appointments`: _______ ms
+- `/api/vitals`: _______ ms
+- `/api/ai/status`: _______ ms
+
+---
+
+### Resource Loading Tests
+
+1. [ ] Check total page size
+2. [ ] **Expected**: < 2MB for dashboard
+3. [ ] Count HTTP requests
+4. [ ] **Expected**: < 50 requests
+5. [ ] Check for unused resources
+6. [ ] Check for duplicate requests
+
+**Results**:
+- Total page size: _______ MB
+- Total requests: _______
+- Unused resources: _______
+
+---
+
+### Memory Leak Tests
+
+1. [ ] Open Performance tab
+2. [ ] Take heap snapshot
+3. [ ] Perform actions (navigate, open modals, etc.)
+4. [ ] Take another heap snapshot
+5. [ ] Compare snapshots
+6. [ ] **Check**: Memory usage doesn't grow excessively
+
+**Results**: Pass / Fail
+
+**Notes**: _______________________________
+
+---
+
+## Security Testing
+
+### Authentication Tests
+
+#### Test S1: Session Persistence
+- [ ] Login successfully
+- [ ] Note session cookie
+- [ ] Close browser
+- [ ] Reopen browser
+- [ ] Navigate to dashboard
+- [ ] **Expected**: Session persists (or requires re-login depending on settings)
+
+#### Test S2: Logout Security
+- [ ] Login successfully
+- [ ] Copy current URL
+- [ ] Logout
+- [ ] Paste URL in new tab
+- [ ] **Expected**: Redirect to login page
+- [ ] Try accessing `/api/patients` directly
+- [ ] **Expected**: 401 Unauthorized
+
+#### Test S3: Session Timeout
+- [ ] Login successfully
+- [ ] Wait for session timeout (24 hours or configured time)
+- [ ] Attempt to access protected resource
+- [ ] **Expected**: Session expired, redirect to login
+
+#### Test S4: Multiple Sessions
+- [ ] Login in Browser A
+- [ ] Login in Browser B with same account
+- [ ] Perform action in Browser A
+- [ ] Perform action in Browser B
+- [ ] **Check**: No conflicts or errors
+
+---
+
+### Authorization Tests
+
+#### Test S5: Role-Based Access Control
+- [ ] Login as patient
+- [ ] Try accessing `/api/stats` (admin only)
+- [ ] **Expected**: 403 Forbidden
+- [ ] Try accessing `/api/patients` (doctor/admin only)
+- [ ] **Expected**: 403 Forbidden
+
+#### Test S6: Data Isolation
+- [ ] Login as patient A
+- [ ] Try accessing patient B's data via API
+- [ ] **Expected**: 403 Forbidden or 404 Not Found
+- [ ] Verify patient can only see own data
+
+---
+
+### Input Validation Tests
+
+#### Test S7: XSS Prevention
+- [ ] Login as patient
+- [ ] Try entering `<script>alert('XSS')</script>` in symptom field
+- [ ] **Expected**: Escaped or sanitized, no alert appears
+
+#### Test S8: SQL Injection (if applicable)
+- [ ] Try entering `' OR '1'='1` in email field
+- [ ] **Expected**: Treated as literal string, no SQL execution
+
+#### Test S9: CSRF Protection
+- [ ] Check if forms have CSRF tokens (if implemented)
+- [ ] Verify POST requests include proper headers
+
+---
+
+### Data Security Tests
+
+#### Test S10: Password Security
+- [ ] Inspect network traffic during login
+- [ ] **Check**: Password sent over HTTPS
+- [ ] **Check**: Password not visible in logs
+- [ ] Check database (if accessible)
+- [ ] **Check**: Passwords are hashed (bcrypt)
+
+#### Test S11: Sensitive Data Exposure
+- [ ] Inspect API responses
+- [ ] **Check**: No passwords in responses
+- [ ] **Check**: No sensitive tokens exposed
+- [ ] Check browser storage (localStorage, sessionStorage)
+- [ ] **Check**: No sensitive data stored unencrypted
+
+---
+
+## Accessibility Testing
+
+### Keyboard Navigation Tests
+
+#### Test A1: Tab Navigation
+- [ ] Navigate site using Tab key only
+- [ ] **Check**: All interactive elements reachable
+- [ ] **Check**: Focus indicators visible
+- [ ] **Check**: Logical tab order
+
+#### Test A2: Keyboard Shortcuts
+- [ ] Enter key submits forms
+- [ ] Escape key closes modals
+- [ ] Arrow keys navigate lists (if applicable)
+
+---
+
+### Screen Reader Tests
+
+#### Test A3: Screen Reader Compatibility
+- [ ] Use NVDA (Windows) or VoiceOver (Mac)
+- [ ] Navigate login page
+- [ ] **Check**: All labels read correctly
+- [ ] **Check**: Buttons have descriptive names
+- [ ] Navigate dashboard
+- [ ] **Check**: Content structure logical
+- [ ] **Check**: Charts have alt text or ARIA labels
+
+---
+
+### Visual Accessibility Tests
+
+#### Test A4: Color Contrast
+- [ ] Use browser extension (e.g., WAVE, axe DevTools)
+- [ ] Check color contrast ratios
+- [ ] **Expected**: WCAG AA compliant (4.5:1 for text)
+- [ ] Check for color-only indicators
+- [ ] **Check**: Information not conveyed by color alone
+
+#### Test A5: Font Size & Zoom
+- [ ] Zoom browser to 200%
+- [ ] **Check**: Layout doesn't break
+- [ ] **Check**: Text remains readable
+- [ ] **Check**: No horizontal scrolling
+
+---
+
+### Semantic HTML Tests
+
+#### Test A6: HTML Structure
+- [ ] Inspect HTML with DevTools
+- [ ] **Check**: Proper heading hierarchy (h1, h2, h3)
+- [ ] **Check**: Form labels associated with inputs
+- [ ] **Check**: ARIA roles used appropriately
+- [ ] **Check**: Landmark regions (nav, main, footer)
+
+---
+
+## Issue Reporting Template
+
+Use this template when reporting issues:
+
+```markdown
+### Issue Title: [Brief description]
+
+**Severity**: Critical / High / Medium / Low
+
+**Environment**:
+- URL: [localhost or production]
+- Browser: [Chrome 120, Firefox 115, etc.]
+- OS: [Windows 11, macOS 14, etc.]
+- Screen Size: [1920x1080, mobile, etc.]
+
+**User Role**: Admin / Doctor / Patient
+
+**Steps to Reproduce**:
+1. [First step]
+2. [Second step]
+3. [...]
+
+**Expected Behavior**:
+[What should happen]
+
+**Actual Behavior**:
+[What actually happened]
+
+**Console Errors** (if any):
+```
+[Paste console errors here]
 ```
 
-**Alternativa (una sola línea)**:
-```bash
-docker exec -it mediconnect-postgres psql -U mediconnect_admin -d mediconnect_db -c "CREATE DATABASE mediconnect_auth;"
+**Network Errors** (if any):
+[API endpoint, status code, response]
+
+**Screenshots**:
+[Attach screenshots]
+
+**Additional Notes**:
+[Any other relevant information]
 ```
 
 ---
 
-### 4️⃣ Iniciar Auth Service
+## Testing Checklist Summary
 
-```bash
-# Opción 1: Desde la raíz
-npm run dev:auth
+### Critical Path Tests (Must Pass)
+- [ ] Login/Logout works for all roles
+- [ ] Patient can view own data
+- [ ] Doctor can view patient list
+- [ ] Admin can view statistics
+- [ ] Appointments can be created
+- [ ] Prescriptions can be created
+- [ ] AI Assistant opens and submits
+- [ ] Vitals display correctly
+- [ ] No critical console errors
+- [ ] No failed API requests
 
-# Opción 2: Desde el directorio del servicio
-cd services/auth-service
-npm run dev
-```
+### High Priority Tests (Should Pass)
+- [ ] Charts render correctly
+- [ ] Forms validate properly
+- [ ] Error messages display
+- [ ] Loading states show
+- [ ] Role-based access enforced
+- [ ] Session persists correctly
+- [ ] Mobile responsive
+- [ ] Cross-browser compatible
 
-**Salida esperada**:
-```
-═══════════════════════════════════════════════════════
-🔐 MediConnect Pro - Auth Service
-═══════════════════════════════════════════════════════
-Environment:    development
-Server:         http://localhost:3001
-API:            http://localhost:3001/api/v1
-Health:         http://localhost:3001/health
-Swagger Docs:   http://localhost:3001/api/docs
-Process ID:     XXXX
-═══════════════════════════════════════════════════════
-✅ Auth Service is ready
-```
-
-Si ves errores de base de datos, verifica que:
-- PostgreSQL está corriendo: `docker ps | grep postgres`
-- La base de datos existe: paso 3
-
----
-
-## 🧪 Pruebas de Endpoints
-
-### Test 1: Health Check ✅
-
-```bash
-curl http://localhost:3001/health
-```
-
-**Respuesta esperada**:
-```json
-{
-  "status": "healthy",
-  "service": "auth-service",
-  "version": "1.0.0",
-  "uptime": 45.123,
-  "timestamp": "2025-10-10T19:35:00.000Z",
-  "checks": {
-    "database": {
-      "status": "up",
-      "responseTime": "5ms"
-    },
-    "memory": {
-      "heapUsed": "45MB"
-    }
-  }
-}
-```
+### Medium Priority Tests (Nice to Have)
+- [ ] Keyboard navigation works
+- [ ] Screen reader compatible
+- [ ] Performance acceptable
+- [ ] No memory leaks
+- [ ] Accessibility compliant
+- [ ] SEO optimized
 
 ---
 
-### Test 2: Registrar Usuario (Doctor) ✅
+## Test Execution Notes
 
-```bash
-curl -X POST http://localhost:3001/api/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"email\": \"doctor@test.com\",
-    \"password\": \"Test1234!\",
-    \"confirmPassword\": \"Test1234!\",
-    \"firstName\": \"John\",
-    \"lastName\": \"Doe\",
-    \"role\": \"doctor\",
-    \"phoneNumber\": \"+1234567890\",
-    \"acceptedTerms\": true
-  }"
-```
+**Tester Name**: _______________________________
 
-**Respuesta esperada**:
-```json
-{
-  "user": {
-    "id": "uuid-here",
-    "email": "doctor@test.com",
-    "firstName": "John",
-    "lastName": "Doe",
-    "role": "doctor",
-    "status": "pending_verification",
-    "emailVerified": false,
-    "createdAt": "2025-10-10T19:35:00.000Z"
-  },
-  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIs...",
-  "expiresIn": "15m",
-  "message": "Registration successful. Please verify your email."
-}
-```
+**Test Date**: _______________________________
 
-**Guarda el `accessToken` para los siguientes tests.**
+**Environment**: Local / Production
 
----
+**Overall Status**: Pass / Fail / Needs Review
 
-### Test 3: Login ✅
+**Critical Issues Found**: _______
 
-```bash
-curl -X POST http://localhost:3001/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"email\": \"doctor@test.com\",
-    \"password\": \"Test1234!\"
-  }"
-```
+**High Priority Issues**: _______
 
-**Respuesta esperada**:
-```json
-{
-  "user": {
-    "id": "uuid-here",
-    "email": "doctor@test.com",
-    "firstName": "John",
-    "lastName": "Doe",
-    "role": "doctor"
-  },
-  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIs...",
-  "expiresIn": "15m"
-}
-```
+**Medium Priority Issues**: _______
 
----
+**Low Priority Issues**: _______
 
-### Test 4: Obtener Usuario Actual (con JWT) ✅
+**Recommendations**:
+________________________________________________
+________________________________________________
+________________________________________________
 
-```bash
-# Reemplaza YOUR_ACCESS_TOKEN con el token del login
-curl http://localhost:3001/api/v1/auth/me \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-```
-
-**Respuesta esperada**:
-```json
-{
-  "id": "uuid-here",
-  "email": "doctor@test.com",
-  "role": "doctor",
-  "status": "pending_verification"
-}
-```
-
----
-
-### Test 5: Ver Perfil Completo ✅
-
-```bash
-curl http://localhost:3001/api/v1/users/profile \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-```
-
-**Respuesta esperada**:
-```json
-{
-  "id": "uuid-here",
-  "email": "doctor@test.com",
-  "firstName": "John",
-  "lastName": "Doe",
-  "role": "doctor",
-  "status": "pending_verification",
-  "phoneNumber": "+1234567890",
-  "emailVerified": false,
-  "phoneVerified": false,
-  "twoFactorEnabled": false,
-  "createdAt": "2025-10-10T19:35:00.000Z",
-  "updatedAt": "2025-10-10T19:35:00.000Z"
-}
-```
-
----
-
-### Test 6: Actualizar Perfil ✅
-
-```bash
-curl -X PATCH http://localhost:3001/api/v1/users/profile \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"firstName\": \"Jane\",
-    \"phoneNumber\": \"+9876543210\"
-  }"
-```
-
----
-
-### Test 7: Refresh Token ✅
-
-```bash
-# Reemplaza YOUR_REFRESH_TOKEN con el refreshToken del login
-curl -X POST http://localhost:3001/api/v1/auth/refresh \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"refreshToken\": \"YOUR_REFRESH_TOKEN\"
-  }"
-```
-
-**Respuesta esperada**:
-```json
-{
-  "accessToken": "nuevo_access_token...",
-  "refreshToken": "nuevo_refresh_token...",
-  "expiresIn": "15m"
-}
-```
-
----
-
-### Test 8: Registrar Admin (para probar endpoints de admin) ✅
-
-```bash
-curl -X POST http://localhost:3001/api/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"email\": \"admin@test.com\",
-    \"password\": \"Admin1234!\",
-    \"confirmPassword\": \"Admin1234!\",
-    \"firstName\": \"Admin\",
-    \"lastName\": \"User\",
-    \"role\": \"admin\",
-    \"acceptedTerms\": true
-  }"
-```
-
----
-
-### Test 9: Listar Usuarios (solo Admin) ✅
-
-```bash
-# Primero hacer login como admin y obtener el token
-curl -X POST http://localhost:3001/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"email\": \"admin@test.com\",
-    \"password\": \"Admin1234!\"
-  }"
-
-# Luego listar usuarios con el token de admin
-curl "http://localhost:3001/api/v1/users?page=1&limit=10" \
-  -H "Authorization: Bearer ADMIN_ACCESS_TOKEN"
-```
-
-**Respuesta esperada**:
-```json
-{
-  "users": [
-    { "id": "...", "email": "doctor@test.com", ... },
-    { "id": "...", "email": "admin@test.com", ... }
-  ],
-  "total": 2,
-  "page": 1,
-  "limit": 10,
-  "totalPages": 1
-}
-```
-
----
-
-### Test 10: Logout ✅
-
-```bash
-curl -X POST http://localhost:3001/api/v1/auth/logout \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
-```
-
-**Respuesta esperada**:
-```json
-{
-  "message": "Logout successful"
-}
-```
-
-Después del logout, el refresh token se elimina de la base de datos.
-
----
-
-## 🎨 Probar con Swagger UI (Recomendado)
-
-Abre en tu navegador:
-```
-http://localhost:3001/api/docs
-```
-
-Tendrás una interfaz gráfica interactiva para probar todos los endpoints sin usar curl.
-
----
-
-## 🐛 Errores Comunes
-
-### Error: "ECONNREFUSED localhost:5432"
-**Causa**: PostgreSQL no está corriendo.
-**Solución**:
-```bash
-docker ps | grep postgres
-docker start mediconnect-postgres
-```
-
-### Error: "JWT secret not configured"
-**Causa**: Variables de entorno no cargadas.
-**Solución**: Verificar que existe `.env` en la raíz con:
-```
-JWT_SECRET=dev_jwt_secret_key_min_32_chars_long_12345678
-```
-
-### Error: "Port 3001 already in use"
-**Causa**: Otro proceso usando el puerto.
-**Solución**:
-```bash
-# Windows
-netstat -ano | findstr :3001
-taskkill /PID <PID> /F
-```
-
-### Error: "Database mediconnect_auth does not exist"
-**Causa**: No se creó la base de datos.
-**Solución**: Ejecutar paso 3 de nuevo.
-
----
-
-## ✅ Checklist de Pruebas
-
-- [ ] Health check responde con status "healthy"
-- [ ] Registro de usuario doctor exitoso
-- [ ] Login exitoso y obtención de tokens
-- [ ] Endpoint `/auth/me` funciona con JWT
-- [ ] Ver perfil completo funciona
-- [ ] Actualizar perfil funciona
-- [ ] Refresh token funciona
-- [ ] Registro de admin exitoso
-- [ ] Listar usuarios (solo admin) funciona
-- [ ] Logout funciona
-- [ ] Swagger UI accesible en /api/docs
-
----
-
-## 📊 Verificar Base de Datos
-
-```bash
-# Conectarse a PostgreSQL
-docker exec -it mediconnect-postgres psql -U mediconnect_admin -d mediconnect_auth
-
-# Ver tablas creadas:
-\dt
-
-# Ver usuarios registrados:
-SELECT id, email, "firstName", "lastName", role, status, "emailVerified", "createdAt" FROM users;
-
-# Salir:
-\q
-```
-
----
-
-## 🎉 Si Todo Funciona
-
-¡Felicidades! El Auth Service está funcionando correctamente.
-
-**Próximos pasos**:
-1. Probar más endpoints (forgot-password, reset-password)
-2. Integrar con API Gateway
-3. Continuar con Fase 2 (Patient Service, Vitals Service, etc.)
-
----
-
-**Creado**: 2025-10-10
-**Versión**: Auth Service v1.0.0
+**Sign-off**: _______________________________
