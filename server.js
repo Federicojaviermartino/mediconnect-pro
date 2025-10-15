@@ -14,12 +14,34 @@ const { setupVitalsRoutes } = require('./demo-app/routes/vitals');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Disable X-Powered-By header for security
+app.disable('x-powered-by');
+
 // Initialize database
 const db = initDatabase();
 console.log('✅ Database initialized');
 
 // Trust proxy (required for Render)
 app.set('trust proxy', 1);
+
+// Security headers middleware
+app.use((req, res, next) => {
+  // Remove X-Powered-By header to hide Express.js
+  res.removeHeader('X-Powered-By');
+
+  // Prevent MIME type sniffing
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+
+  // Prevent clickjacking attacks
+  res.setHeader('X-Frame-Options', 'DENY');
+
+  // HTTP Strict Transport Security (HSTS) - only in production
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+
+  next();
+});
 
 // Middleware
 app.use(express.json());
