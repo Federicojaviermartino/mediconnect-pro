@@ -19,7 +19,18 @@ function loadDatabase() {
   try {
     if (fs.existsSync(DB_FILE)) {
       const data = fs.readFileSync(DB_FILE, 'utf8');
-      db = JSON.parse(data);
+      const loadedDb = JSON.parse(data);
+
+      // Ensure all required properties exist
+      db = {
+        users: loadedDb.users || [],
+        patients: loadedDb.patients || [],
+        vitalSigns: loadedDb.vitalSigns || [],
+        appointments: loadedDb.appointments || [],
+        prescriptions: loadedDb.prescriptions || [],
+        messages: loadedDb.messages || []
+      };
+
       console.log('✅ Database loaded from file');
     } else {
       console.log('📝 Creating new database');
@@ -226,6 +237,10 @@ function initDatabase() {
 
     // Appointments
     getAppointments: (userId, role) => {
+      if (!db.appointments || !Array.isArray(db.appointments)) {
+        console.error('Appointments array is not initialized');
+        return [];
+      }
       if (role === 'patient') {
         return db.appointments.filter(a => a.patient_id === userId);
       } else if (role === 'doctor') {
@@ -249,6 +264,10 @@ function initDatabase() {
 
     // Prescriptions
     getPrescriptions: (userId, role) => {
+      if (!db.prescriptions || !Array.isArray(db.prescriptions)) {
+        console.error('Prescriptions array is not initialized');
+        return [];
+      }
       if (role === 'patient') {
         return db.prescriptions.filter(p => p.patient_id === userId);
       } else if (role === 'doctor') {
