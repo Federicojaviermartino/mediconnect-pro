@@ -23,13 +23,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Navigation between pages
 function navigateTo(page) {
+    console.log('Navigating to:', page); // Debug log
+
     // Close mobile menu if open
     if (window.innerWidth <= 768) {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.querySelector('.mobile-overlay');
-        if (sidebar.classList.contains('mobile-active')) {
+        if (sidebar && sidebar.classList.contains('mobile-active')) {
             sidebar.classList.remove('mobile-active');
-            overlay.classList.remove('active');
+            overlay && overlay.classList.remove('active');
         }
     }
 
@@ -447,9 +449,11 @@ async function viewAllPatients() {
 
 // View appointments
 async function viewAppointments() {
+    console.log('viewAppointments() called'); // Debug
     try {
         const response = await fetch('/api/appointments');
         const data = await response.json();
+        console.log('Appointments data:', data); // Debug
 
         if (response.ok && data.appointments) {
             const modal = createModal('My Appointments', `
@@ -488,9 +492,11 @@ async function viewAppointments() {
 
 // View prescriptions
 async function viewPrescriptions() {
+    console.log('viewPrescriptions() called'); // Debug
     try {
         const response = await fetch('/api/prescriptions');
         const data = await response.json();
+        console.log('Prescriptions data:', data); // Debug
 
         if (response.ok && data.prescriptions) {
             const modal = createModal('My Prescriptions', `
