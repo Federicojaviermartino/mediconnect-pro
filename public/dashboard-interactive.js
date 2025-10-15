@@ -1,5 +1,26 @@
 // Interactive dashboard functionality
 
+// Mobile menu toggle
+function toggleMobileMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.querySelector('.mobile-overlay');
+
+    sidebar.classList.toggle('mobile-active');
+    overlay.classList.toggle('active');
+}
+
+// Close mobile menu when clicking nav items
+document.addEventListener('DOMContentLoaded', () => {
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                toggleMobileMenu();
+            }
+        });
+    });
+});
+
 // Navigation between pages
 function navigateTo(page) {
     // Show notification

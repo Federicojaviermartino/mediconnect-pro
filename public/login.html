@@ -180,13 +180,140 @@
             text-decoration: underline;
         }
 
-        @media (max-width: 480px) {
+        /* Tablet styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
             .login-container {
-                padding: 30px 20px;
+                padding: 35px 25px;
             }
 
             h1 {
-                font-size: 1.5em;
+                font-size: 1.8em;
+            }
+
+            .logo {
+                font-size: 2.5em;
+            }
+        }
+
+        /* Mobile styles */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .login-container {
+                padding: 25px 20px;
+            }
+
+            .logo {
+                font-size: 2em;
+            }
+
+            h1 {
+                font-size: 1.4em;
+                margin-bottom: 8px;
+            }
+
+            .subtitle {
+                font-size: 0.9em;
+                margin-bottom: 20px;
+            }
+
+            input {
+                padding: 10px 14px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+
+            .btn {
+                padding: 12px;
+                font-size: 1em;
+            }
+
+            .demo-credentials {
+                padding: 15px;
+                margin-top: 20px;
+            }
+
+            .demo-credentials h3 {
+                font-size: 0.9em;
+                margin-bottom: 10px;
+            }
+
+            .credential-item {
+                padding: 8px;
+                font-size: 0.8em;
+            }
+
+            .quick-btn {
+                font-size: 0.8em;
+                padding: 8px 6px;
+                min-width: 90px;
+            }
+        }
+
+        /* Extra small mobile */
+        @media (max-width: 360px) {
+            .login-container {
+                padding: 20px 15px;
+            }
+
+            h1 {
+                font-size: 1.2em;
+            }
+
+            .logo {
+                font-size: 1.8em;
+            }
+
+            .quick-btn {
+                flex: 1 1 100%;
+                min-width: 100%;
+            }
+
+            .credential-item code {
+                font-size: 0.85em;
+                display: inline-block;
+                word-break: break-all;
+            }
+        }
+
+        /* Landscape mobile */
+        @media (max-height: 600px) and (orientation: landscape) {
+            body {
+                padding: 10px;
+            }
+
+            .login-container {
+                padding: 20px;
+                max-height: 95vh;
+                overflow-y: auto;
+            }
+
+            .logo {
+                font-size: 2em;
+                margin-bottom: 5px;
+            }
+
+            h1 {
+                font-size: 1.3em;
+                margin-bottom: 5px;
+            }
+
+            .subtitle {
+                margin-bottom: 15px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .demo-credentials {
+                margin-top: 15px;
+                padding: 15px;
             }
         }
     </style>

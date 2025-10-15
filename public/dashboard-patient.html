@@ -7,8 +7,11 @@
     <link rel="stylesheet" href="/dashboard-styles.css">
 </head>
 <body>
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
+
     <div class="dashboard">
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="logo">
                 <span class="logo-icon">🏥</span>
                 <span class="logo-text">MediConnect Pro</span>
