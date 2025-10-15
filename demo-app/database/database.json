@@ -34,7 +34,10 @@
       "user_id": 3,
       "blood_type": "A+",
       "allergies": "Penicillin",
-      "conditions": "Hypertension"
+      "conditions": "Hypertension",
+      "insuranceProvider": "sanitas",
+      "insuranceMemberId": "SAN-123456",
+      "lastEligibilityCheck": "2025-10-15T16:09:34.895Z"
     }
   ],
   "vitalSigns": [

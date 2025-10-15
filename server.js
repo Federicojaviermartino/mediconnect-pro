@@ -10,6 +10,7 @@ const { setupAppointmentRoutes } = require('./demo-app/routes/appointments');
 const { setupPrescriptionRoutes } = require('./demo-app/routes/prescriptions');
 const { setupAIRoutes } = require('./demo-app/routes/ai');
 const { setupVitalsRoutes } = require('./demo-app/routes/vitals');
+const { setupInsuranceRoutes } = require('./demo-app/routes/insurance');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -81,6 +82,7 @@ setupAppointmentRoutes(app, db);
 setupPrescriptionRoutes(app, db);
 setupAIRoutes(app, db);
 setupVitalsRoutes(app);
+setupInsuranceRoutes(app, db);
 
 // API info endpoint
 app.get('/api/info', (req, res) => {
@@ -130,6 +132,15 @@ app.get('/api', (req, res) => {
       'POST /api/ai/generate-report',
       'POST /api/ai/triage',
       'GET /api/ai/status'
+    ],
+    insuranceEndpoints: [
+      'GET /api/insurance/providers',
+      'POST /api/insurance/verify-eligibility',
+      'POST /api/insurance/pre-authorization',
+      'POST /api/insurance/submit-claim',
+      'GET /api/insurance/claim-status/:claimId',
+      'POST /api/insurance/calculate-cost',
+      'GET /api/insurance/status'
     ]
   });
 });

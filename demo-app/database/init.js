@@ -222,8 +222,32 @@ function initDatabase() {
         patient_id: patient?.id || null,
         blood_type: patient?.blood_type || null,
         allergies: patient?.allergies || null,
-        conditions: patient?.conditions || null
+        conditions: patient?.conditions || null,
+        insuranceProvider: patient?.insuranceProvider || null,
+        insuranceMemberId: patient?.insuranceMemberId || null,
+        lastEligibilityCheck: patient?.lastEligibilityCheck || null
       };
+    },
+
+    updatePatient: (patientId, updateData) => {
+      const user = db.users.find(u => u.id === parseInt(patientId) && u.role === 'patient');
+      if (!user) return null;
+
+      let patient = db.patients.find(p => p.user_id === user.id);
+
+      if (!patient) {
+        // Create patient record if doesn't exist
+        patient = {
+          id: db.patients.length > 0 ? Math.max(...db.patients.map(p => p.id)) + 1 : 1,
+          user_id: user.id
+        };
+        db.patients.push(patient);
+      }
+
+      // Update patient fields
+      Object.assign(patient, updateData);
+      saveDatabase();
+      return patient;
     },
 
     getStats: () => {
@@ -249,6 +273,10 @@ function initDatabase() {
       return db.appointments;
     },
 
+    getAppointmentById: (appointmentId) => {
+      return db.appointments.find(a => a.id === parseInt(appointmentId));
+    },
+
     createAppointment: (appointmentData) => {
       const newId = db.appointments.length > 0 ? Math.max(...db.appointments.map(a => a.id)) + 1 : 1;
       const appointment = {
@@ -258,6 +286,15 @@ function initDatabase() {
         created_at: new Date().toISOString()
       };
       db.appointments.push(appointment);
+      saveDatabase();
+      return appointment;
+    },
+
+    updateAppointment: (appointmentId, updateData) => {
+      const appointment = db.appointments.find(a => a.id === parseInt(appointmentId));
+      if (!appointment) return null;
+
+      Object.assign(appointment, updateData);
       saveDatabase();
       return appointment;
     },
