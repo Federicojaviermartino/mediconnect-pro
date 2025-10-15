@@ -45,6 +45,11 @@ async function triageSymptoms(symptoms) {
 // Display Triage Results
 function displayTriageResults(triage) {
     const mainContent = document.getElementById('main-content');
+    if (!mainContent) {
+        console.error('Cannot display triage results: main-content element not found');
+        showNotification('Unable to display results. Please refresh the page.', 'error');
+        return;
+    }
 
     const urgencyColors = {
         low: '#4CAF50',
@@ -264,6 +269,11 @@ function displayTriageResults(triage) {
 // Show Triage Form
 window.showTriageForm = function showTriageForm() {
     const mainContent = document.getElementById('main-content');
+    if (!mainContent) {
+        console.error('Cannot show triage form: main-content element not found');
+        showNotification('Unable to load AI Assistant. Please refresh the page.', 'error');
+        return;
+    }
 
     mainContent.innerHTML = `
         <div class="ai-triage-form">
@@ -391,6 +401,12 @@ window.showTriageForm = function showTriageForm() {
 // Submit Triage Form
 async function submitTriageForm() {
     const symptomsInput = document.getElementById('symptoms');
+    if (!symptomsInput) {
+        console.error('Symptoms input not found');
+        showNotification('Form error. Please refresh the page.', 'error');
+        return;
+    }
+
     const symptoms = symptomsInput.value.trim();
 
     if (!symptoms) {
