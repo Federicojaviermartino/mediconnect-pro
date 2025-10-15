@@ -262,7 +262,7 @@ function displayTriageResults(triage) {
 }
 
 // Show Triage Form
-function showTriageForm() {
+window.showTriageForm = function showTriageForm() {
     const mainContent = document.getElementById('main-content');
 
     mainContent.innerHTML = `

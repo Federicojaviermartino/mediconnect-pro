@@ -1,5 +1,19 @@
 // Interactive dashboard functionality
 
+// Global function stubs for AI Assistant (will be implemented by ai-assistant.js)
+// These are defined here to avoid "not defined" errors when onclick fires before script loads
+window.showTriageForm = window.showTriageForm || function() {
+    console.log('AI Assistant module loading...');
+    // If the actual function hasn't loaded yet, wait a bit and retry
+    setTimeout(() => {
+        if (typeof window.showTriageForm === 'function') {
+            window.showTriageForm();
+        } else {
+            showNotification('AI Assistant is loading, please try again in a moment', 'info');
+        }
+    }, 100);
+};
+
 // Mobile menu toggle
 function toggleMobileMenu() {
     const sidebar = document.getElementById('sidebar');
