@@ -9,6 +9,7 @@ const { setupApiRoutes } = require('./demo-app/routes/api');
 const { setupAppointmentRoutes } = require('./demo-app/routes/appointments');
 const { setupPrescriptionRoutes } = require('./demo-app/routes/prescriptions');
 const { setupAIRoutes } = require('./demo-app/routes/ai');
+const { setupVitalsRoutes } = require('./demo-app/routes/vitals');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -57,6 +58,7 @@ setupApiRoutes(app, db);
 setupAppointmentRoutes(app, db);
 setupPrescriptionRoutes(app, db);
 setupAIRoutes(app, db);
+setupVitalsRoutes(app);
 
 // API info endpoint
 app.get('/api/info', (req, res) => {
