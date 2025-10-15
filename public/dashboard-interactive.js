@@ -55,6 +55,9 @@ function navigateTo(page) {
         case 'Prescriptions':
             viewPrescriptions();
             break;
+        case 'AI Assistant':
+            showTriageForm();
+            break;
         case 'Analytics':
             viewAnalytics();
             break;

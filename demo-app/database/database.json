@@ -3,29 +3,29 @@
     {
       "id": 1,
       "email": "admin@mediconnect.demo",
-      "password": "$2a$10$sZdg4aiwZ8ughaEF.FTqFuIBTVveVBUTMQx7bbTr9TtzuLHpTZa/C",
+      "password": "$2a$10$jCnLCuM7.TugbRWTtL9B6OpjdfJ.xirasOKXpWT4eMtc60oAT0HO6",
       "role": "admin",
       "name": "Admin User",
       "specialization": null,
-      "created_at": "2025-10-14T09:31:21.104Z"
+      "created_at": "2025-10-15T08:46:54.487Z"
     },
     {
       "id": 2,
       "email": "dr.smith@mediconnect.demo",
-      "password": "$2a$10$qjtb7DAxrNOQeULKajpOXe/MArmWI9kU3nF9SNrMU6vLCxC62g/tq",
+      "password": "$2a$10$6tgAYUEI3M.cYi63XSUjI..ANjPAm6p16JUTNNTvSq5fg6MdoJCe2",
       "role": "doctor",
       "name": "Dr. Sarah Smith",
       "specialization": "General Practitioner",
-      "created_at": "2025-10-14T09:31:21.106Z"
+      "created_at": "2025-10-15T08:46:54.489Z"
     },
     {
       "id": 3,
       "email": "john.doe@mediconnect.demo",
-      "password": "$2a$10$GbzG8N/FxxXQOHWrTfNn6eHv.qrBIGbtYhHTkVcAFLl9xIXhu1Bx2",
+      "password": "$2a$10$Ej8u6fV9xyH8HwIh2X9J.OvNQcarvQ3.5ex9hiWR9RriU.59W9zD6",
       "role": "patient",
       "name": "John Doe",
       "specialization": null,
-      "created_at": "2025-10-14T09:31:21.106Z"
+      "created_at": "2025-10-15T08:46:54.489Z"
     }
   ],
   "patients": [
@@ -45,7 +45,7 @@
       "blood_pressure": "120/80",
       "temperature": 36.6,
       "oxygen_saturation": 98,
-      "recorded_at": "2025-10-14T08:31:21.106Z"
+      "recorded_at": "2025-10-15T07:46:54.489Z"
     },
     {
       "id": 2,
@@ -54,7 +54,7 @@
       "blood_pressure": "125/82",
       "temperature": 36.7,
       "oxygen_saturation": 97,
-      "recorded_at": "2025-10-14T07:31:21.106Z"
+      "recorded_at": "2025-10-15T06:46:54.489Z"
     },
     {
       "id": 3,
@@ -63,7 +63,33 @@
       "blood_pressure": "118/78",
       "temperature": 36.5,
       "oxygen_saturation": 99,
-      "recorded_at": "2025-10-14T06:31:21.106Z"
+      "recorded_at": "2025-10-15T05:46:54.489Z"
     }
-  ]
+  ],
+  "appointments": [
+    {
+      "id": 1,
+      "patient_id": 3,
+      "doctor_id": 2,
+      "date": "2025-10-16",
+      "time": "10:00",
+      "reason": "Regular checkup",
+      "status": "scheduled",
+      "created_at": "2025-10-15T08:46:54.489Z"
+    }
+  ],
+  "prescriptions": [
+    {
+      "id": 1,
+      "patient_id": 3,
+      "doctor_id": 2,
+      "medication": "Lisinopril",
+      "dosage": "10mg",
+      "frequency": "Once daily",
+      "pharmacy": "Main Street Pharmacy",
+      "status": "active",
+      "created_at": "2025-10-14T08:46:54.489Z"
+    }
+  ],
+  "messages": []
 }

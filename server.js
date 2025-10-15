@@ -8,6 +8,7 @@ const { setupAuthRoutes } = require('./demo-app/routes/auth');
 const { setupApiRoutes } = require('./demo-app/routes/api');
 const { setupAppointmentRoutes } = require('./demo-app/routes/appointments');
 const { setupPrescriptionRoutes } = require('./demo-app/routes/prescriptions');
+const { setupAIRoutes } = require('./demo-app/routes/ai');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -55,6 +56,7 @@ setupAuthRoutes(app, db);
 setupApiRoutes(app, db);
 setupAppointmentRoutes(app, db);
 setupPrescriptionRoutes(app, db);
+setupAIRoutes(app, db);
 
 // API info endpoint
 app.get('/api/info', (req, res) => {
@@ -92,7 +94,18 @@ app.get('/api', (req, res) => {
       'GET /api/vitals',
       'GET /api/patients',
       'GET /api/patients/:id',
-      'GET /api/stats'
+      'GET /api/stats',
+      'GET /api/appointments',
+      'POST /api/appointments',
+      'GET /api/prescriptions',
+      'POST /api/prescriptions'
+    ],
+    aiEndpoints: [
+      'POST /api/ai/transcribe',
+      'POST /api/ai/generate-notes',
+      'POST /api/ai/generate-report',
+      'POST /api/ai/triage',
+      'GET /api/ai/status'
     ]
   });
 });
