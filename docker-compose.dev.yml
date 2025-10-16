@@ -19,21 +19,22 @@ services:
     networks:
       - mediconnect_network
 
-  # PostgreSQL for future migration (optional, not yet implemented)
+  # PostgreSQL for persistent data storage
   postgres:
     image: postgres:15-alpine
     container_name: mediconnect-postgres
     environment:
-      POSTGRES_DB: ${DB_NAME:-mediconnect}
-      POSTGRES_USER: ${DB_USER:-mediconnect_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-dev_password_2024}
+      POSTGRES_DB: ${POSTGRES_DB:-mediconnect}
+      POSTGRES_USER: ${POSTGRES_USER:-mediconnect_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password_2024}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.utf8"
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./demo-app/database/migrations:/docker-entrypoint-initdb.d
+      # Migrations will be run manually via migrate.js script
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-mediconnect_user} -d ${DB_NAME:-mediconnect}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mediconnect_user} -d ${POSTGRES_DB:-mediconnect}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -41,7 +42,7 @@ services:
     networks:
       - mediconnect_network
     profiles:
-      - postgres  # Only start when explicitly requested
+      - postgres  # Start with: docker-compose --profile postgres up
 
 volumes:
   redis_data:

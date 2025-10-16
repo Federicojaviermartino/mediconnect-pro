@@ -11,7 +11,12 @@
     "test:ci": "jest --ci --coverage --maxWorkers=2",
     "test:verbose": "jest --verbose --coverage",
     "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down"
+    "docker:down": "docker-compose down",
+    "docker:postgres": "docker-compose --profile postgres up -d",
+    "db:migrate": "node demo-app/database/migrate.js run",
+    "db:migrate:status": "node demo-app/database/migrate.js status",
+    "db:migrate:rollback": "NODE_ENV=development node demo-app/database/migrate.js rollback",
+    "db:setup": "npm run docker:postgres && npm run db:migrate"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -19,6 +24,7 @@
     "cookie-parser": "^1.4.6",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
+    "pg": "^8.16.3",
     "redis": "^5.8.3"
   },
   "devDependencies": {
