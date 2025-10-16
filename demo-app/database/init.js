@@ -1,9 +1,12 @@
-// Database initialization with JSON file storage
+// Database initialization with JSON file storage or PostgreSQL
 const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
 const DB_FILE = path.join(__dirname, 'database.json');
+
+// Check if using PostgreSQL
+const USE_POSTGRES = process.env.USE_POSTGRES === 'true';
 
 // In-memory database structure
 let db = {
@@ -167,33 +170,42 @@ function seedDatabase() {
 }
 
 function initDatabase() {
+  // Use PostgreSQL adapter if enabled
+  if (USE_POSTGRES) {
+    console.log('🐘 Using PostgreSQL database');
+    const { initPostgresDatabase } = require('./postgres-adapter');
+    return initPostgresDatabase();
+  }
+
+  // Otherwise use JSON file storage (wrapped in async for consistency)
+  console.log('📄 Using JSON file database');
   loadDatabase();
 
   return {
-    getUserByEmail: (email) => {
+    getUserByEmail: async (email) => {
       return db.users.find(u => u.email === email);
     },
 
-    getUserById: (userId) => {
+    getUserById: async (userId) => {
       return db.users.find(u => u.id === parseInt(userId));
     },
 
-    getAllUsers: () => {
+    getAllUsers: async () => {
       return db.users;
     },
 
-    getPatientByUserId: (userId) => {
+    getPatientByUserId: async (userId) => {
       return db.patients.find(p => p.user_id === userId);
     },
 
-    getVitalsByPatientId: (patientId) => {
+    getVitalsByPatientId: async (patientId) => {
       return db.vitalSigns
         .filter(v => v.patient_id === patientId)
         .sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at))
         .slice(0, 10);
     },
 
-    getAllPatients: () => {
+    getAllPatients: async () => {
       return db.users
         .filter(u => u.role === 'patient')
         .map(user => {
@@ -209,7 +221,7 @@ function initDatabase() {
         });
     },
 
-    getPatientById: (patientId) => {
+    getPatientById: async (patientId) => {
       const user = db.users.find(u => u.id === parseInt(patientId) && u.role === 'patient');
       if (!user) return null;
 
@@ -229,7 +241,7 @@ function initDatabase() {
       };
     },
 
-    updatePatient: (patientId, updateData) => {
+    updatePatient: async (patientId, updateData) => {
       const user = db.users.find(u => u.id === parseInt(patientId) && u.role === 'patient');
       if (!user) return null;
 
@@ -250,7 +262,7 @@ function initDatabase() {
       return patient;
     },
 
-    getStats: () => {
+    getStats: async () => {
       return {
         totalUsers: db.users.length,
         totalPatients: db.users.filter(u => u.role === 'patient').length,
@@ -260,7 +272,7 @@ function initDatabase() {
     },
 
     // Appointments
-    getAppointments: (userId, role) => {
+    getAppointments: async (userId, role) => {
       if (!db.appointments || !Array.isArray(db.appointments)) {
         console.error('Appointments array is not initialized');
         return [];
@@ -273,11 +285,11 @@ function initDatabase() {
       return db.appointments;
     },
 
-    getAppointmentById: (appointmentId) => {
+    getAppointmentById: async (appointmentId) => {
       return db.appointments.find(a => a.id === parseInt(appointmentId));
     },
 
-    createAppointment: (appointmentData) => {
+    createAppointment: async (appointmentData) => {
       const newId = db.appointments.length > 0 ? Math.max(...db.appointments.map(a => a.id)) + 1 : 1;
       const appointment = {
         id: newId,
@@ -290,7 +302,7 @@ function initDatabase() {
       return appointment;
     },
 
-    updateAppointment: (appointmentId, updateData) => {
+    updateAppointment: async (appointmentId, updateData) => {
       const appointment = db.appointments.find(a => a.id === parseInt(appointmentId));
       if (!appointment) return null;
 
@@ -300,7 +312,7 @@ function initDatabase() {
     },
 
     // Prescriptions
-    getPrescriptions: (userId, role) => {
+    getPrescriptions: async (userId, role) => {
       if (!db.prescriptions || !Array.isArray(db.prescriptions)) {
         console.error('Prescriptions array is not initialized');
         return [];
@@ -313,7 +325,11 @@ function initDatabase() {
       return db.prescriptions;
     },
 
-    createPrescription: (prescriptionData) => {
+    getPrescriptionById: async (prescriptionId) => {
+      return db.prescriptions.find(p => p.id === parseInt(prescriptionId));
+    },
+
+    createPrescription: async (prescriptionData) => {
       const newId = db.prescriptions.length > 0 ? Math.max(...db.prescriptions.map(p => p.id)) + 1 : 1;
       const prescription = {
         id: newId,
@@ -326,12 +342,21 @@ function initDatabase() {
       return prescription;
     },
 
+    updatePrescription: async (prescriptionId, updateData) => {
+      const prescription = db.prescriptions.find(p => p.id === parseInt(prescriptionId));
+      if (!prescription) return null;
+
+      Object.assign(prescription, updateData);
+      saveDatabase();
+      return prescription;
+    },
+
     // Messages
-    getMessages: (userId) => {
+    getMessages: async (userId) => {
       return db.messages.filter(m => m.to_user_id === userId || m.from_user_id === userId);
     },
 
-    createMessage: (messageData) => {
+    createMessage: async (messageData) => {
       const newId = db.messages.length > 0 ? Math.max(...db.messages.map(m => m.id)) + 1 : 1;
       const message = {
         id: newId,

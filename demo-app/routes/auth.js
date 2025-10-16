@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 
 function setupAuthRoutes(app, db) {
   // Login endpoint
-  app.post('/api/auth/login', (req, res) => {
+  app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -11,7 +11,7 @@ function setupAuthRoutes(app, db) {
     }
 
     try {
-      const user = db.getUserByEmail(email);
+      const user = await db.getUserByEmail(email);
 
       if (!user) {
         return res.status(401).json({ error: 'Invalid credentials' });
