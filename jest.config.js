@@ -18,13 +18,13 @@ module.exports = {
     '!**/dist/**'
   ],
 
-  // Coverage thresholds (starting conservative, will increase over time)
+  // Coverage thresholds (improved from 18% to 39% in Phase 2.5)
   coverageThreshold: {
     global: {
-      branches: 15,
-      functions: 25,
-      lines: 15,
-      statements: 15
+      branches: 30,
+      functions: 50,
+      lines: 35,
+      statements: 35
     }
   },
 
