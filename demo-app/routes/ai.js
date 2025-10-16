@@ -5,6 +5,12 @@ const { AIService } = require('../services/ai-service');
 const aiService = new AIService();
 
 function setupAIRoutes(app, db) {
+  // Middleware to add medical disclaimer header to all AI endpoints
+  app.use('/api/ai', (req, res, next) => {
+    res.setHeader('X-Medical-Disclaimer', 'AI-generated information is for informational purposes only and does not constitute medical advice, diagnosis, or treatment. Always consult qualified healthcare professionals for medical decisions.');
+    next();
+  });
+
   // POST /api/ai/transcribe - Transcribe consultation audio
   app.post('/api/ai/transcribe', requireAuth, requireRole('doctor'), async (req, res) => {
     try {

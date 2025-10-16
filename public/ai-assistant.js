@@ -282,6 +282,27 @@ window.showTriageForm = function showTriageForm() {
                 <p>Describe tus síntomas y te ayudaremos a determinar el nivel de urgencia</p>
             </div>
 
+            <div class="medical-disclaimer-banner">
+                <div class="disclaimer-icon">⚠️</div>
+                <div class="disclaimer-content">
+                    <h3>AVISO MÉDICO IMPORTANTE</h3>
+                    <p><strong>Este asistente de IA es solo para fines informativos y educativos.</strong></p>
+                    <ul>
+                        <li>NO constituye consejo médico, diagnóstico o tratamiento</li>
+                        <li>NO reemplaza la evaluación de un profesional médico certificado</li>
+                        <li>Puede producir información incompleta o inexacta</li>
+                        <li>NO debe usarse para situaciones de emergencia médica</li>
+                    </ul>
+                    <p class="emergency-notice">
+                        <strong>🚨 Para emergencias médicas, llama al 911/112 inmediatamente.</strong>
+                    </p>
+                    <p class="consent-text">
+                        Al usar esta herramienta, reconoces estas limitaciones y aceptas consultar
+                        con profesionales médicos calificados para todas las decisiones médicas.
+                    </p>
+                </div>
+            </div>
+
             <div class="form-content">
                 <div class="form-group">
                     <label for="symptoms">Describe tus síntomas:</label>
@@ -298,10 +319,6 @@ window.showTriageForm = function showTriageForm() {
                     <button onclick="submitTriageForm()" class="btn-primary">
                         Analizar Síntomas
                     </button>
-                </div>
-
-                <div class="disclaimer">
-                    <p><strong>Aviso Importante:</strong> Esta herramienta es solo informativa y no reemplaza una consulta médica profesional. En caso de emergencia, llama al 911/112.</p>
                 </div>
             </div>
         </div>
@@ -334,6 +351,61 @@ window.showTriageForm = function showTriageForm() {
 
             .form-header p {
                 margin: 0;
+                opacity: 0.9;
+            }
+
+            .medical-disclaimer-banner {
+                background: #fff3cd;
+                border: 3px solid #ffc107;
+                border-left: 8px solid #ff9800;
+                margin: 20px;
+                padding: 20px;
+                border-radius: 8px;
+                display: flex;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .disclaimer-icon {
+                font-size: 32px;
+                flex-shrink: 0;
+            }
+
+            .disclaimer-content h3 {
+                color: #856404;
+                margin: 0 0 10px 0;
+                font-size: 18px;
+            }
+
+            .disclaimer-content p {
+                color: #856404;
+                margin: 10px 0;
+                font-size: 14px;
+                line-height: 1.5;
+            }
+
+            .disclaimer-content ul {
+                color: #856404;
+                margin: 10px 0;
+                padding-left: 20px;
+                font-size: 14px;
+            }
+
+            .disclaimer-content ul li {
+                margin: 5px 0;
+            }
+
+            .emergency-notice {
+                background: #fff;
+                padding: 10px;
+                border-radius: 4px;
+                border-left: 4px solid #dc3545;
+                margin: 15px 0 !important;
+            }
+
+            .consent-text {
+                font-size: 13px !important;
+                font-style: italic;
                 opacity: 0.9;
             }
 
