@@ -1,4 +1,14 @@
 // Vitals Monitor JavaScript
+
+// XSS Protection: HTML escape function
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const str = String(text);
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
 let currentUser = null;
 let currentPatient = null;
 let vitalsChart = null;
@@ -102,20 +112,21 @@ function displayRecentReadings(vitals) {
         container.innerHTML = '<p class="empty-state">No vital signs recorded yet</p>';
         return;
     }
+    // XSS-safe: Numeric values are safe, but notes need escaping
     const html = vitals.map(v => `
         <div class="reading-card">
             <div class="reading-header">
                 <span class="reading-date">${new Date(v.timestamp).toLocaleString()}</span>
             </div>
             <div class="reading-values">
-                ${v.heartRate ? `<div class="value-item">❤️ ${v.heartRate} bpm</div>` : ''}
-                ${v.systolicBP && v.diastolicBP ? `<div class="value-item">🩸 ${v.systolicBP}/${v.diastolicBP} mmHg</div>` : ''}
-                ${v.temperature ? `<div class="value-item">🌡️ ${v.temperature}°C</div>` : ''}
-                ${v.oxygenSaturation ? `<div class="value-item">💨 ${v.oxygenSaturation}%</div>` : ''}
-                ${v.respiratoryRate ? `<div class="value-item">🫁 ${v.respiratoryRate} br/min</div>` : ''}
-                ${v.bloodGlucose ? `<div class="value-item">🍬 ${v.bloodGlucose} mg/dL</div>` : ''}
+                ${v.heartRate ? `<div class="value-item">❤️ ${parseFloat(v.heartRate) || 0} bpm</div>` : ''}
+                ${v.systolicBP && v.diastolicBP ? `<div class="value-item">🩸 ${parseFloat(v.systolicBP) || 0}/${parseFloat(v.diastolicBP) || 0} mmHg</div>` : ''}
+                ${v.temperature ? `<div class="value-item">🌡️ ${parseFloat(v.temperature) || 0}°C</div>` : ''}
+                ${v.oxygenSaturation ? `<div class="value-item">💨 ${parseFloat(v.oxygenSaturation) || 0}%</div>` : ''}
+                ${v.respiratoryRate ? `<div class="value-item">🫁 ${parseFloat(v.respiratoryRate) || 0} br/min</div>` : ''}
+                ${v.bloodGlucose ? `<div class="value-item">🍬 ${parseFloat(v.bloodGlucose) || 0} mg/dL</div>` : ''}
             </div>
-            ${v.notes ? `<div class="reading-notes">📋 ${v.notes}</div>` : ''}
+            ${v.notes ? `<div class="reading-notes">📋 ${escapeHtml(v.notes)}</div>` : ''}
         </div>
     `).join('');
     container.innerHTML = html;
@@ -128,16 +139,22 @@ function displayAlerts(alerts) {
         container.innerHTML = '<p class="empty-state">✅ No active alerts - all vitals are normal</p>';
         return;
     }
-    const html = alerts.map(alert => `
-        <div class="alert-card alert-${alert.severity}">
-            <div class="alert-header">
-                <span class="alert-severity">${getSeverityIcon(alert.severity)} ${alert.severity.toUpperCase()}</span>
-                <span class="alert-time">${getTimeAgo(alert.timestamp)}</span>
+    // XSS-safe: Validate severity and escape message/id
+    const validSeverities = ['critical', 'warning', 'info'];
+    const html = alerts.map(alert => {
+        const safeSeverity = validSeverities.includes(alert.severity) ? alert.severity : 'info';
+        const safeId = escapeHtml(String(alert.id)).replace(/'/g, "\\'");
+        return `
+            <div class="alert-card alert-${safeSeverity}">
+                <div class="alert-header">
+                    <span class="alert-severity">${getSeverityIcon(safeSeverity)} ${safeSeverity.toUpperCase()}</span>
+                    <span class="alert-time">${getTimeAgo(alert.timestamp)}</span>
+                </div>
+                <div class="alert-message">${escapeHtml(alert.message)}</div>
+                <button onclick="acknowledgeAlert('${safeId}')" class="btn-sm btn-secondary">Acknowledge</button>
             </div>
-            <div class="alert-message">${alert.message}</div>
-            <button onclick="acknowledgeAlert('${alert.id}')" class="btn-sm btn-secondary">Acknowledge</button>
-        </div>
-    `).join('');
+        `;
+    }).join('');
     container.innerHTML = html;
 }
 
@@ -294,10 +311,10 @@ async function handleVitalsSubmit(e) {
     }
 
     try {
-        const response = await fetch('/api/vitals/record', {
+        // Use csrfFetch for CSRF-protected POST request
+        const response = await csrfFetch('/api/vitals/record', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
             body: JSON.stringify(vitalsData)
         });
 
@@ -338,10 +355,10 @@ async function analyzeVitals() {
     resultDiv.style.display = 'block';
 
     try {
-        const response = await fetch('/api/ai/analyze-vitals', {
+        // Use csrfFetch for CSRF-protected POST request
+        const response = await csrfFetch('/api/ai/analyze-vitals', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
             body: JSON.stringify({
                 patientId: currentPatient.id,
                 vitals: allVitals.slice(0, 20),
@@ -356,7 +373,8 @@ async function analyzeVitals() {
         displayAIAnalysis(data.analysis);
     } catch (error) {
         console.error('Error analyzing vitals:', error);
-        resultDiv.innerHTML = `<p class="error-message">${error.message}</p>`;
+        // XSS-safe: Escape error message
+        resultDiv.innerHTML = `<p class="error-message">${escapeHtml(error.message)}</p>`;
     } finally {
         btn.disabled = false;
         btn.textContent = 'Analyze My Vitals';
@@ -365,41 +383,48 @@ async function analyzeVitals() {
 
 function displayAIAnalysis(analysis) {
     const resultDiv = document.getElementById('analysisResult');
-    const riskClass = analysis.riskLevel === 'high' ? 'risk-high' :
-                     analysis.riskLevel === 'medium' ? 'risk-medium' : 'risk-low';
+
+    // XSS-safe: Validate riskLevel against known values
+    const validRiskLevels = ['high', 'medium', 'low'];
+    const safeRiskLevel = validRiskLevels.includes(analysis.riskLevel) ? analysis.riskLevel : 'low';
+    const riskClass = safeRiskLevel === 'high' ? 'risk-high' :
+                     safeRiskLevel === 'medium' ? 'risk-medium' : 'risk-low';
+
+    // XSS-safe: Ensure riskScore is a number
+    const safeRiskScore = parseInt(analysis.riskScore) || 0;
 
     const html = `
         <div class="ai-analysis">
             <div class="risk-assessment ${riskClass}">
-                <h3>Risk Level: ${analysis.riskLevel.toUpperCase()}</h3>
-                <div class="risk-score">Risk Score: ${analysis.riskScore}/100</div>
+                <h3>Risk Level: ${safeRiskLevel.toUpperCase()}</h3>
+                <div class="risk-score">Risk Score: ${safeRiskScore}/100</div>
             </div>
             ${analysis.seekImmediateCare ? `
                 <div class="alert-card alert-critical">
                     <strong>⚠️ SEEK IMMEDIATE MEDICAL ATTENTION</strong>
-                    <p>${analysis.seekImmediateCareReason}</p>
+                    <p>${escapeHtml(analysis.seekImmediateCareReason)}</p>
                 </div>
             ` : ''}
             <div class="analysis-section">
                 <h4>📊 Summary</h4>
-                <p>${analysis.summary}</p>
+                <p>${escapeHtml(analysis.summary)}</p>
             </div>
             ${analysis.concerningTrends && analysis.concerningTrends.length > 0 ? `
                 <div class="analysis-section">
                     <h4>⚠️ Concerning Trends</h4>
-                    <ul>${analysis.concerningTrends.map(t => `<li>${t}</li>`).join('')}</ul>
+                    <ul>${(analysis.concerningTrends || []).map(t => `<li>${escapeHtml(t)}</li>`).join('')}</ul>
                 </div>
             ` : ''}
             ${analysis.positiveObservations && analysis.positiveObservations.length > 0 ? `
                 <div class="analysis-section">
                     <h4>✅ Positive Observations</h4>
-                    <ul>${analysis.positiveObservations.map(o => `<li>${o}</li>`).join('')}</ul>
+                    <ul>${(analysis.positiveObservations || []).map(o => `<li>${escapeHtml(o)}</li>`).join('')}</ul>
                 </div>
             ` : ''}
             ${analysis.recommendedActions && analysis.recommendedActions.length > 0 ? `
                 <div class="analysis-section">
                     <h4>💡 Recommended Actions</h4>
-                    <ul>${analysis.recommendedActions.map(a => `<li>${a}</li>`).join('')}</ul>
+                    <ul>${(analysis.recommendedActions || []).map(a => `<li>${escapeHtml(a)}</li>`).join('')}</ul>
                 </div>
             ` : ''}
             <div class="analysis-footer">
@@ -412,9 +437,9 @@ function displayAIAnalysis(analysis) {
 
 async function acknowledgeAlert(alertId) {
     try {
-        const response = await fetch(`/api/vitals/alerts/${alertId}/acknowledge`, {
-            method: 'POST',
-            credentials: 'include'
+        // Use csrfFetch for CSRF-protected POST request
+        const response = await csrfFetch(`/api/vitals/alerts/${alertId}/acknowledge`, {
+            method: 'POST'
         });
         if (!response.ok) throw new Error('Failed to acknowledge alert');
         showSuccess('Alert acknowledged');
@@ -445,8 +470,10 @@ function getTimeAgo(timestamp) {
 function showAlertBanner(message, type = 'info') {
     const banner = document.getElementById('alertBanner');
     if (!banner) return;
-    banner.className = `alert-banner alert-${type}`;
-    banner.textContent = message;
+    // XSS-safe: Validate type against known values
+    const safeType = ['info', 'critical', 'warning', 'success'].includes(type) ? type : 'info';
+    banner.className = `alert-banner alert-${safeType}`;
+    banner.textContent = message; // Safe: textContent escapes HTML
     banner.style.display = 'block';
     setTimeout(() => { banner.style.display = 'none'; }, 10000);
 }

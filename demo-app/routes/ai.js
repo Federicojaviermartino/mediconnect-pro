@@ -27,8 +27,7 @@ function setupAIRoutes(app, db) {
       if (!result.success) {
         return res.status(500).json({
           error: 'Transcription failed',
-          details: result.error
-        });
+                  });
       }
 
       // Save transcript to consultation if consultationId provided
@@ -48,8 +47,7 @@ function setupAIRoutes(app, db) {
       console.error('Transcription endpoint error:', error);
       res.status(500).json({
         error: 'Failed to transcribe audio',
-        details: error.message
-      });
+              });
     }
   });
 
@@ -80,8 +78,7 @@ function setupAIRoutes(app, db) {
       if (!result.success) {
         return res.status(500).json({
           error: 'Note generation failed',
-          details: result.error
-        });
+                  });
       }
 
       res.json({
@@ -92,8 +89,7 @@ function setupAIRoutes(app, db) {
       console.error('Note generation endpoint error:', error);
       res.status(500).json({
         error: 'Failed to generate notes',
-        details: error.message
-      });
+              });
     }
   });
 
@@ -139,8 +135,7 @@ function setupAIRoutes(app, db) {
       if (!result.success) {
         return res.status(500).json({
           error: 'Report generation failed',
-          details: result.error
-        });
+                  });
       }
 
       res.json({
@@ -152,8 +147,7 @@ function setupAIRoutes(app, db) {
       console.error('Report generation endpoint error:', error);
       res.status(500).json({
         error: 'Failed to generate report',
-        details: error.message
-      });
+              });
     }
   });
 
@@ -184,8 +178,7 @@ function setupAIRoutes(app, db) {
       if (!result.success) {
         return res.status(500).json({
           error: 'Triage failed',
-          details: result.error
-        });
+                  });
       }
 
       // Log triage result for analytics
@@ -199,8 +192,7 @@ function setupAIRoutes(app, db) {
       console.error('Triage endpoint error:', error);
       res.status(500).json({
         error: 'Failed to perform triage',
-        details: error.message
-      });
+              });
     }
   });
 

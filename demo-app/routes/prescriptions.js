@@ -1,5 +1,6 @@
 // Prescription routes
 const { requireAuth } = require('../middleware/auth');
+const { validate, prescriptionSchemas } = require('../middleware/validators');
 
 function setupPrescriptionRoutes(app, db) {
   // Get prescriptions
@@ -34,12 +35,12 @@ function setupPrescriptionRoutes(app, db) {
     } catch (error) {
       console.error('Get prescriptions error:', error);
       console.error('Error stack:', error.stack);
-      res.status(500).json({ error: 'Failed to fetch prescriptions', details: error.message });
+      res.status(500).json({ error: 'Failed to fetch prescriptions' });
     }
   });
 
   // Create prescription request
-  app.post('/api/prescriptions', requireAuth, (req, res) => {
+  app.post('/api/prescriptions', requireAuth, validate(prescriptionSchemas.create), (req, res) => {
     try {
       // Validate session and user data
       if (!req.session || !req.session.user || !req.session.user.id) {
@@ -49,10 +50,6 @@ function setupPrescriptionRoutes(app, db) {
 
       const { medication, dosage, pharmacy, notes } = req.body;
       const userId = req.session.user.id;
-
-      if (!medication || !pharmacy) {
-        return res.status(400).json({ error: 'Medication and pharmacy are required' });
-      }
 
       const prescriptionData = {
         patient_id: userId,
@@ -70,7 +67,7 @@ function setupPrescriptionRoutes(app, db) {
     } catch (error) {
       console.error('Create prescription error:', error);
       console.error('Error stack:', error.stack);
-      res.status(500).json({ error: 'Failed to create prescription request', details: error.message });
+      res.status(500).json({ error: 'Failed to create prescription request' });
     }
   });
 }

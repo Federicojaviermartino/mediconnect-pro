@@ -1,14 +1,11 @@
 // Authentication routes
 const bcrypt = require('bcryptjs');
+const { validate, authSchemas } = require('../middleware/validators');
 
-function setupAuthRoutes(app, db) {
-  // Login endpoint
-  app.post('/api/auth/login', (req, res) => {
+function setupAuthRoutes(app, db, authLimiter) {
+  // Login endpoint (with rate limiting and validation)
+  app.post('/api/auth/login', authLimiter, validate(authSchemas.login), async (req, res) => {
     const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password required' });
-    }
 
     try {
       const user = db.getUserByEmail(email);
@@ -17,7 +14,7 @@ function setupAuthRoutes(app, db) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
 
-      const validPassword = bcrypt.compareSync(password, user.password);
+      const validPassword = await bcrypt.compare(password, user.password);
 
       if (!validPassword) {
         return res.status(401).json({ error: 'Invalid credentials' });

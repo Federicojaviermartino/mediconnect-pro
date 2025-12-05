@@ -29,11 +29,14 @@ describe('AI Endpoints', () => {
       }
     }));
 
-    // Initialize database
-    db = initDatabase();
+    // Initialize database (async)
+    db = await initDatabase();
+
+    // Mock rate limiter for tests (pass-through)
+    const authLimiter = (req, res, next) => next();
 
     // Setup routes
-    setupAuthRoutes(app, db);
+    setupAuthRoutes(app, db, authLimiter);
     setupAIRoutes(app, db);
 
     // Login as doctor

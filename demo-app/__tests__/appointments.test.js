@@ -13,6 +13,13 @@ describe('Appointments Endpoints', () => {
   let doctorCookies;
   let patientCookies;
 
+  // Helper to get future date string
+  const getFutureDate = (daysAhead) => {
+    const date = new Date();
+    date.setDate(date.getDate() + daysAhead);
+    return date.toISOString().split('T')[0];
+  };
+
   beforeAll(async () => {
     // Create Express app for testing
     app = express();
@@ -30,11 +37,14 @@ describe('Appointments Endpoints', () => {
       }
     }));
 
-    // Initialize database
-    db = initDatabase();
+    // Initialize database (async)
+    db = await initDatabase();
+
+    // Mock rate limiter for tests (pass-through)
+    const authLimiter = (req, res, next) => next();
 
     // Setup routes
-    setupAuthRoutes(app, db);
+    setupAuthRoutes(app, db, authLimiter);
     setupAppointmentRoutes(app, db);
 
     // Login as admin
@@ -137,11 +147,9 @@ describe('Appointments Endpoints', () => {
       const response = await request(app)
         .post('/api/appointments')
         .send({
-          patient_id: 3,
-          doctor_id: 2,
-          date: '2025-12-01',
+          date: getFutureDate(7),
           time: '10:00',
-          type: 'Consultation'
+          reason: 'Regular checkup'
         });
 
       expect(response.statusCode).toBe(401);
@@ -149,12 +157,9 @@ describe('Appointments Endpoints', () => {
 
     test('should create appointment with valid data', async () => {
       const appointmentData = {
-        patient_id: 3,
-        doctor_id: 2,
-        date: '2025-12-15',
+        date: getFutureDate(15),
         time: '14:00',
-        type: 'Follow-up',
-        reason: 'Test appointment'
+        reason: 'Follow-up consultation for test'
       };
 
       const response = await request(app)
@@ -162,40 +167,11 @@ describe('Appointments Endpoints', () => {
         .set('Cookie', patientCookies)
         .send(appointmentData);
 
-      expect(response.statusCode).toBe(201);
+      expect(response.statusCode).toBe(200);
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('appointment');
       expect(response.body.appointment).toHaveProperty('id');
-      expect(response.body.appointment.type).toBe('Follow-up');
-      expect(response.body.appointment.date).toBe('2025-12-15');
-    });
-
-    test('should fail without required patient_id', async () => {
-      const response = await request(app)
-        .post('/api/appointments')
-        .set('Cookie', patientCookies)
-        .send({
-          doctor_id: 2,
-          date: '2025-12-01',
-          time: '10:00'
-        });
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body).toHaveProperty('error');
-    });
-
-    test('should fail without required doctor_id', async () => {
-      const response = await request(app)
-        .post('/api/appointments')
-        .set('Cookie', patientCookies)
-        .send({
-          patient_id: 3,
-          date: '2025-12-01',
-          time: '10:00'
-        });
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body).toHaveProperty('error');
+      expect(response.body.appointment.reason).toBe('Follow-up consultation for test');
     });
 
     test('should fail without required date', async () => {
@@ -203,9 +179,8 @@ describe('Appointments Endpoints', () => {
         .post('/api/appointments')
         .set('Cookie', patientCookies)
         .send({
-          patient_id: 3,
-          doctor_id: 2,
-          time: '10:00'
+          time: '10:00',
+          reason: 'Missing date test'
         });
 
       expect(response.statusCode).toBe(400);
@@ -217,29 +192,53 @@ describe('Appointments Endpoints', () => {
         .post('/api/appointments')
         .set('Cookie', patientCookies)
         .send({
-          patient_id: 3,
-          doctor_id: 2,
-          date: '2025-12-01'
+          date: getFutureDate(5),
+          reason: 'Missing time test'
         });
 
       expect(response.statusCode).toBe(400);
       expect(response.body).toHaveProperty('error');
     });
 
-    test('should set default status to scheduled', async () => {
+    test('should fail without required reason', async () => {
       const response = await request(app)
         .post('/api/appointments')
-        .set('Cookie', doctorCookies)
+        .set('Cookie', patientCookies)
         .send({
-          patient_id: 3,
-          doctor_id: 2,
-          date: '2025-12-20',
-          time: '09:00',
-          type: 'Consultation'
+          date: getFutureDate(5),
+          time: '11:00'
         });
 
-      expect(response.statusCode).toBe(201);
-      expect(response.body.appointment).toHaveProperty('status', 'scheduled');
+      expect(response.statusCode).toBe(400);
+      expect(response.body).toHaveProperty('error');
+    });
+
+    test('should fail with past date', async () => {
+      const response = await request(app)
+        .post('/api/appointments')
+        .set('Cookie', patientCookies)
+        .send({
+          date: '2020-01-01',
+          time: '10:00',
+          reason: 'Past date test'
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body).toHaveProperty('error');
+    });
+
+    test('should fail with invalid time format', async () => {
+      const response = await request(app)
+        .post('/api/appointments')
+        .set('Cookie', patientCookies)
+        .send({
+          date: getFutureDate(5),
+          time: '25:00',
+          reason: 'Invalid time test'
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body).toHaveProperty('error');
     });
 
     test('should allow doctor to create appointments', async () => {
@@ -247,14 +246,12 @@ describe('Appointments Endpoints', () => {
         .post('/api/appointments')
         .set('Cookie', doctorCookies)
         .send({
-          patient_id: 3,
-          doctor_id: 2,
-          date: '2025-12-25',
+          date: getFutureDate(20),
           time: '11:00',
-          type: 'Check-up'
+          reason: 'Doctor scheduled appointment'
         });
 
-      expect(response.statusCode).toBe(201);
+      expect(response.statusCode).toBe(200);
       expect(response.body).toHaveProperty('success', true);
     });
 
@@ -263,90 +260,43 @@ describe('Appointments Endpoints', () => {
         .post('/api/appointments')
         .set('Cookie', adminCookies)
         .send({
-          patient_id: 3,
-          doctor_id: 2,
-          date: '2025-12-30',
+          date: getFutureDate(25),
           time: '15:00',
-          type: 'Emergency'
+          reason: 'Admin scheduled appointment'
         });
 
-      expect(response.statusCode).toBe(201);
+      expect(response.statusCode).toBe(200);
       expect(response.body).toHaveProperty('success', true);
     });
-  });
 
-  describe('PATCH /api/appointments/:id', () => {
-    let appointmentId;
-
-    beforeAll(async () => {
-      // Create an appointment to update
-      const createResponse = await request(app)
+    test('should accept optional doctor_id', async () => {
+      const response = await request(app)
         .post('/api/appointments')
         .set('Cookie', patientCookies)
         .send({
-          patient_id: 3,
-          doctor_id: 2,
-          date: '2025-12-31',
-          time: '10:00',
-          type: 'Test for Update'
+          date: getFutureDate(30),
+          time: '09:00',
+          reason: 'Appointment with specific doctor',
+          doctor_id: 2
         });
-
-      appointmentId = createResponse.body.appointment.id;
-    });
-
-    test('should require authentication', async () => {
-      const response = await request(app)
-        .patch(`/api/appointments/${appointmentId}`)
-        .send({ status: 'completed' });
-
-      expect(response.statusCode).toBe(401);
-    });
-
-    test('should update appointment status', async () => {
-      const response = await request(app)
-        .patch(`/api/appointments/${appointmentId}`)
-        .set('Cookie', doctorCookies)
-        .send({ status: 'completed' });
 
       expect(response.statusCode).toBe(200);
       expect(response.body).toHaveProperty('success', true);
-      expect(response.body.appointment).toHaveProperty('status', 'completed');
+      expect(response.body.appointment.doctor_id).toBe(2);
     });
 
-    test('should update appointment notes', async () => {
+    test('should use default doctor_id when not provided', async () => {
       const response = await request(app)
-        .patch(`/api/appointments/${appointmentId}`)
-        .set('Cookie', doctorCookies)
-        .send({ notes: 'Patient responded well to treatment' });
-
-      expect(response.statusCode).toBe(200);
-      expect(response.body.appointment).toHaveProperty('notes', 'Patient responded well to treatment');
-    });
-
-    test('should fail for non-existent appointment', async () => {
-      const response = await request(app)
-        .patch('/api/appointments/99999')
-        .set('Cookie', doctorCookies)
-        .send({ status: 'completed' });
-
-      expect(response.statusCode).toBe(404);
-      expect(response.body).toHaveProperty('error');
-    });
-
-    test('should allow multiple field updates', async () => {
-      const response = await request(app)
-        .patch(`/api/appointments/${appointmentId}`)
-        .set('Cookie', doctorCookies)
+        .post('/api/appointments')
+        .set('Cookie', patientCookies)
         .send({
-          status: 'completed',
-          notes: 'Final consultation notes',
-          type: 'Follow-up Completed'
+          date: getFutureDate(35),
+          time: '16:00',
+          reason: 'Appointment without specific doctor'
         });
 
       expect(response.statusCode).toBe(200);
-      expect(response.body.appointment.status).toBe('completed');
-      expect(response.body.appointment.notes).toBe('Final consultation notes');
-      expect(response.body.appointment.type).toBe('Follow-up Completed');
+      expect(response.body.appointment.doctor_id).toBe(2); // Default is Dr. Smith
     });
   });
 
@@ -382,6 +332,22 @@ describe('Appointments Endpoints', () => {
           expect(apt).toHaveProperty('doctor_id');
           expect(apt).toHaveProperty('date');
           expect(apt).toHaveProperty('time');
+        });
+      }
+    });
+
+    test('should enrich appointments with user names', async () => {
+      const response = await request(app)
+        .get('/api/appointments')
+        .set('Cookie', adminCookies);
+
+      expect(response.statusCode).toBe(200);
+      const appointments = response.body.appointments;
+
+      if (appointments.length > 0) {
+        appointments.forEach(apt => {
+          expect(apt).toHaveProperty('patient_name');
+          expect(apt).toHaveProperty('doctor_name');
         });
       }
     });

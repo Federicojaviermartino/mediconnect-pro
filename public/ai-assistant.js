@@ -1,5 +1,14 @@
 // AI Assistant functionality for MediConnect Pro
 
+// XSS Protection: HTML escape function
+function escapeHtmlAI(text) {
+    if (text === null || text === undefined) return '';
+    const str = String(text);
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
 // Check AI Service Status
 async function checkAIStatus() {
     try {
@@ -19,7 +28,8 @@ async function checkAIStatus() {
 // Symptom Triage
 async function triageSymptoms(symptoms) {
     try {
-        const response = await fetch('/api/ai/triage', {
+        // Use csrfFetch for CSRF-protected POST request
+        const response = await csrfFetch('/api/ai/triage', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -33,11 +43,11 @@ async function triageSymptoms(symptoms) {
             displayTriageResults(data.triage);
             return data.triage;
         } else {
-            showNotification('Error al realizar el triaje: ' + (data.error || 'Error desconocido'), 'error');
+            showNotification('Error performing triage: ' + (data.error || 'Unknown error'), 'error');
         }
     } catch (error) {
         console.error('Triage error:', error);
-        showNotification('Error al conectar con el servicio de triaje', 'error');
+        showNotification('Error connecting to triage service', 'error');
     }
     return null;
 }
@@ -59,10 +69,10 @@ function displayTriageResults(triage) {
     };
 
     const urgencyLabels = {
-        low: 'Baja Urgencia',
-        medium: 'Urgencia Media',
-        high: 'Urgencia Alta',
-        emergency: 'EMERGENCIA'
+        low: 'Low Urgency',
+        medium: 'Medium Urgency',
+        high: 'High Urgency',
+        emergency: 'EMERGENCY'
     };
 
     const urgencyIcons = {
@@ -72,64 +82,69 @@ function displayTriageResults(triage) {
         emergency: '🚨'
     };
 
+    // XSS-safe: Validate urgencyLevel against known values
+    const safeUrgencyLevel = ['low', 'medium', 'high', 'emergency'].includes(triage.urgencyLevel)
+        ? triage.urgencyLevel
+        : 'medium';
+
     mainContent.innerHTML = `
         <div class="ai-triage-results">
-            <div class="triage-header" style="background: ${urgencyColors[triage.urgencyLevel]};">
-                <h2>${urgencyIcons[triage.urgencyLevel]} ${urgencyLabels[triage.urgencyLevel]}</h2>
-                <p>${triage.urgencyReason}</p>
+            <div class="triage-header" style="background: ${urgencyColors[safeUrgencyLevel]};">
+                <h2>${urgencyIcons[safeUrgencyLevel]} ${urgencyLabels[safeUrgencyLevel]}</h2>
+                <p>${escapeHtmlAI(triage.urgencyReason)}</p>
             </div>
 
             ${triage.immediateAction ? `
                 <div class="emergency-alert">
-                    <h3>🚨 ACCIÓN INMEDIATA REQUERIDA</h3>
-                    <p>Por favor, busca atención médica de emergencia inmediatamente o llama al 911/112.</p>
+                    <h3>🚨 IMMEDIATE ACTION REQUIRED</h3>
+                    <p>Please seek emergency medical attention immediately or call 911.</p>
                 </div>
             ` : ''}
 
             <div class="triage-section">
-                <h3>Posibles Condiciones</h3>
+                <h3>Possible Conditions</h3>
                 <ul class="conditions-list">
-                    ${triage.possibleConditions.map(condition => `<li>${condition}</li>`).join('')}
+                    ${(triage.possibleConditions || []).map(condition => `<li>${escapeHtmlAI(condition)}</li>`).join('')}
                 </ul>
             </div>
 
             <div class="triage-section">
-                <h3>Especialidad Recomendada</h3>
-                <p class="specialty-badge">${triage.recommendedSpecialty}</p>
+                <h3>Recommended Specialty</h3>
+                <p class="specialty-badge">${escapeHtmlAI(triage.recommendedSpecialty)}</p>
             </div>
 
             ${triage.redFlags && triage.redFlags.length > 0 ? `
                 <div class="triage-section red-flags">
-                    <h3>⚠️ Señales de Alarma</h3>
+                    <h3>⚠️ Warning Signs</h3>
                     <ul>
-                        ${triage.redFlags.map(flag => `<li>${flag}</li>`).join('')}
+                        ${triage.redFlags.map(flag => `<li>${escapeHtmlAI(flag)}</li>`).join('')}
                     </ul>
-                    <p><strong>Si experimentas alguna de estas señales, busca atención médica inmediata.</strong></p>
+                    <p><strong>If you experience any of these signs, seek immediate medical attention.</strong></p>
                 </div>
             ` : ''}
 
             <div class="triage-section">
-                <h3>Recomendaciones</h3>
+                <h3>Recommendations</h3>
                 <ul class="recommendations-list">
-                    ${triage.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                    ${(triage.recommendations || []).map(rec => `<li>${escapeHtmlAI(rec)}</li>`).join('')}
                 </ul>
             </div>
 
             ${triage.questions && triage.questions.length > 0 ? `
                 <div class="triage-section">
-                    <h3>Preguntas para tu Médico</h3>
+                    <h3>Questions for Your Doctor</h3>
                     <ul class="questions-list">
-                        ${triage.questions.map(q => `<li>${q}</li>`).join('')}
+                        ${triage.questions.map(q => `<li>${escapeHtmlAI(q)}</li>`).join('')}
                     </ul>
                 </div>
             ` : ''}
 
             <div class="triage-actions">
-                <button onclick="scheduleAppointment('${triage.recommendedSpecialty}')" class="btn-primary">
-                    Agendar Cita con ${triage.recommendedSpecialty}
+                <button onclick="scheduleAppointment('${escapeHtmlAI(triage.recommendedSpecialty).replace(/'/g, "\\'")}')" class="btn-primary">
+                    Schedule Appointment with ${escapeHtmlAI(triage.recommendedSpecialty)}
                 </button>
                 <button onclick="showTriageForm()" class="btn-secondary">
-                    Nuevo Análisis
+                    New Analysis
                 </button>
             </div>
         </div>
@@ -278,46 +293,46 @@ window.showTriageForm = function showTriageForm() {
     mainContent.innerHTML = `
         <div class="ai-triage-form">
             <div class="form-header">
-                <h2>🤖 Asistente de Triaje con IA</h2>
-                <p>Describe tus síntomas y te ayudaremos a determinar el nivel de urgencia</p>
+                <h2>🤖 AI Triage Assistant</h2>
+                <p>Describe your symptoms and we'll help determine the urgency level</p>
             </div>
 
             <div class="medical-disclaimer-banner">
                 <div class="disclaimer-icon">⚠️</div>
                 <div class="disclaimer-content">
-                    <h3>AVISO MÉDICO IMPORTANTE</h3>
-                    <p><strong>Este asistente de IA es solo para fines informativos y educativos.</strong></p>
+                    <h3>IMPORTANT MEDICAL NOTICE</h3>
+                    <p><strong>This AI assistant is for informational and educational purposes only.</strong></p>
                     <ul>
-                        <li>NO constituye consejo médico, diagnóstico o tratamiento</li>
-                        <li>NO reemplaza la evaluación de un profesional médico certificado</li>
-                        <li>Puede producir información incompleta o inexacta</li>
-                        <li>NO debe usarse para situaciones de emergencia médica</li>
+                        <li>Does NOT constitute medical advice, diagnosis, or treatment</li>
+                        <li>Does NOT replace evaluation by a certified medical professional</li>
+                        <li>May produce incomplete or inaccurate information</li>
+                        <li>Should NOT be used for medical emergency situations</li>
                     </ul>
                     <p class="emergency-notice">
-                        <strong>🚨 Para emergencias médicas, llama al 911/112 inmediatamente.</strong>
+                        <strong>🚨 For medical emergencies, call 911 immediately.</strong>
                     </p>
                     <p class="consent-text">
-                        Al usar esta herramienta, reconoces estas limitaciones y aceptas consultar
-                        con profesionales médicos calificados para todas las decisiones médicas.
+                        By using this tool, you acknowledge these limitations and agree to consult
+                        with qualified medical professionals for all medical decisions.
                     </p>
                 </div>
             </div>
 
             <div class="form-content">
                 <div class="form-group">
-                    <label for="symptoms">Describe tus síntomas:</label>
+                    <label for="symptoms">Describe your symptoms:</label>
                     <textarea
                         id="symptoms"
                         rows="8"
-                        placeholder="Ejemplo: Tengo dolor de cabeza desde hace 3 días, con náuseas por la mañana y sensibilidad a la luz..."
+                        placeholder="Example: I have had a headache for 3 days, with nausea in the morning and sensitivity to light..."
                         class="form-textarea"
                     ></textarea>
-                    <small>Sé lo más detallado posible: cuándo comenzó, intensidad, síntomas asociados, etc.</small>
+                    <small>Be as detailed as possible: when it started, intensity, associated symptoms, etc.</small>
                 </div>
 
                 <div class="form-actions">
                     <button onclick="submitTriageForm()" class="btn-primary">
-                        Analizar Síntomas
+                        Analyze Symptoms
                     </button>
                 </div>
             </div>
@@ -482,12 +497,12 @@ async function submitTriageForm() {
     const symptoms = symptomsInput.value.trim();
 
     if (!symptoms) {
-        showNotification('Por favor describe tus síntomas', 'warning');
+        showNotification('Please describe your symptoms', 'warning');
         return;
     }
 
     if (symptoms.length < 20) {
-        showNotification('Por favor proporciona una descripción más detallada de tus síntomas', 'warning');
+        showNotification('Please provide a more detailed description of your symptoms', 'warning');
         return;
     }
 
@@ -496,8 +511,8 @@ async function submitTriageForm() {
     mainContent.innerHTML = `
         <div style="text-align: center; padding: 60px 20px;">
             <div class="loader"></div>
-            <h3>Analizando síntomas...</h3>
-            <p>Nuestro asistente de IA está evaluando tu información</p>
+            <h3>Analyzing symptoms...</h3>
+            <p>Our AI assistant is evaluating your information</p>
         </div>
     `;
 
@@ -530,7 +545,7 @@ async function submitTriageForm() {
 
 // Schedule Appointment
 function scheduleAppointment(specialty) {
-    showNotification(`Redirigiendo a agendamiento para ${specialty}...`, 'info');
+    showNotification(`Redirecting to schedule appointment for ${specialty}...`, 'info');
 
     // Navigate to appointments
     setTimeout(() => {
@@ -545,12 +560,22 @@ function showNotification(message, type = 'success') {
         existing.remove();
     }
 
+    // XSS-safe: Validate type against known values
+    const safeType = ['success', 'error', 'warning', 'info'].includes(type) ? type : 'info';
+
+    // Create notification using DOM APIs (XSS-safe)
     const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-        <span>${message}</span>
-        <button onclick="this.parentElement.remove()">×</button>
-    `;
+    notification.className = `notification notification-${safeType}`;
+
+    const messageSpan = document.createElement('span');
+    messageSpan.textContent = message; // Safe: textContent escapes HTML
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '×';
+    closeBtn.onclick = function() { this.parentElement.remove(); };
+
+    notification.appendChild(messageSpan);
+    notification.appendChild(closeBtn);
     document.body.appendChild(notification);
 
     setTimeout(() => {

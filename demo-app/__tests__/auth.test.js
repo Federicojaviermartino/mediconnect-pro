@@ -9,7 +9,7 @@ describe('Authentication API', () => {
   let app;
   let db;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     // Create Express app for testing
     app = express();
     app.use(express.json());
@@ -26,11 +26,14 @@ describe('Authentication API', () => {
       }
     }));
 
-    // Initialize database
-    db = initDatabase();
+    // Initialize database (async)
+    db = await initDatabase();
+
+    // Mock rate limiter for tests (pass-through)
+    const authLimiter = (req, res, next) => next();
 
     // Setup auth routes
-    setupAuthRoutes(app, db);
+    setupAuthRoutes(app, db, authLimiter);
   });
 
   describe('POST /api/auth/login', () => {

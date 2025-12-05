@@ -15,14 +15,34 @@ The live demo at https://mediconnect-pro.onrender.com runs the **demo applicatio
 
 ### Current Implementation (Demo App)
 - **Single Express.js server** at `server.js` (port 3000)
-- **JSON file-based database** at `demo-app/database/database.json`
+- **JSON file-based database** at `demo-app/database/database.json` (with PostgreSQL adapter ready)
 - **Static HTML/CSS/JS frontend** served from `public/`
 - **Routes organized by feature** in `demo-app/routes/`:
-  - `auth.js` - Authentication (login/logout/session)
+  - `auth.js` - Authentication (login/logout/session) with rate limiting
   - `api.js` - Patient data, vitals, stats
-  - `appointments.js` - Appointment management
-  - `prescriptions.js` - Prescription management
+  - `appointments.js` - Appointment management with validation
+  - `prescriptions.js` - Prescription management with validation
   - `ai.js` - AI assistant (GPT-4 & Claude integration)
+  - `insurance.js` - Insurance eligibility verification
+  - `pharmacy.js` - E-prescription management
+  - `vitals.js` - Vital signs monitoring
+
+### Middleware Layer
+- `demo-app/middleware/auth.js` - Authentication middleware (requireAuth, requireRole)
+- `demo-app/middleware/validators.js` - Joi input validation schemas
+- `demo-app/middleware/csrf.js` - CSRF protection middleware
+- `demo-app/middleware/request-logger.js` - HTTP request logging
+
+### Utilities
+- `demo-app/utils/logger.js` - Winston structured logging
+- `demo-app/utils/health-check.js` - System health monitoring
+- `demo-app/utils/cache.js` - In-memory caching with TTL support
+
+### Services
+- `demo-app/services/ai-service.js` - AI integration (OpenAI/Anthropic)
+- `demo-app/services/insurance-service.js` - Insurance API integration
+- `demo-app/services/pharmacy-service.js` - Pharmacy integration
+- `demo-app/services/vitals-monitoring.js` - Vitals processing
 
 ### Planned Architecture (Microservices)
 The `services/` directory contains scaffolding for:
@@ -35,8 +55,9 @@ The `services/` directory contains scaffolding for:
 
 **Important**: The microservices are **scaffolds only** and not currently functional.
 
-## Database Schema (JSON File)
+## Database
 
+### JSON File Storage (Default)
 Located at `demo-app/database/database.json`:
 
 ```javascript
@@ -50,6 +71,11 @@ Located at `demo-app/database/database.json`:
 }
 ```
 
+### PostgreSQL Support (Ready)
+Set `USE_POSTGRES=true` or provide `DATABASE_URL` to use PostgreSQL:
+- `demo-app/database/postgres-adapter.js` - PostgreSQL adapter
+- `demo-app/database/migrate.js` - Database migrations
+
 The database module (`demo-app/database/init.js`) provides:
 - `getUserByEmail(email)`, `getUserById(userId)`
 - `getPatientById(patientId)`, `getAllPatients()`
@@ -57,7 +83,7 @@ The database module (`demo-app/database/init.js`) provides:
 - `getAppointments(userId, role)`, `createAppointment(data)`
 - `getPrescriptions(userId, role)`, `createPrescription(data)`
 
-**Critical**: Always use defensive checks for array existence (appointments/prescriptions) as per commit f286769.
+**Critical**: Always use defensive checks for array existence (appointments/prescriptions).
 
 ## Key Commands
 
@@ -70,8 +96,30 @@ npm start
 # Build (just runs npm install --production)
 npm run build
 
-# Run tests (placeholder)
+# Run tests with coverage
 npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests for CI
+npm run test:ci
+```
+
+### Database Commands
+
+```bash
+# Run migrations
+npm run db:migrate
+
+# Check migration status
+npm run db:migrate:status
+
+# Rollback migrations
+npm run db:migrate:rollback
+
+# Start PostgreSQL with Docker and run migrations
+npm run db:setup
 ```
 
 ### Docker Commands (for full microservices - not currently used)
@@ -86,18 +134,79 @@ docker-compose logs -f
 # Stop all services
 docker-compose down
 
-# Rebuild and restart specific service
-docker-compose up -d --build auth-service
+# Start PostgreSQL only
+npm run docker:postgres
 ```
 
-### Database Management
+### Demo Users
 
 The database auto-initializes with demo users on first run:
 - **Admin**: `admin@mediconnect.demo` / `Demo2024!Admin`
 - **Doctor**: `dr.smith@mediconnect.demo` / `Demo2024!Doctor`
 - **Patient**: `john.doe@mediconnect.demo` / `Demo2024!Patient`
 
-The database persists to `demo-app/database/database.json` and auto-saves on changes.
+## Security Features
+
+### Authentication & Authorization
+- **Session-based auth** using `express-session`
+- **Rate limiting** on login endpoint (5 attempts per 15 minutes)
+- **Role-based access control** (admin, doctor, patient)
+- Auth middleware in `demo-app/middleware/auth.js`
+
+### Input Validation
+- **Joi validation schemas** in `demo-app/middleware/validators.js`
+- Validates: login, appointments, prescriptions, vitals
+- Email validation supports `.demo` TLD for testing
+
+### Security Headers
+- **Helmet.js** for HTTP security headers
+- **X-Content-Type-Options**: nosniff
+- **X-Frame-Options**: DENY
+- **Content-Security-Policy**: configured
+
+### XSS Protection
+- Frontend sanitization in `public/utils/sanitize.js`
+- `escapeHtml()` function for user-generated content
+- All dynamic content sanitized before DOM insertion
+
+### CSRF Protection
+- CSRF middleware in `demo-app/middleware/csrf.js`
+- Token-based protection for state-changing requests
+
+## Testing
+
+### Test Infrastructure
+- **Jest** for unit and integration tests
+- **Supertest** for HTTP endpoint testing
+- Tests located in `demo-app/__tests__/`
+
+### Running Tests
+
+```bash
+# Run all tests with coverage
+npm test
+
+# Run specific test file
+npx jest demo-app/__tests__/auth.test.js
+
+# Run tests in watch mode
+npm run test:watch
+```
+
+### Test Files
+- `auth.test.js` - Authentication endpoints
+- `database.test.js` - Database operations
+- `appointments.test.js` - Appointment API
+- `prescriptions.test.js` - Prescription API
+- `ai.test.js` - AI service endpoints
+- `pharmacy.test.js` - Pharmacy integration (skipped - needs mock data)
+- `insurance.test.js` - Insurance integration (skipped - needs mock data)
+
+### Coverage Thresholds
+- Branches: 14%
+- Functions: 20%
+- Lines: 14%
+- Statements: 14%
 
 ## Frontend Architecture
 
@@ -109,18 +218,17 @@ The frontend uses **vanilla JavaScript** with **no framework**:
 - `public/dashboard-patient.html` - Patient dashboard
 
 ### Shared Resources
-- `public/dashboard-interactive.js` - Main dashboard logic, data fetching, event handlers
-- `public/dashboard-styles.css` - Shared styling for all dashboards
-- `public/ai-assistant.js` - AI medical assistant modal and functionality
+- `public/dashboard-interactive.js` - Main dashboard logic
+- `public/dashboard-styles.css` - Shared styling
+- `public/ai-assistant.js` - AI medical assistant modal
+- `public/utils/sanitize.js` - XSS protection utilities
+- `public/utils/csrf.js` - CSRF token management
+- `public/utils/lazy-load.js` - Lazy loading for images and components
 
 ### Key JavaScript Patterns
 
-**Session Management**: Uses `fetch('/api/auth/me')` to get current user
-**Data Fetching**: All API calls use `fetch()` with credentials
-**AI Assistant**: Global `showTriageForm()` function accessible from all dashboards
-
 ```javascript
-// Example API call pattern
+// Example API call pattern with credentials
 async function loadData() {
   const response = await fetch('/api/endpoint', {
     credentials: 'include' // Required for session cookies
@@ -152,13 +260,70 @@ API endpoints:
 
 **Important**: AI features gracefully degrade if API keys are not set.
 
-## Authentication & Session Management
+## Logging
 
-- **Session-based auth** using `express-session`
-- Sessions stored in memory (not Redis in demo)
-- Login sets `req.session.userId` and `req.session.userRole`
-- Auth middleware in `demo-app/middleware/auth.js`
-- All protected routes use `requireAuth` middleware
+### Winston Logger
+Located at `demo-app/utils/logger.js`:
+- **Development**: Pretty console output with colors
+- **Production**: JSON format for log aggregation
+- Log levels: error, warn, info, http, debug
+
+### Helper Methods
+- `logger.logRequest(req, res, duration)` - HTTP requests
+- `logger.logAuth(event, userId, email, success)` - Auth events
+- `logger.logSecurity(event, severity)` - Security events
+- `logger.logApiError(error, req)` - API errors
+
+## Health Checks
+
+Located at `demo-app/utils/health-check.js`:
+
+### Endpoints
+- `GET /health` - Comprehensive health check
+- `GET /health/live` - Liveness probe (Kubernetes)
+- `GET /health/ready` - Readiness probe (Kubernetes)
+
+### Health Response
+```json
+{
+  "status": "healthy|degraded|unhealthy",
+  "timestamp": "ISO8601",
+  "version": { "version": "1.0.0", "name": "mediconnect-pro" },
+  "uptime": { "formatted": "0d 0h 5m 30s" },
+  "memory": { "heapUsed": 50, "percentage": 25 },
+  "components": {
+    "database": { "status": "up" },
+    "redis": { "status": "down", "fallback": "Using in-memory sessions" }
+  }
+}
+```
+
+## Performance Optimizations
+
+### Response Compression
+- **Gzip compression** enabled for all responses > 1KB
+- Configurable compression level (default: 6)
+- Automatic content-type detection
+
+### Static Asset Caching
+- **HTML**: `no-cache, must-revalidate` (always check for updates)
+- **CSS/JS**: 1 week cache with `stale-while-revalidate` (production)
+- **Images**: 1 month cache with `immutable` (production)
+- **Fonts**: 1 year cache with `immutable` (production)
+- **ETag support** for conditional requests
+
+### In-Memory Caching
+Located at `demo-app/utils/cache.js`:
+- TTL-based caching (default: 30 seconds for API responses)
+- Maximum 500 cache entries
+- Automatic cleanup of expired entries
+- Cache statistics endpoint: `GET /api/cache/stats`
+
+### Lazy Loading
+Located at `public/utils/lazy-load.js`:
+- IntersectionObserver-based image lazy loading
+- Component lazy loading support
+- Fallback for older browsers
 
 ## Deployment
 
@@ -170,9 +335,6 @@ API endpoints:
 
 ### Environment Setup
 ```bash
-# Copy example env file
-cp .env.example .env
-
 # Required for production
 NODE_ENV=production
 PORT=3000
@@ -181,6 +343,10 @@ SESSION_SECRET=<generate-secure-key>
 # Optional for AI features
 OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
+
+# Optional for PostgreSQL
+USE_POSTGRES=true
+DATABASE_URL=postgres://user:pass@host:5432/db
 ```
 
 ## Code Style & Conventions
@@ -190,12 +356,6 @@ ANTHROPIC_API_KEY=sk-ant-...
 - CommonJS modules (`require`/`module.exports`)
 - bcrypt for password hashing (10 rounds)
 - Express.js with middleware pattern
-
-### Security Practices
-- Passwords hashed with bcrypt before storage
-- Session cookies with httpOnly, sameSite: 'lax'
-- CORS not enabled (same-origin only)
-- Trust proxy enabled for Render deployment
 
 ### Error Handling
 - API routes return JSON with `{ error: 'message' }` on failure
@@ -207,63 +367,28 @@ ANTHROPIC_API_KEY=sk-ant-...
 1. **server.js** - Main entry point, route setup, session config
 2. **demo-app/database/init.js** - Database schema and operations
 3. **demo-app/routes/*.js** - API endpoint implementations
-4. **public/dashboard-interactive.js** - Frontend application logic
-5. **public/ai-assistant.js** - AI features frontend
+4. **demo-app/middleware/validators.js** - Input validation schemas
+5. **demo-app/utils/logger.js** - Structured logging
+6. **public/dashboard-interactive.js** - Frontend application logic
 
 ## Known Limitations
 
-1. **No real database** - JSON file storage (not suitable for production scale)
-2. **In-memory sessions** - Sessions lost on server restart
+1. **JSON file storage by default** - Use PostgreSQL for production scale
+2. **In-memory sessions** - Configure Redis for session persistence
 3. **No video consultation** - Video features are UI mockups only
 4. **No real-time features** - WebSocket/Socket.io not implemented
 5. **No email/SMS** - Notification features are placeholders
 6. **Microservices not functional** - Only demo app works
 
-## Recent Changes (from git log)
-
-- **Oct 15**: Added AI Assistant to all dashboards with defensive checks
-- **Oct 15**: Implemented AI medical assistant (GPT-4 & Claude)
-- **Oct 13**: Added comprehensive proposal for advanced features
-- **Oct 13**: Production fixes for undefined database arrays
-
-## Testing the Application
-
-```bash
-# Start server
-npm start
-
-# In another terminal, test health endpoint
-curl http://localhost:3000/health
-
-# Test login
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"dr.smith@mediconnect.demo","password":"Demo2024!Doctor"}'
-
-# Test protected endpoint (with session cookie)
-curl http://localhost:3000/api/patients \
-  -H "Cookie: connect.sid=<session-id-from-login>"
-```
-
-## Next Steps for Development
-
-Based on ADVANCED_FEATURES_PROPOSAL.md, future enhancements should focus on:
-
-1. **AI Clinical Assistant** - Real-time symptom analysis, drug interaction checks
-2. **Insurance Integration** - Eligibility verification, claims submission
-3. **Pharmacy Integration** - E-prescriptions to pharmacies
-4. **Wearable Devices** - Apple Health, Google Fit, CGM integration
-5. **FHIR/HL7 Compliance** - Healthcare interoperability standards
-6. **Analytics Dashboard** - KPIs for clinics (revenue, utilization, satisfaction)
-
 ## Working with This Codebase
 
 When modifying the demo application:
-1. **Always test session/auth flow** after route changes
+1. **Run tests** after changes: `npm test`
 2. **Check database operations** - ensure arrays exist before filtering
 3. **Test across all three dashboards** (admin, doctor, patient)
 4. **Verify AI fallbacks work** when API keys not configured
 5. **Test health endpoint** before deployment (`/health`)
+6. **Validate inputs** using Joi schemas in validators.js
 
 When adding microservices:
 1. They are currently **scaffolds** - implement one service at a time

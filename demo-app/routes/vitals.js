@@ -525,8 +525,7 @@ Format your response as JSON with these exact fields:
     } catch (error) {
       console.error('Error analyzing vitals:', error);
       res.status(500).json({
-        error: 'Failed to analyze vital signs',
-        details: error.message
+        error: 'Failed to analyze vital signs'
       });
     }
   });

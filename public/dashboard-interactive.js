@@ -1,5 +1,14 @@
 // Interactive dashboard functionality
 
+// XSS Protection: HTML escape function
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const str = String(text);
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
 // Global function stubs for AI Assistant (will be implemented by ai-assistant.js)
 // These are defined here to avoid "not defined" errors when onclick fires before script loads
 window.showTriageForm = window.showTriageForm || function() {
@@ -24,7 +33,12 @@ function toggleMobileMenu() {
 }
 
 // Close mobile menu when clicking nav items
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize CSRF protection
+    if (typeof initCsrfProtection === 'function') {
+        await initCsrfProtection();
+    }
+
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
         item.addEventListener('click', () => {
@@ -97,13 +111,19 @@ function showNotification(message, type = 'success') {
         existing.remove();
     }
 
-    // Create notification
+    // Create notification (XSS-safe)
     const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-        <span>${message}</span>
-        <button onclick="this.parentElement.remove()">×</button>
-    `;
+    notification.className = `notification notification-${escapeHtml(type)}`;
+
+    const messageSpan = document.createElement('span');
+    messageSpan.textContent = message;
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '×';
+    closeBtn.onclick = function() { this.parentElement.remove(); };
+
+    notification.appendChild(messageSpan);
+    notification.appendChild(closeBtn);
     document.body.appendChild(notification);
 
     // Auto-remove after 3 seconds
@@ -112,18 +132,18 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
-// View patient details
+// View patient details (XSS-safe)
 function viewPatientDetails(patientId, patientName) {
-    showNotification(`Loading details for ${patientName}...`, 'info');
+    showNotification(`Loading details for ${escapeHtml(patientName)}...`, 'info');
 
     // Simulate loading patient data
     setTimeout(() => {
         const modal = createModal('Patient Details', `
             <div class="patient-detail-modal">
-                <h3>${patientName}</h3>
+                <h3>${escapeHtml(patientName)}</h3>
                 <div class="detail-grid">
                     <div class="detail-item">
-                        <strong>Patient ID:</strong> ${patientId}
+                        <strong>Patient ID:</strong> ${escapeHtml(patientId)}
                     </div>
                     <div class="detail-item">
                         <strong>Status:</strong> Active
@@ -146,7 +166,7 @@ function viewPatientDetails(patientId, patientName) {
     }, 500);
 }
 
-// Create modal
+// Create modal (with XSS-safe title)
 function createModal(title, content) {
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
@@ -156,17 +176,32 @@ function createModal(title, content) {
         }
     };
 
-    modal.innerHTML = `
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>${title}</h2>
-                <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">×</button>
-            </div>
-            <div class="modal-body">
-                ${content}
-            </div>
-        </div>
-    `;
+    // Build modal structure with safe title
+    const modalContent = document.createElement('div');
+    modalContent.className = 'modal-content';
+
+    const modalHeader = document.createElement('div');
+    modalHeader.className = 'modal-header';
+
+    const titleEl = document.createElement('h2');
+    titleEl.textContent = title; // Safe: textContent escapes HTML
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'modal-close';
+    closeBtn.textContent = '×';
+    closeBtn.onclick = function() { this.closest('.modal-overlay').remove(); };
+
+    modalHeader.appendChild(titleEl);
+    modalHeader.appendChild(closeBtn);
+
+    const modalBody = document.createElement('div');
+    modalBody.className = 'modal-body';
+    // Note: content is trusted HTML from our code, not user input
+    modalBody.innerHTML = content;
+
+    modalContent.appendChild(modalHeader);
+    modalContent.appendChild(modalBody);
+    modal.appendChild(modalContent);
 
     return modal;
 }
@@ -211,7 +246,8 @@ async function confirmAppointment() {
     }
 
     try {
-        const response = await fetch('/api/appointments', {
+        // Use csrfFetch for CSRF-protected POST request
+        const response = await csrfFetch('/api/appointments', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ date, time, reason })
@@ -273,7 +309,8 @@ async function confirmPrescription() {
     }
 
     try {
-        const response = await fetch('/api/prescriptions', {
+        // Use csrfFetch for CSRF-protected POST request
+        const response = await csrfFetch('/api/prescriptions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ medication, dosage, pharmacy, notes })
@@ -422,7 +459,7 @@ function exportVitals() {
     }, 1500);
 }
 
-// View all patients (Doctor)
+// View all patients (Doctor) - XSS-safe
 async function viewAllPatients() {
     try {
         const response = await fetch('/api/patients');
@@ -443,11 +480,11 @@ async function viewAllPatients() {
                         <tbody>
                             ${data.patients.map(patient => `
                                 <tr>
-                                    <td><strong>${patient.name}</strong></td>
-                                    <td>${patient.email}</td>
-                                    <td><span class="badge">${patient.blood_type || 'N/A'}</span></td>
+                                    <td><strong>${escapeHtml(patient.name)}</strong></td>
+                                    <td>${escapeHtml(patient.email)}</td>
+                                    <td><span class="badge">${escapeHtml(patient.blood_type || 'N/A')}</span></td>
                                     <td>
-                                        <button class="btn-small" onclick="viewPatientDetails(${patient.id}, '${patient.name}')">View</button>
+                                        <button class="btn-small" onclick="viewPatientDetails(${parseInt(patient.id) || 0}, '${escapeHtml(patient.name).replace(/'/g, "\\'")}')">View</button>
                                     </td>
                                 </tr>
                             `).join('')}
@@ -464,7 +501,7 @@ async function viewAllPatients() {
     }
 }
 
-// View appointments
+// View appointments - XSS-safe
 async function viewAppointments() {
     console.log('viewAppointments() called'); // Debug
     try {
@@ -487,10 +524,10 @@ async function viewAppointments() {
                         <tbody>
                             ${data.appointments.length > 0 ? data.appointments.map(apt => `
                                 <tr>
-                                    <td>${apt.date}</td>
-                                    <td>${apt.time}</td>
-                                    <td>${apt.reason}</td>
-                                    <td><span class="badge">${apt.status}</span></td>
+                                    <td>${escapeHtml(apt.date)}</td>
+                                    <td>${escapeHtml(apt.time)}</td>
+                                    <td>${escapeHtml(apt.reason)}</td>
+                                    <td><span class="badge">${escapeHtml(apt.status)}</span></td>
                                 </tr>
                             `).join('') : '<tr><td colspan="4" style="text-align: center; padding: 40px;">No appointments found</td></tr>'}
                         </tbody>
@@ -507,7 +544,7 @@ async function viewAppointments() {
     }
 }
 
-// View prescriptions
+// View prescriptions - XSS-safe
 async function viewPrescriptions() {
     console.log('viewPrescriptions() called'); // Debug
     try {
@@ -531,11 +568,11 @@ async function viewPrescriptions() {
                         <tbody>
                             ${data.prescriptions.length > 0 ? data.prescriptions.map(presc => `
                                 <tr>
-                                    <td><strong>${presc.medication}</strong></td>
-                                    <td>${presc.dosage}</td>
-                                    <td>${presc.frequency}</td>
-                                    <td>${presc.pharmacy}</td>
-                                    <td><span class="badge">${presc.status}</span></td>
+                                    <td><strong>${escapeHtml(presc.medication)}</strong></td>
+                                    <td>${escapeHtml(presc.dosage)}</td>
+                                    <td>${escapeHtml(presc.frequency)}</td>
+                                    <td>${escapeHtml(presc.pharmacy)}</td>
+                                    <td><span class="badge">${escapeHtml(presc.status)}</span></td>
                                 </tr>
                             `).join('') : '<tr><td colspan="5" style="text-align: center; padding: 40px;">No prescriptions found</td></tr>'}
                         </tbody>

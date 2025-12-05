@@ -184,6 +184,8 @@
     </div>
 
     <script src="/dashboard-scripts.js"></script>
+    <script src="/utils/csrf.js"></script>
+    <script src="/utils/lazy-load.js"></script>
     <script src="/dashboard-interactive.js"></script>
     <script src="/ai-assistant.js"></script>
     <script>
@@ -210,37 +212,41 @@
 
     <footer class="dashboard-footer">
         <div class="footer-disclaimer">
-            <p class="disclaimer-title">⚠️ Aviso Médico Importante</p>
+            <p class="disclaimer-title">⚠️ Important Medical Notice</p>
             <p class="disclaimer-text">
-                MediConnect Pro utiliza tecnología de IA para asistencia médica. Toda información generada
-                por IA es solo para fines informativos y <strong>NO constituye consejo médico, diagnóstico
-                o tratamiento</strong>. Las evaluaciones de IA deben ser revisadas por profesionales médicos
-                certificados. En caso de emergencia, llame al 911/112 inmediatamente.
+                MediConnect Pro uses AI technology for medical assistance. All AI-generated information
+                is for informational purposes only and <strong>does NOT constitute medical advice, diagnosis,
+                or treatment</strong>. AI assessments must be reviewed by certified medical professionals.
+                In case of emergency, call 911 immediately.
             </p>
             <p class="footer-links">
-                <a href="/terms-of-service.html" target="_blank">Términos de Servicio</a> |
-                <a href="/privacy-policy.html" target="_blank">Política de Privacidad</a>
+                <a href="/terms-of-service.html" target="_blank">Terms of Service</a> |
+                <a href="/privacy-policy.html" target="_blank">Privacy Policy</a>
             </p>
         </div>
-        <p class="footer-copyright">&copy; 2025 MediConnect Pro. Todos los derechos reservados.</p>
+        <p class="footer-copyright">&copy; 2025 MediConnect Pro. All rights reserved.</p>
     </footer>
 
     <style>
         .dashboard-footer {
             background: #f8f9fa;
             border-top: 3px solid #ffc107;
-            padding: 20px;
-            margin-top: 40px;
+            padding: 20px 30px;
             font-size: 13px;
             color: #333;
+            /* Account for fixed sidebar on desktop */
+            margin-left: 260px;
         }
 
         .footer-disclaimer {
             background: #fff3cd;
             border: 2px solid #ffc107;
             border-radius: 8px;
-            padding: 15px;
+            padding: 15px 20px;
             margin-bottom: 15px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .disclaimer-title {
@@ -275,6 +281,35 @@
             text-align: center;
             color: #666;
             margin-top: 10px;
+        }
+
+        /* Tablet */
+        @media (max-width: 1024px) {
+            .dashboard-footer {
+                margin-left: 260px;
+                padding: 15px 20px;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .dashboard-footer {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .footer-disclaimer {
+                padding: 12px 15px;
+            }
+
+            .disclaimer-text {
+                font-size: 12px;
+            }
+
+            .footer-links a {
+                margin: 0 5px;
+                font-size: 12px;
+            }
         }
     </style>
 </body>

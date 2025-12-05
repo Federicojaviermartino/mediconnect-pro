@@ -1,354 +1,117 @@
 # MediConnect Pro
 
-> Enterprise-grade telemedicine platform with AI-powered risk prediction and remote patient monitoring
+> Enterprise-grade telemedicine platform with AI-powered medical assistance and remote patient monitoring
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-20+-green)](https://nodejs.org/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue)](https://www.docker.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-4.18-blue)](https://expressjs.com/)
 
-## 🎭 Live Demo
+## Live Demo
 
-> **🎉 Try it now!** Experience the platform without installing anything.
-
-🌐 **[https://mediconnect-pro.onrender.com](https://mediconnect-pro.onrender.com)** | 📚 **[View Demo Guide](DEMO.md)**
-
-**Quick Test:**
-```bash
-# Check service health
-curl https://mediconnect-pro.onrender.com/health
-
-# Get demo information
-curl https://mediconnect-pro.onrender.com/
-```
+**[https://mediconnect-pro.onrender.com](https://mediconnect-pro.onrender.com)**
 
 **Demo Credentials:**
-- Doctor: `dr.smith@mediconnect.demo` / `Demo2024!Doctor`
-- Patient: `john.doe@mediconnect.demo` / `Demo2024!Patient`
-- Admin: `admin@mediconnect.demo` / `Demo2024!Admin`
-
-See [DEMO.md](DEMO.md) for complete demo guide and all test scenarios.
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | `admin@mediconnect.demo` | `Demo2024!Admin` |
+| Doctor | `dr.smith@mediconnect.demo` | `Demo2024!Doctor` |
+| Patient | `john.doe@mediconnect.demo` | `Demo2024!Patient` |
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
-- [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
-- [Development](#development)
+- [API Documentation](#api-documentation)
+- [Security](#security)
 - [Testing](#testing)
 - [Deployment](#deployment)
-- [API Documentation](#api-documentation)
-- [Contributing](#contributing)
+- [Project Structure](#project-structure)
+- [Future Roadmap](#future-roadmap)
 - [License](#license)
 
-## 🎯 Overview
+## Overview
 
 MediConnect Pro is a comprehensive healthcare platform that enables:
 
-- **Real-time Patient Monitoring**: IoT device integration for continuous vital signs tracking
-- **AI-Powered Risk Assessment**: Machine learning models predict patient health risks
-- **Video Consultations**: Secure, HIPAA-compliant telemedicine sessions
-- **Analytics Dashboard**: Real-time insights for healthcare providers
-- **Multi-tenant Architecture**: Support for multiple healthcare organizations
-- **Mobile & Web Access**: Cross-platform accessibility for patients and doctors
+- **Patient Monitoring**: Track vital signs (heart rate, blood pressure, temperature, SpO2)
+- **AI Medical Assistant**: GPT-4 and Claude-powered triage and medical documentation
+- **Appointment Management**: Schedule and manage patient-doctor appointments
+- **Prescription Management**: Digital prescription creation and tracking
+- **Insurance Integration**: Eligibility verification and claims processing (simulated)
+- **Pharmacy Integration**: E-prescription routing to pharmacies (simulated)
+- **Role-Based Access**: Separate dashboards for Admin, Doctor, and Patient roles
 
-## ✨ Features
+## Features
 
-### For Healthcare Providers
-- 📊 Real-time patient vital signs monitoring
-- 🎥 HD video/audio consultations with screen sharing
-- 🤖 AI-driven risk prediction and alerts
-- 📈 Comprehensive analytics and reporting
-- 📱 Mobile app for on-the-go access
-- 🔔 Intelligent alert system for critical conditions
+### For Healthcare Providers (Doctors)
+- Patient list with vital signs monitoring
+- AI-powered medical transcription and note generation
+- Appointment scheduling and management
+- Digital prescription creation
+- Clinical analytics dashboard
 
 ### For Patients
-- 💊 Medication reminders and tracking
-- 📅 Easy appointment scheduling
-- 🏥 Access to medical history
-- 💬 Secure messaging with healthcare providers
-- 📊 Personal health dashboard
-- 🔗 IoT device integration (smartwatches, BP monitors, glucose meters)
+- Personal health dashboard with vital signs history
+- Appointment booking and management
+- Prescription history and refill requests
+- AI triage assistant for symptom assessment
+- Secure messaging with healthcare providers
+
+### For Administrators
+- User management across all roles
+- System-wide analytics and statistics
+- Appointment and prescription oversight
+- Platform configuration
 
 ### Technical Features
-- 🔐 Bank-grade security & HIPAA compliance
-- ⚡ Real-time data processing with Kafka
-- 🌐 Scalable microservices architecture
-- 🐳 Docker & Kubernetes ready
-- 📡 WebSocket for real-time updates
-- 🧪 Comprehensive test coverage
-- 📝 OpenAPI/Swagger documentation
+- Session-based authentication with bcrypt password hashing
+- Rate limiting on authentication endpoints
+- CSRF protection for state-changing requests
+- Input validation using Joi schemas
+- Security headers (X-Content-Type-Options, X-Frame-Options, HSTS)
+- Gzip compression for optimized response sizes
+- Static asset caching with ETags
+- In-memory API response caching
+- Lazy loading for frontend resources
+- Health check endpoints for monitoring
 
-## 🏗️ Architecture
+## Tech Stack
 
-### High-Level Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         FRONTEND LAYER                          │
-│  ┌──────────────────┐              ┌──────────────────┐        │
-│  │   Web App        │              │   Mobile App     │        │
-│  │   (Next.js 14)   │              │   (React Native) │        │
-│  └────────┬─────────┘              └────────┬─────────┘        │
-└───────────┼──────────────────────────────────┼─────────────────┘
-            │                                  │
-            └──────────────┬───────────────────┘
-                           │
-┌──────────────────────────▼──────────────────────────────────────┐
-│                      API GATEWAY                                │
-│              (Express.js - Port 3000)                           │
-│   • Authentication • Rate Limiting • Request Routing            │
-└───────┬─────────┬──────────┬───────────┬──────────┬───────────┘
-        │         │          │           │          │
-┌───────▼───┐ ┌──▼──────┐ ┌─▼────────┐ ┌▼─────────┐ ┌▼──────────┐
-│   Auth    │ │ Patient │ │  Vitals  │ │Consulta- │ │    ML     │
-│  Service  │ │ Service │ │ Service  │ │   tion   │ │  Service  │
-│ (NestJS)  │ │(NestJS) │ │(NestJS)  │ │ Service  │ │ (FastAPI) │
-│ Port 3001 │ │Port 3002│ │Port 3003 │ │Port 3004 │ │ Port 8000 │
-└─────┬─────┘ └────┬────┘ └────┬─────┘ └────┬─────┘ └─────┬─────┘
-      │            │           │            │             │
-┌─────▼────────────▼───────────▼────────────▼─────────────▼──────┐
-│                    MESSAGE BROKER (Kafka)                       │
-│     Topics: vitals-events, alerts, consultations, notifications │
-└─────────────────────────────────────────────────────────────────┘
-      │            │           │            │             │
-┌─────▼──────┐ ┌──▼──────┐ ┌─▼─────────┐ ┌▼──────────┐ ┌▼────────┐
-│PostgreSQL  │ │PostgreSQL│ │ MongoDB  │ │TimescaleDB│ │  Redis  │
-│  (Auth)    │ │(Patients)│ │ (Vitals) │ │(TimeSeries│ │ (Cache) │
-│Port 5432   │ │Port 5432 │ │Port 27017│ │ Port 5433 │ │Port 6379│
-└────────────┘ └──────────┘ └──────────┘ └───────────┘ └─────────┘
-```
-
-### Microservices Overview
-
-| Service | Technology | Port | Database | Purpose |
-|---------|-----------|------|----------|---------|
-| **API Gateway** | Express.js | 3000 | Redis | Request routing, auth, rate limiting |
-| **Auth Service** | NestJS | 3001 | PostgreSQL | User authentication & authorization |
-| **Patient Service** | NestJS | 3002 | PostgreSQL | Patient management & medical history |
-| **Vitals Service** | NestJS | 3003 | MongoDB | Real-time vital signs storage |
-| **Consultation Service** | NestJS | 3004 | PostgreSQL | Video consultation management |
-| **ML Service** | FastAPI (Python) | 8000 | - | Risk prediction & analytics |
-
-### Data Flow
-
-1. **Real-time Vitals Monitoring**
-   ```
-   IoT Device → Kafka → Vitals Service → MongoDB → ML Service → Risk Alert → Notification
-   ```
-
-2. **User Authentication**
-   ```
-   Client → API Gateway → Auth Service → PostgreSQL → JWT Token → Client
-   ```
-
-3. **Video Consultation**
-   ```
-   Client → Consultation Service → Twilio API → WebRTC Stream → Participants
-   ```
-
-## 🛠️ Tech Stack
+### Backend
+- **Runtime**: Node.js 18+
+- **Framework**: Express.js 4.18
+- **Session Management**: express-session
+- **Security**: bcryptjs, helmet, express-rate-limit
+- **Validation**: Joi
+- **Compression**: compression middleware
+- **AI Integration**: OpenAI GPT-4, Anthropic Claude
 
 ### Frontend
-- **Framework**: Next.js 14+ (App Router)
-- **Language**: TypeScript 5.3+
-- **Styling**: Tailwind CSS
-- **State Management**: Redux Toolkit
-- **Data Visualization**: D3.js, ECharts
-- **Maps**: Leaflet.js
-- **Real-time**: Socket.io Client
-- **Forms**: React Hook Form + Zod
+- **Architecture**: Vanilla JavaScript (no framework)
+- **Styling**: Custom CSS with responsive design
+- **Components**: Modular dashboard components
+- **Performance**: Lazy loading, IntersectionObserver
 
-### Backend - Node.js Services
-- **API Gateway**: Express.js
-- **Microservices**: NestJS
-- **Validation**: class-validator, class-transformer
-- **ORM**: TypeORM (PostgreSQL), Mongoose (MongoDB)
-- **Authentication**: Passport.js, JWT
-- **Real-time**: Socket.io
-- **Message Queue**: KafkaJS
+### Database
+- **Storage**: JSON file-based (demo mode)
+- **Optional**: PostgreSQL support via adapter pattern
 
-### Backend - Python Service
-- **Framework**: FastAPI
-- **ML Libraries**: TensorFlow, PyTorch, scikit-learn
-- **Data Processing**: Pandas, NumPy
-- **API Docs**: Swagger/OpenAPI
+### Deployment
+- **Platform**: Render.com
+- **Health Checks**: /health, /health/live, /health/ready
 
-### Databases
-- **PostgreSQL**: User data, patients, consultations
-- **MongoDB**: Vital signs, real-time data
-- **TimescaleDB**: Time-series analytics
-- **Redis**: Caching, sessions, real-time data
+## Getting Started
 
-### DevOps & Infrastructure
-- **Containerization**: Docker, Docker Compose
-- **Orchestration**: Kubernetes
-- **CI/CD**: GitHub Actions
-- **Cloud**: AWS (EC2, S3, RDS, ElastiCache)
-- **Monitoring**: DataDog, Sentry, New Relic
-- **Logging**: Winston, ELK Stack
+### Prerequisites
 
-### Third-party Integrations
-- **Video**: Twilio Video API / Agora.io
-- **Email**: SendGrid / AWS SES
-- **SMS**: Twilio
-- **Storage**: AWS S3
-- **Maps**: Google Maps API
-- **Payments**: Stripe
+- Node.js 18 or higher
+- npm 9 or higher
 
-## 📁 Project Structure
-
-```
-mediconnect-pro/
-├── services/                    # Microservices
-│   ├── api-gateway/            # Express.js API Gateway
-│   │   ├── src/
-│   │   │   ├── config/         # Configuration files
-│   │   │   ├── middleware/     # Auth, logging, error handling
-│   │   │   ├── routes/         # Route definitions
-│   │   │   ├── utils/          # Utility functions
-│   │   │   ├── types/          # TypeScript types
-│   │   │   ├── app.ts          # Express app setup
-│   │   │   └── index.ts        # Entry point
-│   │   ├── tests/              # Unit & integration tests
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   ├── auth-service/           # NestJS Authentication
-│   │   ├── src/
-│   │   │   ├── auth/           # Auth module
-│   │   │   ├── users/          # Users module
-│   │   │   ├── database/       # Database config
-│   │   │   ├── common/         # Shared guards, decorators
-│   │   │   └── main.ts         # Bootstrap
-│   │   ├── test/
-│   │   ├── migrations/         # TypeORM migrations
-│   │   └── package.json
-│   │
-│   ├── patient-service/        # NestJS Patient Management
-│   ├── vitals-service/         # NestJS Vitals Monitoring
-│   ├── consultation-service/   # NestJS Video Consultation
-│   └── ml-service/             # Python FastAPI ML Service
-│
-├── frontend/                    # Frontend applications
-│   ├── web/                    # Next.js Web App
-│   │   ├── src/
-│   │   │   ├── app/            # App router pages
-│   │   │   ├── components/     # Reusable components
-│   │   │   ├── lib/            # Utilities, API clients
-│   │   │   ├── hooks/          # Custom React hooks
-│   │   │   ├── store/          # Redux store
-│   │   │   └── types/          # TypeScript types
-│   │   ├── public/             # Static assets
-│   │   └── package.json
-│   │
-│   └── mobile/                 # React Native Mobile App
-│
-├── shared/                      # Shared packages
-│   ├── types/                  # Shared TypeScript types
-│   │   ├── src/
-│   │   │   ├── user.types.ts
-│   │   │   ├── vitals.types.ts
-│   │   │   ├── alert.types.ts
-│   │   │   └── index.ts
-│   │   └── package.json
-│   │
-│   └── utils/                  # Shared utility functions
-│       ├── src/
-│       └── package.json
-│
-├── infrastructure/              # Infrastructure as Code
-│   ├── docker/                 # Docker configurations
-│   │   ├── docker-compose.yml
-│   │   ├── Dockerfile.gateway
-│   │   ├── Dockerfile.auth
-│   │   └── ...
-│   │
-│   ├── kubernetes/             # K8s manifests
-│   │   ├── deployments/
-│   │   ├── services/
-│   │   ├── configmaps/
-│   │   └── ingress/
-│   │
-│   └── terraform/              # Terraform IaC
-│       ├── aws/
-│       └── modules/
-│
-├── docs/                        # Documentation
-│   ├── architecture/           # Architecture diagrams
-│   ├── api/                    # API documentation
-│   └── deployment/             # Deployment guides
-│
-├── scripts/                     # Utility scripts
-│   ├── setup.sh               # Initial setup
-│   ├── seed.ts                # Database seeding
-│   └── migrate.sh             # Migration runner
-│
-├── tests/                       # E2E tests
-│   └── e2e/
-│
-├── .github/                     # GitHub workflows
-│   └── workflows/
-│       ├── ci.yml
-│       └── deploy.yml
-│
-├── package.json                 # Root package.json
-├── tsconfig.base.json          # Base TypeScript config
-├── tsconfig.json               # Root TypeScript config
-├── .gitignore
-├── .env.example
-└── README.md
-```
-
-## 🚀 Quick Start
-
-**Get MediConnect Pro running in 3 commands:**
-
-```bash
-git clone https://github.com/Federicojaviermartino/mediconnect-pro.git
-cd mediconnect-pro
-docker-compose up -d
-```
-
-Then visit **http://localhost** in your browser! 🎉
-
-For detailed instructions, see **[QUICKSTART.md](QUICKSTART.md)**
-
-### Automated Setup (Recommended)
-
-**Windows:**
-```bash
-scripts\setup.bat
-```
-
-**Mac/Linux:**
-```bash
-chmod +x scripts/setup.sh
-./scripts/setup.sh
-```
-
-The setup script will:
-- ✅ Check prerequisites
-- ✅ Create environment files
-- ✅ Start all services
-- ✅ Verify health endpoints
-- ✅ Display access URLs
-
-### Manual Setup
-
-#### Prerequisites
-
-- **Docker Desktop** 20.10+ - [Download](https://www.docker.com/products/docker-desktop)
-- **Docker Compose** 2.0+ (included with Docker Desktop)
-- **8GB RAM minimum** (16GB recommended)
-- **20GB disk space**
-
-#### Installation Steps
+### Installation
 
 1. **Clone the repository**
    ```bash
@@ -356,246 +119,265 @@ The setup script will:
    cd mediconnect-pro
    ```
 
-2. **Setup environment variables**
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment** (optional)
    ```bash
    cp .env.example .env
-   # The default values work out of the box for local development
+   # Edit .env with your settings
    ```
 
-3. **Start all services**
+4. **Start the server**
    ```bash
-   docker-compose up -d
+   npm start
    ```
 
-4. **Wait for services to initialize** (2-3 minutes on first run)
-   ```bash
-   docker-compose logs -f
-   ```
+5. **Access the application**
+   - Open http://localhost:3000 in your browser
+   - Login with demo credentials above
 
-5. **Verify services are running**
-   ```bash
-   docker-compose ps
-   ```
+### Environment Variables
 
-### 🌐 Access Points
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PORT` | Server port | 3000 |
+| `NODE_ENV` | Environment (development/production) | development |
+| `SESSION_SECRET` | Secret for session encryption | (auto-generated) |
+| `OPENAI_API_KEY` | OpenAI API key for AI features | (optional) |
+| `ANTHROPIC_API_KEY` | Anthropic API key for AI features | (optional) |
+| `REDIS_HOST` | Redis host for session storage | (optional) |
+| `REDIS_PORT` | Redis port | 6379 |
 
-Once running, access the application at:
+## API Documentation
 
-| Service | URL | Description |
-|---------|-----|-------------|
-| **Web App** | http://localhost | Main application (via Nginx) |
-| **Web App (direct)** | http://localhost:3100 | Direct access to frontend |
-| **API Gateway** | http://localhost:3000 | REST API endpoint |
-| **API Docs** | http://localhost:3000/api-docs | Swagger documentation |
+### Authentication
 
-#### Service Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/auth/login` | POST | User login |
+| `/api/auth/logout` | POST | User logout |
+| `/api/auth/me` | GET | Get current user |
 
-| Service | URL | Swagger Docs |
-|---------|-----|--------------|
-| Auth Service | http://localhost:3001 | http://localhost:3001/api-docs |
-| Patient Service | http://localhost:3002 | http://localhost:3002/api-docs |
-| Vitals Service | http://localhost:3003 | http://localhost:3003/api-docs |
-| Consultation Service | http://localhost:3004 | http://localhost:3004/api-docs |
-| ML Service | http://localhost:8000 | http://localhost:8000/docs |
+### Patients
 
-### 🧪 Quick API Test
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/patients` | GET | List all patients (doctor/admin) |
+| `/api/patients/:id` | GET | Get patient details |
 
-```bash
-# Register a new user
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "doctor@example.com",
-    "password": "SecurePass123!",
-    "firstName": "John",
-    "lastName": "Doe",
-    "role": "DOCTOR"
-  }'
+### Vitals
 
-# Login
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "doctor@example.com",
-    "password": "SecurePass123!"
-  }'
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/vitals` | GET | Get vitals for current patient |
+| `/api/vitals` | POST | Record new vital signs |
+| `/api/vitals/:patientId` | GET | Get vitals by patient ID |
+
+### Appointments
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/appointments` | GET | List appointments |
+| `/api/appointments` | POST | Create appointment |
+| `/api/appointments/:id` | PUT | Update appointment |
+| `/api/appointments/:id` | DELETE | Cancel appointment |
+
+### Prescriptions
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/prescriptions` | GET | List prescriptions |
+| `/api/prescriptions` | POST | Create prescription |
+
+### AI Assistant
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/ai/transcribe` | POST | Transcribe medical audio |
+| `/api/ai/generate-notes` | POST | Generate clinical notes |
+| `/api/ai/generate-report` | POST | Generate medical report |
+| `/api/ai/triage` | POST | AI-powered triage assessment |
+| `/api/ai/status` | GET | Check AI service availability |
+
+### Insurance (Simulated)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/insurance/providers` | GET | List insurance providers |
+| `/api/insurance/verify-eligibility` | POST | Verify patient eligibility |
+| `/api/insurance/submit-claim` | POST | Submit insurance claim |
+| `/api/insurance/claim-status/:id` | GET | Check claim status |
+
+### Pharmacy (Simulated)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/pharmacy/network` | GET | List pharmacy network |
+| `/api/pharmacy/send-prescription` | POST | Send e-prescription |
+| `/api/pharmacy/track-order/:id` | GET | Track prescription order |
+
+### Health & Monitoring
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Comprehensive health check |
+| `/health/live` | GET | Liveness probe |
+| `/health/ready` | GET | Readiness probe |
+| `/api/cache/stats` | GET | Cache statistics |
+
+## Security
+
+### Implemented Security Measures
+
+| Feature | Implementation |
+|---------|---------------|
+| Password Hashing | bcrypt with 10 rounds |
+| Session Security | httpOnly, sameSite: lax, secure in production |
+| Rate Limiting | 5 requests/15min for auth endpoints |
+| CSRF Protection | Token-based with crypto.timingSafeEqual |
+| Input Validation | Joi schemas with stripUnknown |
+| Security Headers | X-Content-Type-Options, X-Frame-Options, HSTS |
+| XSS Protection | DOMPurify sanitization on frontend |
+
+### Security Headers
+
+```
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=31536000; includeSubDomains (production)
 ```
 
-### 📚 Documentation
+## Testing
 
-- **[QUICKSTART.md](QUICKSTART.md)** - Detailed quick start guide with troubleshooting
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production deployment instructions
-- **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Testing guidelines
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution guide
-
-## 💻 Development
-
-### Running Individual Services
+### Run Tests
 
 ```bash
-# API Gateway
-npm run dev:gateway
-
-# Auth Service
-npm run dev:auth
-
-# Patient Service
-npm run dev:patient
-
-# Web Frontend
-npm run dev:web
-```
-
-### Code Quality
-
-```bash
-# Lint code
-npm run lint
-
-# Fix linting issues
-npm run lint:fix
-
-# Format code with Prettier
-npm run format
-
-# Type checking
-npm run type-check
-```
-
-### Database Migrations
-
-```bash
-# Create a new migration
-cd services/auth-service
-npm run migration:create -- CreateUsersTable
-
-# Run migrations
-npm run migrations:run
-
-# Revert last migration
-npm run migrations:revert
-```
-
-## 🧪 Testing
-
-### Unit Tests
-
-```bash
-# Run all unit tests
-npm run test:unit
+# Run all tests
+npm test
 
 # Run tests with coverage
 npm run test:coverage
-
-# Run tests in watch mode
-npm test -- --watch
 ```
 
-### Integration Tests
+### Test Coverage
 
-```bash
-# Run integration tests
-npm run test:integration
+Current coverage thresholds:
+- Branches: 14%
+- Functions: 20%
+- Lines: 14%
+- Statements: 14%
+
+## Deployment
+
+### Render.com (Current)
+
+The application is configured for deployment on Render.com using `render.yaml`:
+
+```yaml
+services:
+  - type: web
+    name: mediconnect-pro
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
 ```
 
-### E2E Tests
+### Manual Deployment
 
-```bash
-# Run E2E tests
-npm run test:e2e
+1. Set environment variables
+2. Install production dependencies: `npm install --production`
+3. Start server: `npm start`
+
+### Health Check Endpoints
+
+- `/health` - Full system health with metrics
+- `/health/live` - Kubernetes liveness probe
+- `/health/ready` - Kubernetes readiness probe
+
+## Project Structure
+
+```
+mediconnect-pro/
+├── demo-app/                   # Demo application code
+│   ├── database/              # Database operations
+│   │   ├── database.json      # JSON data store
+│   │   └── init.js            # Database initialization
+│   ├── middleware/            # Express middleware
+│   │   ├── auth.js            # Authentication
+│   │   ├── csrf.js            # CSRF protection
+│   │   ├── validators.js      # Input validation
+│   │   └── request-logger.js  # Request logging
+│   ├── routes/                # API route handlers
+│   │   ├── auth.js            # Authentication routes
+│   │   ├── api.js             # General API routes
+│   │   ├── appointments.js    # Appointment management
+│   │   ├── prescriptions.js   # Prescription management
+│   │   ├── vitals.js          # Vital signs
+│   │   ├── ai.js              # AI assistant
+│   │   ├── insurance.js       # Insurance integration
+│   │   └── pharmacy.js        # Pharmacy integration
+│   └── utils/                 # Utility modules
+│       ├── logger.js          # Logging utility
+│       ├── cache.js           # In-memory cache
+│       └── health-check.js    # Health check utilities
+├── public/                     # Static frontend files
+│   ├── login.html             # Login page
+│   ├── dashboard-admin.html   # Admin dashboard
+│   ├── dashboard-doctor.html  # Doctor dashboard
+│   ├── dashboard-patient.html # Patient dashboard
+│   ├── dashboard-styles.css   # Dashboard styling
+│   ├── dashboard-scripts.js   # Dashboard logic
+│   ├── dashboard-interactive.js # Interactive features
+│   ├── ai-assistant.js        # AI assistant modal
+│   └── utils/                 # Frontend utilities
+│       ├── csrf.js            # CSRF token handling
+│       └── lazy-load.js       # Lazy loading
+├── services/                   # Microservices (scaffolded)
+│   ├── api-gateway/           # Express.js API Gateway
+│   ├── auth-service/          # NestJS Authentication
+│   ├── patient-service/       # NestJS Patient Management
+│   ├── vitals-service/        # NestJS Vitals Monitoring
+│   ├── consultation-service/  # NestJS Video Consultation
+│   └── ml-service/            # Python FastAPI ML Service
+├── server.js                   # Main server entry point
+├── jest.config.js             # Test configuration
+├── render.yaml                # Render deployment config
+├── CLAUDE.md                  # AI assistant instructions
+└── package.json               # Dependencies and scripts
 ```
 
-## 📦 Building for Production
+## Future Roadmap
 
-```bash
-# Build all services
-npm run build
+### Planned Microservices Architecture
 
-# Build specific service
-npm run build:gateway
-npm run build:services
-npm run build:frontend
-```
+The `services/` directory contains scaffolding for a full microservices implementation:
 
-## 🚢 Deployment
+| Service | Technology | Port | Purpose |
+|---------|-----------|------|---------|
+| API Gateway | Express.js | 3000 | Request routing, rate limiting |
+| Auth Service | NestJS | 3001 | Authentication & authorization |
+| Patient Service | NestJS | 3002 | Patient management |
+| Vitals Service | NestJS | 3003 | Real-time vital signs |
+| Consultation Service | NestJS | 3004 | Video consultations |
+| ML Service | FastAPI | 8000 | Risk prediction & analytics |
 
-### Docker Deployment
+### Upcoming Features
 
-```bash
-# Build Docker images
-npm run docker:build
+- Real-time video consultations with WebRTC
+- Wearable device integration (Apple Health, Google Fit)
+- FHIR/HL7 healthcare interoperability
+- Advanced ML risk prediction models
+- Mobile application (React Native)
+- Real-time notifications with WebSocket
 
-# Push to registry
-docker-compose push
-
-# Deploy to production
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-### Kubernetes Deployment
-
-```bash
-# Apply Kubernetes manifests
-npm run k8s:deploy
-
-# Check deployment status
-kubectl get pods -n mediconnect
-
-# View logs
-kubectl logs -f deployment/api-gateway -n mediconnect
-```
-
-### AWS Deployment
-
-See [docs/deployment/aws.md](docs/deployment/aws.md) for detailed AWS deployment instructions.
-
-## 📚 API Documentation
-
-API documentation is available via Swagger UI:
-
-- **API Gateway**: http://localhost:3000/api-docs
-- **Auth Service**: http://localhost:3001/api-docs
-- **Patient Service**: http://localhost:3002/api-docs
-
-## 🔒 Security
-
-- All sensitive data is encrypted at rest and in transit
-- HIPAA compliance measures implemented
-- Regular security audits
-- Rate limiting on all endpoints
-- JWT-based authentication with refresh tokens
-- Role-based access control (RBAC)
-- Input validation and sanitization
-- SQL injection prevention
-- XSS protection
-- CSRF protection
-
-## 📊 Monitoring & Logging
-
-- **Application Monitoring**: DataDog APM
-- **Error Tracking**: Sentry
-- **Log Aggregation**: ELK Stack (Elasticsearch, Logstash, Kibana)
-- **Metrics**: Prometheus + Grafana
-- **Uptime Monitoring**: Pingdom
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 📞 Support
-
-For support and inquiries, please open an issue in the repository.
-
 ---
 
-**Built with ❤️ for better healthcare**
+**Built for better healthcare**

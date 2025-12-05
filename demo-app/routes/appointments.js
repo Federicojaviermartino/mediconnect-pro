@@ -1,5 +1,6 @@
 // Appointment routes
 const { requireAuth } = require('../middleware/auth');
+const { validate, appointmentSchemas } = require('../middleware/validators');
 
 function setupAppointmentRoutes(app, db) {
   // Get appointments
@@ -34,12 +35,12 @@ function setupAppointmentRoutes(app, db) {
     } catch (error) {
       console.error('Get appointments error:', error);
       console.error('Error stack:', error.stack);
-      res.status(500).json({ error: 'Failed to fetch appointments', details: error.message });
+      res.status(500).json({ error: 'Failed to fetch appointments' });
     }
   });
 
   // Create appointment
-  app.post('/api/appointments', requireAuth, (req, res) => {
+  app.post('/api/appointments', requireAuth, validate(appointmentSchemas.create), (req, res) => {
     try {
       // Validate session and user data
       if (!req.session || !req.session.user || !req.session.user.id) {
@@ -49,10 +50,6 @@ function setupAppointmentRoutes(app, db) {
 
       const { date, time, reason, doctor_id } = req.body;
       const userId = req.session.user.id;
-
-      if (!date || !time || !reason) {
-        return res.status(400).json({ error: 'Date, time and reason are required' });
-      }
 
       const appointmentData = {
         patient_id: userId,
@@ -68,7 +65,7 @@ function setupAppointmentRoutes(app, db) {
     } catch (error) {
       console.error('Create appointment error:', error);
       console.error('Error stack:', error.stack);
-      res.status(500).json({ error: 'Failed to create appointment', details: error.message });
+      res.status(500).json({ error: 'Failed to create appointment' });
     }
   });
 }

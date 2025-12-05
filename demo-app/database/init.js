@@ -1,7 +1,11 @@
-// Database initialization with JSON file storage
+// Database initialization with JSON file storage or PostgreSQL
+// Supports backend switching via USE_POSTGRES environment variable
 const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
+
+// Check which database backend to use
+const USE_POSTGRES = process.env.USE_POSTGRES === 'true' || process.env.DATABASE_URL;
 
 const DB_FILE = path.join(__dirname, 'database.json');
 
@@ -166,7 +170,24 @@ function seedDatabase() {
   console.log('✅ Demo users seeded successfully!');
 }
 
-function initDatabase() {
+async function initDatabase() {
+  // Use PostgreSQL if environment variable is set
+  if (USE_POSTGRES) {
+    console.log('🔄 Initializing PostgreSQL database...');
+    try {
+      const { initPostgresDatabase } = require('./postgres-adapter');
+      const pgDatabase = await initPostgresDatabase();
+      console.log('✅ PostgreSQL database initialized successfully');
+      return pgDatabase;
+    } catch (error) {
+      console.error('❌ Failed to initialize PostgreSQL database:', error.message);
+      console.log('⚠️  Falling back to JSON file storage...');
+      // Fall through to JSON initialization
+    }
+  }
+
+  // Use JSON file storage (default)
+  console.log('🔄 Initializing JSON file database...');
   loadDatabase();
 
   return {
@@ -324,6 +345,24 @@ function initDatabase() {
       db.prescriptions.push(prescription);
       saveDatabase();
       return prescription;
+    },
+
+    getPrescriptionById: (prescriptionId) => {
+      return db.prescriptions.find(p => p.id === parseInt(prescriptionId));
+    },
+
+    updatePrescription: (prescriptionId, updateData) => {
+      const index = db.prescriptions.findIndex(p => p.id === parseInt(prescriptionId));
+      if (index === -1) {
+        return null;
+      }
+      db.prescriptions[index] = {
+        ...db.prescriptions[index],
+        ...updateData,
+        updated_at: new Date().toISOString()
+      };
+      saveDatabase();
+      return db.prescriptions[index];
     },
 
     // Messages

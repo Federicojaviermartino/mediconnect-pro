@@ -3,8 +3,8 @@ const { initDatabase } = require('../database/init');
 describe('Database Operations', () => {
   let db;
 
-  beforeAll(() => {
-    db = initDatabase();
+  beforeAll(async () => {
+    db = await initDatabase();
   });
 
   describe('User Operations', () => {
