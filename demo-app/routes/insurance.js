@@ -5,6 +5,7 @@
 
 const insuranceService = require('../services/insurance-service');
 const { requireAuth } = require('../middleware/auth');
+const logger = require('../utils/logger');
 
 function setupInsuranceRoutes(app, db) {
   /**
@@ -16,7 +17,7 @@ function setupInsuranceRoutes(app, db) {
       const providers = insuranceService.getSupportedProviders();
       res.json({ providers });
     } catch (error) {
-      console.error('Error fetching insurance providers:', error);
+      logger.logApiError(error, req, { context: 'Get insurance providers' });
       res.status(500).json({ error: 'Failed to fetch insurance providers' });
     }
   });
@@ -65,7 +66,7 @@ function setupInsuranceRoutes(app, db) {
       });
 
     } catch (error) {
-      console.error('Error verifying eligibility:', error);
+      logger.logApiError(error, req, { context: 'Verify eligibility' });
       res.status(500).json({ error: 'Failed to verify insurance eligibility' });
     }
   });
@@ -105,7 +106,7 @@ function setupInsuranceRoutes(app, db) {
       });
 
     } catch (error) {
-      console.error('Error requesting pre-authorization:', error);
+      logger.logApiError(error, req, { context: 'Request pre-authorization' });
       res.status(500).json({ error: 'Failed to request pre-authorization' });
     }
   });
@@ -161,7 +162,7 @@ function setupInsuranceRoutes(app, db) {
       });
 
     } catch (error) {
-      console.error('Error submitting claim:', error);
+      logger.logApiError(error, req, { context: 'Submit claim' });
       res.status(500).json({ error: 'Failed to submit insurance claim' });
     }
   });
@@ -186,7 +187,7 @@ function setupInsuranceRoutes(app, db) {
       });
 
     } catch (error) {
-      console.error('Error checking claim status:', error);
+      logger.logApiError(error, req, { context: 'Check claim status' });
       res.status(500).json({ error: 'Failed to check claim status' });
     }
   });
@@ -231,7 +232,7 @@ function setupInsuranceRoutes(app, db) {
       });
 
     } catch (error) {
-      console.error('Error calculating patient cost:', error);
+      logger.logApiError(error, req, { context: 'Calculate patient cost' });
       res.status(500).json({ error: 'Failed to calculate patient cost' });
     }
   });
@@ -245,12 +246,12 @@ function setupInsuranceRoutes(app, db) {
       const status = insuranceService.getStatus();
       res.json(status);
     } catch (error) {
-      console.error('Error getting insurance status:', error);
+      logger.logApiError(error, req, { context: 'Get insurance status' });
       res.status(500).json({ error: 'Failed to get insurance status' });
     }
   });
 
-  console.log('✅ Insurance routes configured');
+  logger.info('Insurance routes configured');
 }
 
 module.exports = { setupInsuranceRoutes };

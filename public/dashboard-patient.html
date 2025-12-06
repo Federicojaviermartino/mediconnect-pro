@@ -3,152 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MediConnect Pro Patient Dashboard - View your vitals, appointments, and manage your healthcare">
     <title>Patient Dashboard - MediConnect Pro</title>
     <link rel="stylesheet" href="/dashboard-styles.css">
 </head>
 <body>
-    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
-    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
+    <!-- Skip to main content for keyboard users -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sidebar">
+        <span aria-hidden="true">☰</span>
+    </button>
+    <div class="mobile-overlay" onclick="toggleMobileMenu()" aria-hidden="true"></div>
 
     <div class="dashboard">
-        <aside class="sidebar" id="sidebar">
-            <div class="logo">
+        <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+            <div class="logo" role="banner">
                 <span class="logo-icon">🏥</span>
                 <span class="logo-text">MediConnect Pro</span>
             </div>
-            <nav class="nav-menu">
-                <a href="#" class="nav-item active" onclick="event.preventDefault(); showNotification('You are on the Dashboard', 'info')">
-                    <span>📊</span> Dashboard
+            <nav class="nav-menu" aria-label="Dashboard navigation">
+                <a href="#" class="nav-item active" onclick="event.preventDefault(); showNotification('You are on the Dashboard', 'info')" aria-current="page">
+                    <span aria-hidden="true">📊</span> Dashboard
                 </a>
                 <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('AI Assistant')">
-                    <span>🤖</span> AI Assistant
+                    <span aria-hidden="true">🤖</span> AI Assistant
                 </a>
                 <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('My Vitals')">
-                    <span>❤️</span> My Vitals
+                    <span aria-hidden="true">❤️</span> My Vitals
                 </a>
                 <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Appointments')">
-                    <span>📅</span> Appointments
+                    <span aria-hidden="true">📅</span> Appointments
                 </a>
                 <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Medications')">
-                    <span>💊</span> Medications
+                    <span aria-hidden="true">💊</span> Medications
                 </a>
                 <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Medical Records')">
-                    <span>📝</span> Medical Records
+                    <span aria-hidden="true">📝</span> Medical Records
                 </a>
             </nav>
-            <button onclick="logout()" class="logout-btn">
-                <span>🚪</span> Logout
+            <button onclick="logout()" class="logout-btn" aria-label="Logout from dashboard">
+                <span aria-hidden="true">🚪</span> Logout
             </button>
         </aside>
 
-        <main class="main-content">
+        <main class="main-content" role="main">
             <header class="header">
-                <h1>🧑‍💼 Patient Dashboard</h1>
-                <div class="user-info">
-                    <span class="user-name" id="userName">Loading...</span>
+                <h1><span aria-hidden="true">🧑‍💼</span> Patient Dashboard</h1>
+                <div class="user-info" aria-label="User information">
+                    <span class="user-name" id="userName" aria-live="polite">Loading...</span>
                     <span class="user-role">Patient</span>
                 </div>
             </header>
 
             <div class="content" id="main-content">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">❤️</div>
+                <section class="stats-grid" aria-label="Current vital signs">
+                    <article class="stat-card" role="region" aria-labelledby="heartRateLabel">
+                        <div class="stat-icon" aria-hidden="true">❤️</div>
                         <div class="stat-info">
-                            <div class="stat-label">Heart Rate</div>
-                            <div class="stat-value" id="heartRate">--</div>
+                            <div class="stat-label" id="heartRateLabel">Heart Rate</div>
+                            <div class="stat-value" id="heartRate" aria-live="polite">--</div>
                             <div class="stat-unit">bpm</div>
                         </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">🩸</div>
+                    </article>
+                    <article class="stat-card" role="region" aria-labelledby="bloodPressureLabel">
+                        <div class="stat-icon" aria-hidden="true">🩸</div>
                         <div class="stat-info">
-                            <div class="stat-label">Blood Pressure</div>
-                            <div class="stat-value" id="bloodPressure">--</div>
+                            <div class="stat-label" id="bloodPressureLabel">Blood Pressure</div>
+                            <div class="stat-value" id="bloodPressure" aria-live="polite">--</div>
                             <div class="stat-unit">mmHg</div>
                         </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">🌡️</div>
+                    </article>
+                    <article class="stat-card" role="region" aria-labelledby="temperatureLabel">
+                        <div class="stat-icon" aria-hidden="true">🌡️</div>
                         <div class="stat-info">
-                            <div class="stat-label">Temperature</div>
-                            <div class="stat-value" id="temperature">--</div>
+                            <div class="stat-label" id="temperatureLabel">Temperature</div>
+                            <div class="stat-value" id="temperature" aria-live="polite">--</div>
                             <div class="stat-unit">°C</div>
                         </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">💨</div>
+                    </article>
+                    <article class="stat-card" role="region" aria-labelledby="spo2Label">
+                        <div class="stat-icon" aria-hidden="true">💨</div>
                         <div class="stat-info">
-                            <div class="stat-label">SpO2</div>
-                            <div class="stat-value" id="spo2">--</div>
+                            <div class="stat-label" id="spo2Label">SpO2</div>
+                            <div class="stat-value" id="spo2" aria-live="polite">--</div>
                             <div class="stat-unit">%</div>
                         </div>
-                    </div>
-                </div>
+                    </article>
+                </section>
 
-                <div class="section">
-                    <h2>My Vital Signs History</h2>
-                    <div class="table-container">
-                        <table class="data-table">
+                <section class="section" aria-labelledby="vitalsHistoryHeading">
+                    <h2 id="vitalsHistoryHeading">My Vital Signs History</h2>
+                    <div class="table-container" tabindex="0" role="region" aria-label="Vital signs history table">
+                        <table class="data-table" role="table" aria-describedby="vitalsHistoryHeading">
                             <thead>
                                 <tr>
-                                    <th>Date & Time</th>
-                                    <th>Heart Rate</th>
-                                    <th>Blood Pressure</th>
-                                    <th>Temperature</th>
-                                    <th>SpO2</th>
-                                    <th>Status</th>
+                                    <th scope="col">Date & Time</th>
+                                    <th scope="col">Heart Rate</th>
+                                    <th scope="col">Blood Pressure</th>
+                                    <th scope="col">Temperature</th>
+                                    <th scope="col">SpO2</th>
+                                    <th scope="col">Status</th>
                                 </tr>
                             </thead>
-                            <tbody id="vitalsTable">
+                            <tbody id="vitalsTable" aria-live="polite">
                                 <tr>
                                     <td colspan="6" style="text-align: center; padding: 40px;">
-                                        <div class="loading">Loading vitals...</div>
+                                        <div class="loading" role="status">Loading vitals...</div>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </section>
 
-                <div class="section">
-                    <h2>Quick Actions</h2>
-                    <div class="actions-grid">
-                        <button class="action-btn" onclick="scheduleAppointment()">
-                            <span>📅</span> Schedule Appointment
+                <section class="section" aria-labelledby="quickActionsHeading">
+                    <h2 id="quickActionsHeading">Quick Actions</h2>
+                    <div class="actions-grid" role="group" aria-label="Patient quick actions">
+                        <button class="action-btn" onclick="scheduleAppointment()" type="button">
+                            <span aria-hidden="true">📅</span> Schedule Appointment
                         </button>
-                        <button class="action-btn" onclick="requestPrescription()">
-                            <span>💊</span> Request Prescription
+                        <button class="action-btn" onclick="requestPrescription()" type="button">
+                            <span aria-hidden="true">💊</span> Request Prescription
                         </button>
-                        <button class="action-btn" onclick="contactDoctor()">
-                            <span>💬</span> Contact Doctor
+                        <button class="action-btn" onclick="contactDoctor()" type="button">
+                            <span aria-hidden="true">💬</span> Contact Doctor
                         </button>
-                        <button class="action-btn" onclick="exportVitals()">
-                            <span>📊</span> Export Vitals Data
+                        <button class="action-btn" onclick="exportVitals()" type="button">
+                            <span aria-hidden="true">📊</span> Export Vitals Data
                         </button>
                     </div>
-                </div>
+                </section>
 
-                <div class="section">
-                    <h2>Health Tips</h2>
+                <section class="section" aria-labelledby="healthTipsHeading">
+                    <h2 id="healthTipsHeading">Health Tips</h2>
                     <div class="tips-grid">
-                        <div class="tip-card">
-                            <div class="tip-icon">💧</div>
+                        <article class="tip-card">
+                            <div class="tip-icon" aria-hidden="true">💧</div>
                             <h3>Stay Hydrated</h3>
                             <p>Drink at least 8 glasses of water daily for optimal health.</p>
-                        </div>
-                        <div class="tip-card">
-                            <div class="tip-icon">🏃</div>
+                        </article>
+                        <article class="tip-card">
+                            <div class="tip-icon" aria-hidden="true">🏃</div>
                             <h3>Exercise Regularly</h3>
                             <p>Aim for 30 minutes of moderate exercise most days of the week.</p>
-                        </div>
-                        <div class="tip-card">
-                            <div class="tip-icon">🥗</div>
+                        </article>
+                        <article class="tip-card">
+                            <div class="tip-icon" aria-hidden="true">🥗</div>
                             <h3>Healthy Diet</h3>
                             <p>Eat a balanced diet rich in fruits, vegetables, and whole grains.</p>
-                        </div>
+                        </article>
                     </div>
-                </div>
+                </section>
             </div>
         </main>
     </div>

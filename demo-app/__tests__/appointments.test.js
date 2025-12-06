@@ -167,7 +167,7 @@ describe('Appointments Endpoints', () => {
         .set('Cookie', patientCookies)
         .send(appointmentData);
 
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(201);
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('appointment');
       expect(response.body.appointment).toHaveProperty('id');
@@ -251,7 +251,7 @@ describe('Appointments Endpoints', () => {
           reason: 'Doctor scheduled appointment'
         });
 
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(201);
       expect(response.body).toHaveProperty('success', true);
     });
 
@@ -265,7 +265,7 @@ describe('Appointments Endpoints', () => {
           reason: 'Admin scheduled appointment'
         });
 
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(201);
       expect(response.body).toHaveProperty('success', true);
     });
 
@@ -280,7 +280,7 @@ describe('Appointments Endpoints', () => {
           doctor_id: 2
         });
 
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(201);
       expect(response.body).toHaveProperty('success', true);
       expect(response.body.appointment.doctor_id).toBe(2);
     });
@@ -295,8 +295,283 @@ describe('Appointments Endpoints', () => {
           reason: 'Appointment without specific doctor'
         });
 
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(201);
       expect(response.body.appointment.doctor_id).toBe(2); // Default is Dr. Smith
+    });
+  });
+
+  describe('GET /api/appointments/:id', () => {
+    let testAppointmentId;
+
+    beforeAll(async () => {
+      const response = await request(app)
+        .post('/api/appointments')
+        .set('Cookie', patientCookies)
+        .send({
+          date: getFutureDate(40),
+          time: '10:00',
+          reason: 'Test appointment for single get'
+        });
+      testAppointmentId = response.body.appointment.id;
+    });
+
+    test('should require authentication', async () => {
+      const response = await request(app).get(`/api/appointments/${testAppointmentId}`);
+      expect(response.statusCode).toBe(401);
+    });
+
+    test('should return appointment for authorized patient', async () => {
+      const response = await request(app)
+        .get(`/api/appointments/${testAppointmentId}`)
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty('appointment');
+      expect(response.body.appointment.id).toBe(testAppointmentId);
+    });
+
+    test('should return 404 for non-existent appointment', async () => {
+      const response = await request(app)
+        .get('/api/appointments/99999')
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(404);
+    });
+
+    test('should include patient and doctor names', async () => {
+      const response = await request(app)
+        .get(`/api/appointments/${testAppointmentId}`)
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.appointment).toHaveProperty('patient_name');
+      expect(response.body.appointment).toHaveProperty('doctor_name');
+    });
+  });
+
+  describe('PUT /api/appointments/:id', () => {
+    let testAppointmentId;
+
+    beforeAll(async () => {
+      const response = await request(app)
+        .post('/api/appointments')
+        .set('Cookie', patientCookies)
+        .send({
+          date: getFutureDate(45),
+          time: '11:00',
+          reason: 'Test appointment for update'
+        });
+      testAppointmentId = response.body.appointment.id;
+    });
+
+    test('should require authentication', async () => {
+      const response = await request(app)
+        .put(`/api/appointments/${testAppointmentId}`)
+        .send({ reason: 'Updated reason' });
+
+      expect(response.statusCode).toBe(401);
+    });
+
+    test('should update appointment for authorized patient', async () => {
+      const response = await request(app)
+        .put(`/api/appointments/${testAppointmentId}`)
+        .set('Cookie', patientCookies)
+        .send({ reason: 'Updated by patient' });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body.appointment.reason).toBe('Updated by patient');
+    });
+
+    test('should return 404 for non-existent appointment', async () => {
+      const response = await request(app)
+        .put('/api/appointments/99999')
+        .set('Cookie', patientCookies)
+        .send({ reason: 'Test' });
+
+      expect(response.statusCode).toBe(404);
+    });
+
+    test('should allow doctor to update their appointment', async () => {
+      const createResponse = await request(app)
+        .post('/api/appointments')
+        .set('Cookie', patientCookies)
+        .send({
+          date: getFutureDate(50),
+          time: '14:00',
+          reason: 'For doctor update test',
+          doctor_id: 2
+        });
+      const appointmentId = createResponse.body.appointment.id;
+
+      const response = await request(app)
+        .put(`/api/appointments/${appointmentId}`)
+        .set('Cookie', doctorCookies)
+        .send({ status: 'confirmed' });
+
+      expect(response.statusCode).toBe(200);
+    });
+  });
+
+  describe('DELETE /api/appointments/:id', () => {
+    test('should require authentication', async () => {
+      const response = await request(app).delete('/api/appointments/1');
+      expect(response.statusCode).toBe(401);
+    });
+
+    test('should cancel appointment for authorized patient', async () => {
+      const createResponse = await request(app)
+        .post('/api/appointments')
+        .set('Cookie', patientCookies)
+        .send({
+          date: getFutureDate(55),
+          time: '15:00',
+          reason: 'Appointment to cancel'
+        });
+      const appointmentId = createResponse.body.appointment.id;
+
+      const response = await request(app)
+        .delete(`/api/appointments/${appointmentId}`)
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body.appointment.status).toBe('cancelled');
+    });
+
+    test('should return 404 for non-existent appointment', async () => {
+      const response = await request(app)
+        .delete('/api/appointments/99999')
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(404);
+    });
+  });
+
+  describe('POST /api/appointments/:id/confirm', () => {
+    let testAppointmentId;
+
+    beforeAll(async () => {
+      const response = await request(app)
+        .post('/api/appointments')
+        .set('Cookie', patientCookies)
+        .send({
+          date: getFutureDate(60),
+          time: '09:00',
+          reason: 'Appointment to confirm',
+          doctor_id: 2
+        });
+      testAppointmentId = response.body.appointment.id;
+    });
+
+    test('should require authentication', async () => {
+      const response = await request(app)
+        .post(`/api/appointments/${testAppointmentId}/confirm`);
+
+      expect(response.statusCode).toBe(401);
+    });
+
+    test('should require doctor role', async () => {
+      const response = await request(app)
+        .post(`/api/appointments/${testAppointmentId}/confirm`)
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(403);
+    });
+
+    test('should confirm appointment for assigned doctor', async () => {
+      const response = await request(app)
+        .post(`/api/appointments/${testAppointmentId}/confirm`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body.appointment.status).toBe('confirmed');
+    });
+
+    test('should return 404 for non-existent appointment', async () => {
+      const response = await request(app)
+        .post('/api/appointments/99999/confirm')
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(404);
+    });
+  });
+
+  describe('POST /api/appointments/:id/complete', () => {
+    let testAppointmentId;
+
+    beforeAll(async () => {
+      const createResponse = await request(app)
+        .post('/api/appointments')
+        .set('Cookie', patientCookies)
+        .send({
+          date: getFutureDate(65),
+          time: '10:00',
+          reason: 'Appointment to complete',
+          doctor_id: 2
+        });
+      testAppointmentId = createResponse.body.appointment.id;
+
+      await request(app)
+        .post(`/api/appointments/${testAppointmentId}/confirm`)
+        .set('Cookie', doctorCookies);
+    });
+
+    test('should require authentication', async () => {
+      const response = await request(app)
+        .post(`/api/appointments/${testAppointmentId}/complete`);
+
+      expect(response.statusCode).toBe(401);
+    });
+
+    test('should require doctor role', async () => {
+      const response = await request(app)
+        .post(`/api/appointments/${testAppointmentId}/complete`)
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(403);
+    });
+
+    test('should complete appointment for assigned doctor', async () => {
+      const response = await request(app)
+        .post(`/api/appointments/${testAppointmentId}/complete`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body.appointment.status).toBe('completed');
+    });
+
+    test('should return 404 for non-existent appointment', async () => {
+      const response = await request(app)
+        .post('/api/appointments/99999/complete')
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(404);
+    });
+
+    test('should not complete cancelled appointment', async () => {
+      const createResponse = await request(app)
+        .post('/api/appointments')
+        .set('Cookie', patientCookies)
+        .send({
+          date: getFutureDate(70),
+          time: '11:00',
+          reason: 'Cancelled appointment',
+          doctor_id: 2
+        });
+      const appointmentId = createResponse.body.appointment.id;
+
+      await request(app)
+        .delete(`/api/appointments/${appointmentId}`)
+        .set('Cookie', patientCookies);
+
+      const response = await request(app)
+        .post(`/api/appointments/${appointmentId}/complete`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(400);
     });
   });
 

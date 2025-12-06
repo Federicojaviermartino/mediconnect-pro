@@ -16,11 +16,16 @@ const { setupAuthRoutes } = require('./demo-app/routes/auth');
 const { setupApiRoutes } = require('./demo-app/routes/api');
 const { setupAppointmentRoutes } = require('./demo-app/routes/appointments');
 const { setupPrescriptionRoutes } = require('./demo-app/routes/prescriptions');
+const { setupMessageRoutes } = require('./demo-app/routes/messages');
+const { setupAdminRoutes } = require('./demo-app/routes/admin');
+const { setupConsultationRoutes } = require('./demo-app/routes/consultations');
+const { setupMedicalRecordsRoutes } = require('./demo-app/routes/medical-records');
+const { setupAnalyticsRoutes } = require('./demo-app/routes/analytics');
 const { setupAIRoutes } = require('./demo-app/routes/ai');
 const { setupVitalsRoutes } = require('./demo-app/routes/vitals');
 const { setupInsuranceRoutes } = require('./demo-app/routes/insurance');
 const { setupPharmacyRoutes } = require('./demo-app/routes/pharmacy');
-const { setupCsrfEndpoint } = require('./demo-app/middleware/csrf');
+const { setupCsrfEndpoint, csrfProtection } = require('./demo-app/middleware/csrf');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -44,6 +49,23 @@ app.use((req, res, next) => {
 
   // Prevent clickjacking attacks
   res.setHeader('X-Frame-Options', 'DENY');
+
+  // XSS Protection
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+
+  // Content Security Policy
+  res.setHeader('Content-Security-Policy',
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com; " +
+    "img-src 'self' data: https:; " +
+    "connect-src 'self' https://api.openai.com https://api.anthropic.com; " +
+    "frame-ancestors 'none';"
+  );
+
+  // Referrer Policy
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
 
   // HTTP Strict Transport Security (HSTS) - only in production
   if (process.env.NODE_ENV === 'production') {
@@ -241,6 +263,52 @@ const authLimiter = rateLimit({
   skipSuccessfulRequests: false, // Count successful requests
 });
 
+// Rate limiters for other critical endpoints
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 60, // 60 requests per minute
+  message: 'Too many requests, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 10, // 10 AI requests per minute (expensive operations)
+  message: 'Too many AI requests, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// CSRF protection middleware (excludes safe routes)
+const csrfExcludedPaths = [
+  '/api/auth/login',      // Login needs to work without token initially
+  '/api/csrf-token',      // Used to get the token
+  '/health',              // Health checks
+  '/health/live',
+  '/health/ready'
+];
+
+const conditionalCsrf = (req, res, next) => {
+  // Skip CSRF for excluded paths
+  if (csrfExcludedPaths.some(path => req.path === path || req.path.startsWith(path + '/'))) {
+    return next();
+  }
+  // Apply CSRF protection
+  return csrfProtection(req, res, next);
+};
+
+// Apply CSRF protection globally after session
+app.use(conditionalCsrf);
+
+// Apply rate limiters to specific API paths
+app.use('/api/ai', aiLimiter);
+app.use('/api/appointments', apiLimiter);
+app.use('/api/prescriptions', apiLimiter);
+app.use('/api/vitals', apiLimiter);
+app.use('/api/insurance', apiLimiter);
+app.use('/api/pharmacy', apiLimiter);
+
 // Routes will be setup after database initialization in startServer()
 
 // API info endpoint
@@ -356,8 +424,13 @@ async function startServer() {
     setupApiRoutes(app, db);
     setupAppointmentRoutes(app, db);
     setupPrescriptionRoutes(app, db);
+    setupMessageRoutes(app, db);
+    setupAdminRoutes(app, db);
+    setupConsultationRoutes(app, db);
+    setupMedicalRecordsRoutes(app, db);
+    setupAnalyticsRoutes(app, db);
     setupAIRoutes(app, db);
-    setupVitalsRoutes(app);
+    setupVitalsRoutes(app, db);
     setupInsuranceRoutes(app, db);
     setupPharmacyRoutes(app, db);
 

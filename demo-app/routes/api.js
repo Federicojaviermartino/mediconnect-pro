@@ -1,9 +1,16 @@
 // API routes for demo data
 const { requireAuth } = require('../middleware/auth');
+const { cacheMiddleware } = require('../utils/cache');
+const logger = require('../utils/logger');
+
+// Cache configurations
+const vitalsCache = cacheMiddleware({ ttl: 15000 }); // 15 seconds for vitals
+const patientsCache = cacheMiddleware({ ttl: 30000 }); // 30 seconds for patient list
+const statsCache = cacheMiddleware({ ttl: 60000 }); // 1 minute for stats
 
 function setupApiRoutes(app, db) {
-  // Get patient vitals
-  app.get('/api/vitals', requireAuth, (req, res) => {
+  // Get patient vitals (cached for 15 seconds)
+  app.get('/api/vitals', requireAuth, vitalsCache, (req, res) => {
     try {
       const userId = req.session.user.id;
 
@@ -19,13 +26,13 @@ function setupApiRoutes(app, db) {
 
       res.json({ vitals });
     } catch (error) {
-      console.error('Get vitals error:', error);
+      logger.logApiError(error, req, { context: 'Get vitals' });
       res.status(500).json({ error: 'Failed to fetch vitals' });
     }
   });
 
-  // Get all patients (for doctors/admin)
-  app.get('/api/patients', requireAuth, (req, res) => {
+  // Get all patients (for doctors/admin - cached for 30 seconds)
+  app.get('/api/patients', requireAuth, patientsCache, (req, res) => {
     try {
       if (req.session.user.role !== 'doctor' && req.session.user.role !== 'admin') {
         return res.status(403).json({ error: 'Insufficient permissions' });
@@ -35,7 +42,7 @@ function setupApiRoutes(app, db) {
 
       res.json({ patients });
     } catch (error) {
-      console.error('Get patients error:', error);
+      logger.logApiError(error, req, { context: 'Get patients' });
       res.status(500).json({ error: 'Failed to fetch patients' });
     }
   });
@@ -59,13 +66,13 @@ function setupApiRoutes(app, db) {
 
       res.json({ patient, vitals });
     } catch (error) {
-      console.error('Get patient details error:', error);
+      logger.logApiError(error, req, { context: 'Get patient details' });
       res.status(500).json({ error: 'Failed to fetch patient details' });
     }
   });
 
-  // Get stats (for admin)
-  app.get('/api/stats', requireAuth, (req, res) => {
+  // Get stats (for admin - cached for 1 minute)
+  app.get('/api/stats', requireAuth, statsCache, (req, res) => {
     try {
       if (req.session.user.role !== 'admin') {
         return res.status(403).json({ error: 'Insufficient permissions' });
@@ -75,7 +82,7 @@ function setupApiRoutes(app, db) {
 
       res.json({ stats });
     } catch (error) {
-      console.error('Get stats error:', error);
+      logger.logApiError(error, req, { context: 'Get stats' });
       res.status(500).json({ error: 'Failed to fetch stats' });
     }
   });

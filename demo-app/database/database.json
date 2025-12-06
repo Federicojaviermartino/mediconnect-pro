@@ -3,29 +3,275 @@
     {
       "id": 1,
       "email": "admin@mediconnect.demo",
-      "password": "$2a$10$jCnLCuM7.TugbRWTtL9B6OpjdfJ.xirasOKXpWT4eMtc60oAT0HO6",
+      "password": "$2a$10$vlR1I1nOtm57D1zeRuqvoutR7SjC9kfNf0K8KXz1PWVCoqYrLQmhW",
       "role": "admin",
-      "name": "Admin User",
+      "name": "Updated Test Name",
       "specialization": null,
-      "created_at": "2025-10-15T08:46:54.487Z"
+      "created_at": "2025-12-06T19:12:16.715Z",
+      "updated_at": "2025-12-06T19:24:00.341Z"
     },
     {
       "id": 2,
       "email": "dr.smith@mediconnect.demo",
-      "password": "$2a$10$6tgAYUEI3M.cYi63XSUjI..ANjPAm6p16JUTNNTvSq5fg6MdoJCe2",
+      "password": "$2a$10$VVuzZ9TvAOKdsxmU6AHpfeGOn.Z1/MyxN4M9ZoqNXdeHFzdw/ur.2",
       "role": "doctor",
       "name": "Dr. Sarah Smith",
       "specialization": "General Practitioner",
-      "created_at": "2025-10-15T08:46:54.489Z"
+      "created_at": "2025-12-06T19:12:16.715Z"
     },
     {
       "id": 3,
       "email": "john.doe@mediconnect.demo",
-      "password": "$2a$10$Ej8u6fV9xyH8HwIh2X9J.OvNQcarvQ3.5ex9hiWR9RriU.59W9zD6",
+      "password": "$2a$10$lUN1melYwkq/FG9pDjZwKuoW85COiTCA8Cn2UJKRFYJ/GDv5DT30u",
       "role": "patient",
-      "name": "John Doe",
+      "name": "John Updated Doe",
       "specialization": null,
-      "created_at": "2025-10-15T08:46:54.489Z"
+      "created_at": "2025-12-06T19:12:16.715Z",
+      "updated_at": "2025-12-06T19:23:18.045Z"
+    },
+    {
+      "id": 4,
+      "email": "test1765048369542@mediconnect.demo",
+      "password": "$2a$10$3fu2CH9GSWwgoJ2WKqQggeSWr3HUGKN58tfCtbVRUzFkqwYlwl0Se",
+      "name": "Test User",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:12:49.900Z"
+    },
+    {
+      "id": 5,
+      "email": "safe1765048370045@mediconnect.demo",
+      "password": "$2a$10$lKHD923TmUDANCz/Uod8AO01cHnNssVT/vwk.4VMXsC5eU3uI30B2",
+      "name": "Safe User",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:12:50.300Z"
+    },
+    {
+      "id": 6,
+      "email": "testuser1765048409666@test.demo",
+      "password": "$2a$10$7G9OpsjzPkZL/mAM70R1.eguawR.w2bIA6MeRfoEo/8vgdGqcZG8O",
+      "name": "Test User",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:13:30.037Z"
+    },
+    {
+      "id": 7,
+      "email": "doctor1765048410159@test.demo",
+      "password": "$2a$10$GkHoEpnB4xknrfxvfcKQdOXX39U5oQp7L.pWv6radB7GCE7ajMW0K",
+      "name": "Dr. Test",
+      "role": "doctor",
+      "specialization": "Cardiology",
+      "created_at": "2025-12-06T19:13:30.561Z"
+    },
+    {
+      "id": 8,
+      "email": "todelete1765048410757@test.demo",
+      "password": "$2a$10$.ZZ1j9brQPr2rHsxqpc3MOt89fd3uZypf7Z6hF1y589YML5U/jMjy",
+      "name": "To Delete",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:13:31.363Z",
+      "active": false,
+      "updated_at": "2025-12-06T19:13:31.584Z"
+    },
+    {
+      "id": 9,
+      "email": "test1765048430044@mediconnect.demo",
+      "password": "$2a$10$g1QjX8nYM1BRW/lmVv97kOgpQvWeyAjH9FKehKtoMFigMa1tXKk6O",
+      "name": "Test User",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:13:50.253Z"
+    },
+    {
+      "id": 10,
+      "email": "safe1765048430343@mediconnect.demo",
+      "password": "$2a$10$V0..4kaMBzLjrHyA1BwNpe3MdZLAT82yo0uPW13WUQMSw3.xv45w2",
+      "name": "Safe User",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:13:50.548Z"
+    },
+    {
+      "id": 11,
+      "email": "testuser1765048451737@test.demo",
+      "password": "$2a$10$YfYZMGfzeiE4l/1zqMNNr.E.H88ng49it3V16X3OSE.ih/SmrOlva",
+      "name": "Test User",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:14:11.928Z"
+    },
+    {
+      "id": 12,
+      "email": "doctor1765048452009@test.demo",
+      "password": "$2a$10$QhocqEgKGM0q8FS7CLWe3uQzQQt0sNQ7JNoqg9jrn5h5M2xLd0kHm",
+      "name": "Dr. Test",
+      "role": "doctor",
+      "specialization": "Cardiology",
+      "created_at": "2025-12-06T19:14:12.256Z"
+    },
+    {
+      "id": 13,
+      "email": "todelete1765048452385@test.demo",
+      "password": "$2a$10$U1sV2M09HcsGiPw23f8fy.x62PJ7xFUUF88YtU7.x3cvIio2BeZP6",
+      "name": "To Delete",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:14:12.641Z",
+      "active": false,
+      "updated_at": "2025-12-06T19:14:12.719Z"
+    },
+    {
+      "id": 14,
+      "email": "testuser1765048476531@test.demo",
+      "password": "$2a$10$HewwqxAsW4XxvX4juvG//OprAaGDdUH/vV7acvpNFsqIjtDvh5gwy",
+      "name": "Test User",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:14:37.051Z"
+    },
+    {
+      "id": 15,
+      "email": "doctor1765048477228@test.demo",
+      "password": "$2a$10$awMFYcDltee/qDly9VfGOewqysELIX4eBgmNlHcumxAq.NlQphdk.",
+      "name": "Dr. Test",
+      "role": "doctor",
+      "specialization": "Cardiology",
+      "created_at": "2025-12-06T19:14:37.746Z"
+    },
+    {
+      "id": 16,
+      "email": "todelete1765048477981@test.demo",
+      "password": "$2a$10$.SzEhHcGP2cHcCeHjyf9wunwFfKyszVOZ0bmVOZwnhZwH5KAqYZRK",
+      "name": "To Delete",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:14:38.396Z",
+      "active": false,
+      "updated_at": "2025-12-06T19:14:38.498Z"
+    },
+    {
+      "id": 17,
+      "email": "test1765048492797@mediconnect.demo",
+      "password": "$2a$10$Momg.USipDQWNoQVPumDg.j/7LIL0Jo/c.kF9QVWMk8UE9cyx3yNS",
+      "name": "Test User",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:14:53.030Z"
+    },
+    {
+      "id": 18,
+      "email": "safe1765048493126@mediconnect.demo",
+      "password": "$2a$10$0m32Uormvbz3Z1HLycw9kOFVjBq0qJSr3X.FIiuAed/fEqiKg.MaG",
+      "name": "Safe User",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:14:53.365Z"
+    },
+    {
+      "id": 19,
+      "email": "testuser1765048520717@test.demo",
+      "password": "$2a$10$.nIqoz/WYAIxZ9j9nrWw3.agupjEl7nAeiPG5VAJpKFflgGA3KiBC",
+      "name": "Test User",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:15:20.987Z"
+    },
+    {
+      "id": 20,
+      "email": "doctor1765048521086@test.demo",
+      "password": "$2a$10$VAZSrXn3HPnf1.YtEYNOtuESc0CWc678Q61KiVPzbK8Vgtskk1tre",
+      "name": "Dr. Test",
+      "role": "doctor",
+      "specialization": "Cardiology",
+      "created_at": "2025-12-06T19:15:21.333Z"
+    },
+    {
+      "id": 21,
+      "email": "todelete1765048521484@test.demo",
+      "password": "$2a$10$atMYtJByo45e6egsfm9GtOW5FRh1TNHJDbdJb432wUy1kGEAGZn1S",
+      "name": "To Delete",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:15:21.698Z",
+      "active": false,
+      "updated_at": "2025-12-06T19:15:21.783Z"
+    },
+    {
+      "id": 22,
+      "email": "test1765048543155@mediconnect.demo",
+      "password": "$2a$10$6m9hugmePfne.CO9vpmOb.5tOLazz2u26rbIgcCZh7Bjg6rd4wJRS",
+      "name": "Test User",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:15:43.640Z"
+    },
+    {
+      "id": 23,
+      "email": "safe1765048543831@mediconnect.demo",
+      "password": "$2a$10$rvZYANv57dt3FhGkNwlSouVC5ksF983d1Liw3yOjfQ/4EvXQoqM36",
+      "name": "Safe User",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:15:44.287Z"
+    },
+    {
+      "id": 24,
+      "email": "test1765048557546@mediconnect.demo",
+      "password": "$2a$10$Z1vQPcvfn2er25oVaHExV.PT4T0wYUk00Rf6RhP1yKq6h0Cu5n9M6",
+      "name": "Test User",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:15:57.745Z"
+    },
+    {
+      "id": 25,
+      "email": "safe1765048557833@mediconnect.demo",
+      "password": "$2a$10$psCXf9imhugjFLpOv/wrf./1QaGzVC7YtCw.iM2rxY53g22Pu.cSW",
+      "name": "Safe User",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:15:58.028Z"
+    },
+    {
+      "id": 26,
+      "email": "testuser1765048997072@test.demo",
+      "password": "$2a$10$CegCEdXNxx7nSZt52BTgsuHrHEAs4WsnqcLRwBTAo0KnGz/H3Y8Ku",
+      "name": "Test User",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:23:17.246Z"
+    },
+    {
+      "id": 27,
+      "email": "doctor1765048997313@test.demo",
+      "password": "$2a$10$brwb.Lqj/pZbQC/XVV96QeLK3JD78lKXJOJLK.FuMvBEznUwwcNFO",
+      "name": "Dr. Test",
+      "role": "doctor",
+      "specialization": "Cardiology",
+      "created_at": "2025-12-06T19:23:17.491Z"
+    },
+    {
+      "id": 28,
+      "email": "todelete1765048997576@test.demo",
+      "password": "$2a$10$guxthXI/K/.XtMka9N2EgO7.0BA0D.DrllE03scO8nw4k4zMSh3cq",
+      "name": "To Delete",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:23:17.761Z",
+      "active": false,
+      "updated_at": "2025-12-06T19:23:17.806Z"
+    },
+    {
+      "id": 29,
+      "email": "test-1765049040029@test.demo",
+      "password": "$2a$10$yyPUq.YTD8AvyWD8QKmRe.047q9GR1dmgwIVCJ8SUNTwLMu3U7whu",
+      "name": "Test User",
+      "role": "patient",
+      "specialization": null,
+      "created_at": "2025-12-06T19:24:00.218Z"
     }
   ],
   "patients": [
@@ -34,10 +280,91 @@
       "user_id": 3,
       "blood_type": "A+",
       "allergies": "Penicillin",
-      "conditions": "Hypertension",
-      "insuranceProvider": "sanitas",
-      "insuranceMemberId": "SAN-123456",
-      "lastEligibilityCheck": "2025-10-15T16:09:34.895Z"
+      "conditions": "Hypertension"
+    },
+    {
+      "id": 2,
+      "user_id": 4
+    },
+    {
+      "id": 3,
+      "user_id": 5
+    },
+    {
+      "id": 4,
+      "user_id": 6
+    },
+    {
+      "id": 5,
+      "user_id": 8
+    },
+    {
+      "id": 6,
+      "user_id": 9
+    },
+    {
+      "id": 7,
+      "user_id": 10
+    },
+    {
+      "id": 8,
+      "user_id": 11
+    },
+    {
+      "id": 9,
+      "user_id": 13
+    },
+    {
+      "id": 10,
+      "user_id": 14
+    },
+    {
+      "id": 11,
+      "user_id": 16
+    },
+    {
+      "id": 12,
+      "user_id": 17
+    },
+    {
+      "id": 13,
+      "user_id": 18
+    },
+    {
+      "id": 14,
+      "user_id": 19
+    },
+    {
+      "id": 15,
+      "user_id": 21
+    },
+    {
+      "id": 16,
+      "user_id": 22
+    },
+    {
+      "id": 17,
+      "user_id": 23
+    },
+    {
+      "id": 18,
+      "user_id": 24
+    },
+    {
+      "id": 19,
+      "user_id": 25
+    },
+    {
+      "id": 20,
+      "user_id": 26
+    },
+    {
+      "id": 21,
+      "user_id": 28
+    },
+    {
+      "id": 22,
+      "user_id": 29
     }
   ],
   "vitalSigns": [
@@ -48,7 +375,7 @@
       "blood_pressure": "120/80",
       "temperature": 36.6,
       "oxygen_saturation": 98,
-      "recorded_at": "2025-10-15T07:46:54.489Z"
+      "recorded_at": "2025-12-06T18:12:16.715Z"
     },
     {
       "id": 2,
@@ -57,7 +384,7 @@
       "blood_pressure": "125/82",
       "temperature": 36.7,
       "oxygen_saturation": 97,
-      "recorded_at": "2025-10-15T06:46:54.489Z"
+      "recorded_at": "2025-12-06T17:12:16.715Z"
     },
     {
       "id": 3,
@@ -66,7 +393,7 @@
       "blood_pressure": "118/78",
       "temperature": 36.5,
       "oxygen_saturation": 99,
-      "recorded_at": "2025-10-15T05:46:54.489Z"
+      "recorded_at": "2025-12-06T16:12:16.715Z"
     }
   ],
   "appointments": [
@@ -74,21 +401,11 @@
       "id": 1,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-10-16",
+      "date": "2025-12-07",
       "time": "10:00",
       "reason": "Regular checkup",
       "status": "scheduled",
-      "created_at": "2025-10-15T08:46:54.489Z",
-      "preAuthorization": {
-        "authorizationNumber": "AUTH-1764192024918",
-        "status": "approved",
-        "approvedUnits": 1,
-        "expirationDate": "2026-02-24T21:20:24.918Z",
-        "message": "Pre-authorization approved for telemedicine consultation",
-        "reviewRequired": false,
-        "mockMode": true
-      },
-      "preAuthDate": "2025-11-26T21:20:24.918Z"
+      "created_at": "2025-12-06T19:12:16.715Z"
     },
     {
       "id": 2,
@@ -98,17 +415,17 @@
       "time": "10:00",
       "type": "Consultation",
       "status": "scheduled",
-      "created_at": "2025-10-16T12:08:43.273Z"
+      "created_at": "2025-12-06T19:12:19.531Z"
     },
     {
       "id": 3,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2025-12-21T00:00:00.000Z",
+      "time": "14:00",
+      "reason": "Follow-up consultation for test",
       "status": "scheduled",
-      "created_at": "2025-10-16T12:09:14.231Z"
+      "created_at": "2025-12-06T19:12:51.563Z"
     },
     {
       "id": 4,
@@ -118,77 +435,77 @@
       "time": "10:00",
       "type": "Consultation",
       "status": "scheduled",
-      "created_at": "2025-10-16T15:17:12.810Z"
+      "created_at": "2025-12-06T19:12:55.579Z"
     },
     {
       "id": 5,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2025-12-21T00:00:00.000Z",
+      "time": "14:00",
+      "reason": "Follow-up consultation for test",
       "status": "scheduled",
-      "created_at": "2025-10-16T15:23:00.429Z"
+      "created_at": "2025-12-06T19:13:13.769Z"
     },
     {
       "id": 6,
-      "patient_id": 3,
+      "patient_id": 2,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2025-12-26T00:00:00.000Z",
+      "time": "11:00",
+      "reason": "Doctor scheduled appointment",
       "status": "scheduled",
-      "created_at": "2025-10-16T15:23:33.960Z"
+      "created_at": "2025-12-06T19:13:13.971Z"
     },
     {
       "id": 7,
-      "patient_id": 3,
+      "patient_id": 1,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2025-12-31T00:00:00.000Z",
+      "time": "15:00",
+      "reason": "Admin scheduled appointment",
       "status": "scheduled",
-      "created_at": "2025-11-26T19:42:20.415Z"
+      "created_at": "2025-12-06T19:13:13.994Z"
     },
     {
       "id": 8,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2026-01-05T00:00:00.000Z",
+      "time": "09:00",
+      "reason": "Appointment with specific doctor",
       "status": "scheduled",
-      "created_at": "2025-11-26T19:42:30.242Z"
+      "created_at": "2025-12-06T19:13:14.158Z"
     },
     {
       "id": 9,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2026-01-10T00:00:00.000Z",
+      "time": "16:00",
+      "reason": "Appointment without specific doctor",
       "status": "scheduled",
-      "created_at": "2025-11-26T19:43:22.103Z"
+      "created_at": "2025-12-06T19:13:14.177Z"
     },
     {
       "id": 10,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
+      "date": "2026-01-15T00:00:00.000Z",
       "time": "10:00",
-      "type": "Consultation",
+      "reason": "Test appointment for single get",
       "status": "scheduled",
-      "created_at": "2025-11-26T19:43:28.115Z"
+      "created_at": "2025-12-06T19:13:14.285Z"
     },
     {
       "id": 11,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2026-01-20T00:00:00.000Z",
+      "time": "11:00",
+      "reason": "Updated by patient",
       "status": "scheduled",
-      "created_at": "2025-11-26T19:43:33.590Z"
+      "created_at": "2025-12-06T19:13:14.583Z"
     },
     {
       "id": 12,
@@ -198,297 +515,297 @@
       "time": "10:00",
       "type": "Consultation",
       "status": "scheduled",
-      "created_at": "2025-11-26T19:43:46.542Z"
+      "created_at": "2025-12-06T19:13:16.290Z"
     },
     {
       "id": 13,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2025-12-21T00:00:00.000Z",
+      "time": "14:00",
+      "reason": "Follow-up consultation for test",
       "status": "scheduled",
-      "created_at": "2025-11-26T19:43:51.968Z"
+      "created_at": "2025-12-06T19:13:33.655Z"
     },
     {
       "id": 14,
-      "patient_id": 3,
+      "patient_id": 2,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2025-12-26T00:00:00.000Z",
+      "time": "11:00",
+      "reason": "Doctor scheduled appointment",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:08:52.830Z"
+      "created_at": "2025-12-06T19:13:33.816Z"
     },
     {
       "id": 15,
-      "patient_id": 3,
+      "patient_id": 1,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2025-12-31T00:00:00.000Z",
+      "time": "15:00",
+      "reason": "Admin scheduled appointment",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:09:47.806Z"
+      "created_at": "2025-12-06T19:13:33.842Z"
     },
     {
       "id": 16,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2026-01-05T00:00:00.000Z",
+      "time": "09:00",
+      "reason": "Appointment with specific doctor",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:09:56.600Z"
+      "created_at": "2025-12-06T19:13:33.881Z"
     },
     {
       "id": 17,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2026-01-10T00:00:00.000Z",
+      "time": "16:00",
+      "reason": "Appointment without specific doctor",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:10:21.751Z"
+      "created_at": "2025-12-06T19:13:33.921Z"
     },
     {
       "id": 18,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
+      "date": "2026-01-15T00:00:00.000Z",
       "time": "10:00",
-      "type": "Consultation",
+      "reason": "Test appointment for single get",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:10:37.949Z"
+      "created_at": "2025-12-06T19:13:33.965Z"
     },
     {
       "id": 19,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2026-01-20T00:00:00.000Z",
+      "time": "11:00",
+      "reason": "Updated by patient",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:10:50.638Z"
+      "created_at": "2025-12-06T19:13:34.129Z"
     },
     {
       "id": 20,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:13:08.358Z"
+      "date": "2026-01-25T00:00:00.000Z",
+      "time": "14:00",
+      "reason": "For doctor update test",
+      "status": "confirmed",
+      "created_at": "2025-12-06T19:13:34.266Z"
     },
     {
       "id": 21,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:13:46.823Z"
+      "date": "2026-01-30T00:00:00.000Z",
+      "time": "15:00",
+      "reason": "Appointment to cancel",
+      "status": "cancelled",
+      "created_at": "2025-12-06T19:13:34.337Z"
     },
     {
       "id": 22,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:13:59.839Z"
+      "date": "2026-02-04T00:00:00.000Z",
+      "time": "09:00",
+      "reason": "Appointment to confirm",
+      "status": "confirmed",
+      "created_at": "2025-12-06T19:13:34.420Z"
     },
     {
       "id": 23,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
+      "date": "2026-02-09T00:00:00.000Z",
       "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:15:25.770Z"
+      "reason": "Appointment to complete",
+      "status": "completed",
+      "created_at": "2025-12-06T19:13:34.568Z"
     },
     {
       "id": 24,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:16:40.105Z"
+      "date": "2026-02-14T00:00:00.000Z",
+      "time": "11:00",
+      "reason": "Cancelled appointment",
+      "status": "cancelled",
+      "created_at": "2025-12-06T19:13:34.729Z"
     },
     {
       "id": 25,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-11T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
+      "date": "2025-11-01",
+      "time": "10:00",
+      "type": "Consultation",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:16:58.448Z"
+      "created_at": "2025-12-06T19:13:36.440Z"
     },
     {
       "id": 26,
-      "patient_id": 2,
+      "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-16T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
+      "date": "2025-11-01",
+      "time": "10:00",
+      "type": "Consultation",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:16:58.512Z"
+      "created_at": "2025-12-06T19:13:55.591Z"
     },
     {
       "id": 27,
-      "patient_id": 1,
+      "patient_id": 3,
       "doctor_id": 2,
       "date": "2025-12-21T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
+      "time": "14:00",
+      "reason": "Follow-up consultation for test",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:16:58.522Z"
+      "created_at": "2025-12-06T19:14:14.569Z"
     },
     {
       "id": 28,
-      "patient_id": 3,
+      "patient_id": 2,
       "doctor_id": 2,
       "date": "2025-12-26T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
+      "time": "11:00",
+      "reason": "Doctor scheduled appointment",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:16:58.533Z"
+      "created_at": "2025-12-06T19:14:14.698Z"
     },
     {
       "id": 29,
-      "patient_id": 3,
+      "patient_id": 1,
       "doctor_id": 2,
       "date": "2025-12-31T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
+      "time": "15:00",
+      "reason": "Admin scheduled appointment",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:16:58.543Z"
+      "created_at": "2025-12-06T19:14:14.729Z"
     },
     {
       "id": 30,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2026-01-05T00:00:00.000Z",
+      "time": "09:00",
+      "reason": "Appointment with specific doctor",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:16:58.697Z"
+      "created_at": "2025-12-06T19:14:14.757Z"
     },
     {
       "id": 31,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-11T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
+      "date": "2026-01-10T00:00:00.000Z",
+      "time": "16:00",
+      "reason": "Appointment without specific doctor",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:17:19.984Z"
+      "created_at": "2025-12-06T19:14:14.777Z"
     },
     {
       "id": 32,
-      "patient_id": 2,
+      "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-16T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
+      "date": "2026-01-15T00:00:00.000Z",
+      "time": "10:00",
+      "reason": "Test appointment for single get",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:17:20.083Z"
+      "created_at": "2025-12-06T19:14:14.799Z"
     },
     {
       "id": 33,
-      "patient_id": 1,
+      "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-21T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
+      "date": "2026-01-20T00:00:00.000Z",
+      "time": "11:00",
+      "reason": "Updated by patient",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:17:20.100Z"
+      "created_at": "2025-12-06T19:14:14.891Z"
     },
     {
       "id": 34,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-26T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:17:20.120Z"
+      "date": "2026-01-25T00:00:00.000Z",
+      "time": "14:00",
+      "reason": "For doctor update test",
+      "status": "confirmed",
+      "created_at": "2025-12-06T19:14:14.971Z"
     },
     {
       "id": 35,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-31T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:17:20.143Z"
+      "date": "2026-01-30T00:00:00.000Z",
+      "time": "15:00",
+      "reason": "Appointment to cancel",
+      "status": "cancelled",
+      "created_at": "2025-12-06T19:14:15.025Z"
     },
     {
       "id": 36,
+      "patient_id": 3,
+      "doctor_id": 2,
+      "date": "2026-02-04T00:00:00.000Z",
+      "time": "09:00",
+      "reason": "Appointment to confirm",
+      "status": "confirmed",
+      "created_at": "2025-12-06T19:14:15.087Z"
+    },
+    {
+      "id": 37,
+      "patient_id": 3,
+      "doctor_id": 2,
+      "date": "2026-02-09T00:00:00.000Z",
+      "time": "10:00",
+      "reason": "Appointment to complete",
+      "status": "completed",
+      "created_at": "2025-12-06T19:14:15.198Z"
+    },
+    {
+      "id": 38,
       "patient_id": 3,
       "doctor_id": 2,
       "date": "2025-11-01",
       "time": "10:00",
       "type": "Consultation",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:17:20.393Z"
-    },
-    {
-      "id": 37,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-11T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:17:30.668Z"
-    },
-    {
-      "id": 38,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "date": "2025-12-16T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:17:30.738Z"
+      "created_at": "2025-12-06T19:14:17.809Z"
     },
     {
       "id": 39,
-      "patient_id": 1,
+      "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-21T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
+      "date": "2025-11-01",
+      "time": "10:00",
+      "type": "Consultation",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:17:30.755Z"
+      "created_at": "2025-12-06T19:14:39.502Z"
     },
     {
       "id": 40,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-26T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
+      "date": "2025-11-01",
+      "time": "10:00",
+      "type": "Consultation",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:17:30.772Z"
+      "created_at": "2025-12-06T19:14:57.383Z"
     },
     {
       "id": 41,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-31T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
+      "date": "2025-12-21T00:00:00.000Z",
+      "time": "14:00",
+      "reason": "Follow-up consultation for test",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:17:30.789Z"
+      "created_at": "2025-12-06T19:15:23.277Z"
     },
     {
       "id": 42,
@@ -498,977 +815,167 @@
       "time": "10:00",
       "type": "Consultation",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:17:32.907Z"
+      "created_at": "2025-12-06T19:15:25.928Z"
     },
     {
       "id": 43,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-11T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
+      "date": "2025-11-01",
+      "time": "10:00",
+      "type": "Consultation",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:17:37.169Z"
+      "created_at": "2025-12-06T19:16:01.612Z"
     },
     {
       "id": 44,
-      "patient_id": 2,
+      "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-16T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
+      "date": "2025-12-21T00:00:00.000Z",
+      "time": "14:00",
+      "reason": "Follow-up consultation for test",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:17:37.273Z"
+      "created_at": "2025-12-06T19:23:18.998Z"
     },
     {
       "id": 45,
-      "patient_id": 1,
+      "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-21T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
+      "date": "2025-11-01",
+      "time": "10:00",
+      "type": "Consultation",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:17:37.287Z"
+      "created_at": "2025-12-06T19:23:21.051Z"
     },
     {
       "id": 46,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-26T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
+      "date": "2025-12-21T00:00:00.000Z",
+      "time": "14:00",
+      "reason": "Follow-up consultation for test",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:17:37.307Z"
+      "created_at": "2025-12-06T19:24:01.405Z"
     },
     {
       "id": 47,
-      "patient_id": 3,
+      "patient_id": 2,
       "doctor_id": 2,
-      "date": "2025-12-31T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
+      "date": "2025-12-26T00:00:00.000Z",
+      "time": "11:00",
+      "reason": "Doctor scheduled appointment",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:17:37.327Z"
+      "created_at": "2025-12-06T19:24:01.575Z"
     },
     {
       "id": 48,
-      "patient_id": 3,
+      "patient_id": 1,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2025-12-31T00:00:00.000Z",
+      "time": "15:00",
+      "reason": "Admin scheduled appointment",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:17:37.600Z"
+      "created_at": "2025-12-06T19:24:01.591Z"
     },
     {
       "id": 49,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2026-01-05T00:00:00.000Z",
+      "time": "09:00",
+      "reason": "Appointment with specific doctor",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:18:06.539Z"
+      "created_at": "2025-12-06T19:24:01.609Z"
     },
     {
       "id": 50,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
+      "date": "2026-01-10T00:00:00.000Z",
+      "time": "16:00",
+      "reason": "Appointment without specific doctor",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:18:11.247Z"
+      "created_at": "2025-12-06T19:24:01.624Z"
     },
     {
       "id": 51,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-11T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
+      "date": "2026-01-15T00:00:00.000Z",
+      "time": "10:00",
+      "reason": "Test appointment for single get",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:18:32.513Z"
+      "created_at": "2025-12-06T19:24:01.641Z"
     },
     {
       "id": 52,
-      "patient_id": 2,
+      "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-16T00:00:00.000Z",
+      "date": "2026-01-20T00:00:00.000Z",
       "time": "11:00",
-      "reason": "Doctor scheduled appointment",
+      "reason": "Updated by patient",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:18:32.599Z"
+      "created_at": "2025-12-06T19:24:01.949Z"
     },
     {
       "id": 53,
-      "patient_id": 1,
+      "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-21T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:18:32.618Z"
+      "date": "2026-01-25T00:00:00.000Z",
+      "time": "14:00",
+      "reason": "For doctor update test",
+      "status": "confirmed",
+      "created_at": "2025-12-06T19:24:02.154Z"
     },
     {
       "id": 54,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-26T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:18:32.635Z"
+      "date": "2026-01-30T00:00:00.000Z",
+      "time": "15:00",
+      "reason": "Appointment to cancel",
+      "status": "cancelled",
+      "created_at": "2025-12-06T19:24:02.280Z"
     },
     {
       "id": 55,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-31T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:18:32.653Z"
+      "date": "2026-02-04T00:00:00.000Z",
+      "time": "09:00",
+      "reason": "Appointment to confirm",
+      "status": "confirmed",
+      "created_at": "2025-12-06T19:24:02.362Z"
     },
     {
       "id": 56,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-11-01",
+      "date": "2026-02-09T00:00:00.000Z",
       "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:18:35.849Z"
+      "reason": "Appointment to complete",
+      "status": "completed",
+      "created_at": "2025-12-06T19:24:02.525Z"
     },
     {
       "id": 57,
       "patient_id": 3,
       "doctor_id": 2,
-      "date": "2025-12-11T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:18:40.417Z"
+      "date": "2026-02-14T00:00:00.000Z",
+      "time": "11:00",
+      "reason": "Cancelled appointment",
+      "status": "cancelled",
+      "created_at": "2025-12-06T19:24:02.725Z"
     },
     {
       "id": 58,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "date": "2025-12-16T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:18:40.520Z"
-    },
-    {
-      "id": 59,
-      "patient_id": 1,
-      "doctor_id": 2,
-      "date": "2025-12-21T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:18:40.540Z"
-    },
-    {
-      "id": 60,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-26T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:18:40.559Z"
-    },
-    {
-      "id": 61,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-31T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:18:40.585Z"
-    },
-    {
-      "id": 62,
       "patient_id": 3,
       "doctor_id": 2,
       "date": "2025-11-01",
       "time": "10:00",
       "type": "Consultation",
       "status": "scheduled",
-      "created_at": "2025-11-26T21:18:40.803Z"
-    },
-    {
-      "id": 63,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:18:58.828Z"
-    },
-    {
-      "id": 64,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:19:29.176Z"
-    },
-    {
-      "id": 65,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-11T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:19:43.979Z"
-    },
-    {
-      "id": 66,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "date": "2025-12-16T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:19:44.065Z"
-    },
-    {
-      "id": 67,
-      "patient_id": 1,
-      "doctor_id": 2,
-      "date": "2025-12-21T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:19:44.083Z"
-    },
-    {
-      "id": 68,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-26T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:19:44.102Z"
-    },
-    {
-      "id": 69,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-31T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:19:44.123Z"
-    },
-    {
-      "id": 70,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:19:47.481Z"
-    },
-    {
-      "id": 71,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:19:52.333Z"
-    },
-    {
-      "id": 72,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-11T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:20:41.697Z"
-    },
-    {
-      "id": 73,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "date": "2025-12-16T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:20:41.825Z"
-    },
-    {
-      "id": 74,
-      "patient_id": 1,
-      "doctor_id": 2,
-      "date": "2025-12-21T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:20:41.843Z"
-    },
-    {
-      "id": 75,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-26T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:20:41.863Z"
-    },
-    {
-      "id": 76,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-31T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:20:41.883Z"
-    },
-    {
-      "id": 77,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:20:51.170Z"
-    },
-    {
-      "id": 78,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-11T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:20:54.818Z"
-    },
-    {
-      "id": 79,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "date": "2025-12-16T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:20:54.979Z"
-    },
-    {
-      "id": 80,
-      "patient_id": 1,
-      "doctor_id": 2,
-      "date": "2025-12-21T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:20:55.007Z"
-    },
-    {
-      "id": 81,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-26T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:20:55.040Z"
-    },
-    {
-      "id": 82,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-31T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:20:55.068Z"
-    },
-    {
-      "id": 83,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-11T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:21:03.596Z"
-    },
-    {
-      "id": 84,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "date": "2025-12-16T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:21:03.713Z"
-    },
-    {
-      "id": 85,
-      "patient_id": 1,
-      "doctor_id": 2,
-      "date": "2025-12-21T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:21:03.731Z"
-    },
-    {
-      "id": 86,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-26T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:21:03.751Z"
-    },
-    {
-      "id": 87,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-31T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:21:03.770Z"
-    },
-    {
-      "id": 88,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-11T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:21:23.588Z"
-    },
-    {
-      "id": 89,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "date": "2025-12-16T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:21:23.703Z"
-    },
-    {
-      "id": 90,
-      "patient_id": 1,
-      "doctor_id": 2,
-      "date": "2025-12-21T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:21:23.722Z"
-    },
-    {
-      "id": 91,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-26T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:21:23.742Z"
-    },
-    {
-      "id": 92,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-31T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:21:23.762Z"
-    },
-    {
-      "id": 93,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:21:32.740Z"
-    },
-    {
-      "id": 94,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-11T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:21:35.862Z"
-    },
-    {
-      "id": 95,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "date": "2025-12-16T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:21:36.044Z"
-    },
-    {
-      "id": 96,
-      "patient_id": 1,
-      "doctor_id": 2,
-      "date": "2025-12-21T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:21:36.074Z"
-    },
-    {
-      "id": 97,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-26T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:21:36.100Z"
-    },
-    {
-      "id": 98,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-31T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:21:36.130Z"
-    },
-    {
-      "id": 99,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:24:27.968Z"
-    },
-    {
-      "id": 100,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-11T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:24:30.649Z"
-    },
-    {
-      "id": 101,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "date": "2025-12-16T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:24:30.749Z"
-    },
-    {
-      "id": 102,
-      "patient_id": 1,
-      "doctor_id": 2,
-      "date": "2025-12-21T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:24:30.766Z"
-    },
-    {
-      "id": 103,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-26T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:24:30.784Z"
-    },
-    {
-      "id": 104,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-31T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:24:30.800Z"
-    },
-    {
-      "id": 105,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:32:02.529Z"
-    },
-    {
-      "id": 106,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-11T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:32:03.994Z"
-    },
-    {
-      "id": 107,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "date": "2025-12-16T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:32:04.077Z"
-    },
-    {
-      "id": 108,
-      "patient_id": 1,
-      "doctor_id": 2,
-      "date": "2025-12-21T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:32:04.103Z"
-    },
-    {
-      "id": 109,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-26T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:32:04.116Z"
-    },
-    {
-      "id": 110,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-31T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-26T21:32:04.129Z"
-    },
-    {
-      "id": 111,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-27T09:46:04.638Z"
-    },
-    {
-      "id": 112,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-12T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
-      "status": "scheduled",
-      "created_at": "2025-11-27T09:46:06.000Z"
-    },
-    {
-      "id": 113,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "date": "2025-12-17T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-27T09:46:06.049Z"
-    },
-    {
-      "id": 114,
-      "patient_id": 1,
-      "doctor_id": 2,
-      "date": "2025-12-22T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-27T09:46:06.057Z"
-    },
-    {
-      "id": 115,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-27T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-27T09:46:06.066Z"
-    },
-    {
-      "id": 116,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2026-01-01T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-27T09:46:06.073Z"
-    },
-    {
-      "id": 117,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-27T09:46:41.192Z"
-    },
-    {
-      "id": 118,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-12T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
-      "status": "scheduled",
-      "created_at": "2025-11-27T09:46:42.487Z"
-    },
-    {
-      "id": 119,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "date": "2025-12-17T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-27T09:46:42.532Z"
-    },
-    {
-      "id": 120,
-      "patient_id": 1,
-      "doctor_id": 2,
-      "date": "2025-12-22T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-27T09:46:42.540Z"
-    },
-    {
-      "id": 121,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-27T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-27T09:46:42.548Z"
-    },
-    {
-      "id": 122,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2026-01-01T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-27T09:46:42.556Z"
-    },
-    {
-      "id": 123,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-27T10:10:03.767Z"
-    },
-    {
-      "id": 124,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-12T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
-      "status": "scheduled",
-      "created_at": "2025-11-27T10:10:04.995Z"
-    },
-    {
-      "id": 125,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "date": "2025-12-17T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-27T10:10:05.039Z"
-    },
-    {
-      "id": 126,
-      "patient_id": 1,
-      "doctor_id": 2,
-      "date": "2025-12-22T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-27T10:10:05.047Z"
-    },
-    {
-      "id": 127,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-27T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-27T10:10:05.056Z"
-    },
-    {
-      "id": 128,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2026-01-01T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-27T10:10:05.068Z"
-    },
-    {
-      "id": 129,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-11-01",
-      "time": "10:00",
-      "type": "Consultation",
-      "status": "scheduled",
-      "created_at": "2025-11-29T11:21:52.105Z"
-    },
-    {
-      "id": 130,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-14T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
-      "status": "scheduled",
-      "created_at": "2025-11-29T11:21:53.911Z"
-    },
-    {
-      "id": 131,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "date": "2025-12-19T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-29T11:21:53.966Z"
-    },
-    {
-      "id": 132,
-      "patient_id": 1,
-      "doctor_id": 2,
-      "date": "2025-12-24T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-11-29T11:21:53.975Z"
-    },
-    {
-      "id": 133,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-29T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-29T11:21:53.988Z"
-    },
-    {
-      "id": 134,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2026-01-03T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-11-29T11:21:53.998Z"
-    },
-    {
-      "id": 135,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2025-12-17T00:00:00.000Z",
-      "time": "14:00",
-      "reason": "Follow-up consultation for test",
-      "status": "scheduled",
-      "created_at": "2025-12-02T11:38:12.547Z"
-    },
-    {
-      "id": 136,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "date": "2025-12-22T00:00:00.000Z",
-      "time": "11:00",
-      "reason": "Doctor scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-12-02T11:38:13.027Z"
-    },
-    {
-      "id": 137,
-      "patient_id": 1,
-      "doctor_id": 2,
-      "date": "2025-12-27T00:00:00.000Z",
-      "time": "15:00",
-      "reason": "Admin scheduled appointment",
-      "status": "scheduled",
-      "created_at": "2025-12-02T11:38:13.042Z"
-    },
-    {
-      "id": 138,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2026-01-01T00:00:00.000Z",
-      "time": "09:00",
-      "reason": "Appointment with specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-12-02T11:38:13.086Z"
-    },
-    {
-      "id": 139,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "date": "2026-01-06T00:00:00.000Z",
-      "time": "16:00",
-      "reason": "Appointment without specific doctor",
-      "status": "scheduled",
-      "created_at": "2025-12-02T11:38:13.100Z"
+      "created_at": "2025-12-06T19:24:03.792Z"
     }
   ],
   "prescriptions": [
@@ -1481,7 +988,7 @@
       "frequency": "Once daily",
       "pharmacy": "Main Street Pharmacy",
       "status": "active",
-      "created_at": "2025-10-14T08:46:54.489Z"
+      "created_at": "2025-12-05T19:12:16.715Z"
     },
     {
       "id": 2,
@@ -1492,9 +999,9 @@
       "frequency": "Twice daily",
       "duration": "7 days",
       "instructions": "Take with food",
-      "date": "2025-10-16T12:08:43.279Z",
+      "date": "2025-12-06T19:12:19.555Z",
       "status": "pending",
-      "created_at": "2025-10-16T12:08:43.280Z"
+      "created_at": "2025-12-06T19:12:19.555Z"
     },
     {
       "id": 3,
@@ -1505,22 +1012,21 @@
       "frequency": "Twice daily",
       "duration": "7 days",
       "instructions": "Take with food",
-      "date": "2025-10-16T12:09:14.238Z",
+      "date": "2025-12-06T19:12:55.611Z",
       "status": "pending",
-      "created_at": "2025-10-16T12:09:14.238Z"
+      "created_at": "2025-12-06T19:12:55.611Z"
     },
     {
       "id": 4,
       "patient_id": 3,
       "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-10-16T15:17:12.816Z",
+      "medication": "Amoxicillin",
+      "dosage": "500mg",
+      "frequency": "As directed",
+      "pharmacy": "CVS Pharmacy",
+      "notes": "Test prescription for pharmacy tests",
       "status": "pending",
-      "created_at": "2025-10-16T15:17:12.816Z"
+      "created_at": "2025-12-06T19:13:15.656Z"
     },
     {
       "id": 5,
@@ -1531,9 +1037,9 @@
       "frequency": "Twice daily",
       "duration": "7 days",
       "instructions": "Take with food",
-      "date": "2025-10-16T15:23:00.439Z",
+      "date": "2025-12-06T19:13:16.322Z",
       "status": "pending",
-      "created_at": "2025-10-16T15:23:00.439Z"
+      "created_at": "2025-12-06T19:13:16.323Z"
     },
     {
       "id": 6,
@@ -1544,9 +1050,9 @@
       "frequency": "Twice daily",
       "duration": "7 days",
       "instructions": "Take with food",
-      "date": "2025-10-16T15:23:33.968Z",
+      "date": "2025-12-06T19:13:36.463Z",
       "status": "pending",
-      "created_at": "2025-10-16T15:23:33.969Z"
+      "created_at": "2025-12-06T19:13:36.463Z"
     },
     {
       "id": 7,
@@ -1557,9 +1063,9 @@
       "frequency": "Twice daily",
       "duration": "7 days",
       "instructions": "Take with food",
-      "date": "2025-11-26T19:42:20.421Z",
+      "date": "2025-12-06T19:13:55.615Z",
       "status": "pending",
-      "created_at": "2025-11-26T19:42:20.421Z"
+      "created_at": "2025-12-06T19:13:55.615Z"
     },
     {
       "id": 8,
@@ -1570,9 +1076,9 @@
       "frequency": "Twice daily",
       "duration": "7 days",
       "instructions": "Take with food",
-      "date": "2025-11-26T19:42:30.245Z",
+      "date": "2025-12-06T19:14:17.845Z",
       "status": "pending",
-      "created_at": "2025-11-26T19:42:30.245Z"
+      "created_at": "2025-12-06T19:14:17.845Z"
     },
     {
       "id": 9,
@@ -1583,9 +1089,9 @@
       "frequency": "Twice daily",
       "duration": "7 days",
       "instructions": "Take with food",
-      "date": "2025-11-26T19:43:22.117Z",
+      "date": "2025-12-06T19:14:39.549Z",
       "status": "pending",
-      "created_at": "2025-11-26T19:43:22.119Z"
+      "created_at": "2025-12-06T19:14:39.549Z"
     },
     {
       "id": 10,
@@ -1596,9 +1102,9 @@
       "frequency": "Twice daily",
       "duration": "7 days",
       "instructions": "Take with food",
-      "date": "2025-11-26T19:43:28.129Z",
+      "date": "2025-12-06T19:14:57.404Z",
       "status": "pending",
-      "created_at": "2025-11-26T19:43:28.129Z"
+      "created_at": "2025-12-06T19:14:57.405Z"
     },
     {
       "id": 11,
@@ -1609,9 +1115,9 @@
       "frequency": "Twice daily",
       "duration": "7 days",
       "instructions": "Take with food",
-      "date": "2025-11-26T19:43:33.599Z",
+      "date": "2025-12-06T19:15:25.950Z",
       "status": "pending",
-      "created_at": "2025-11-26T19:43:33.600Z"
+      "created_at": "2025-12-06T19:15:25.950Z"
     },
     {
       "id": 12,
@@ -1622,9 +1128,9 @@
       "frequency": "Twice daily",
       "duration": "7 days",
       "instructions": "Take with food",
-      "date": "2025-11-26T19:43:46.549Z",
+      "date": "2025-12-06T19:16:01.629Z",
       "status": "pending",
-      "created_at": "2025-11-26T19:43:46.549Z"
+      "created_at": "2025-12-06T19:16:01.629Z"
     },
     {
       "id": 13,
@@ -1635,9 +1141,9 @@
       "frequency": "Twice daily",
       "duration": "7 days",
       "instructions": "Take with food",
-      "date": "2025-11-26T19:43:51.976Z",
+      "date": "2025-12-06T19:23:21.063Z",
       "status": "pending",
-      "created_at": "2025-11-26T19:43:51.977Z"
+      "created_at": "2025-12-06T19:23:21.063Z"
     },
     {
       "id": 14,
@@ -1648,808 +1154,465 @@
       "frequency": "Twice daily",
       "duration": "7 days",
       "instructions": "Take with food",
-      "date": "2025-11-26T21:08:52.837Z",
+      "date": "2025-12-06T19:24:03.822Z",
       "status": "pending",
-      "created_at": "2025-11-26T21:08:52.837Z"
+      "created_at": "2025-12-06T19:24:03.822Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": 1,
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Question about medication",
+      "content": "I have a question about my prescription.",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:12:18.245Z"
+    },
+    {
+      "id": 2,
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for GET",
+      "content": "Testing single message retrieval",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:12:18.372Z"
+    },
+    {
+      "id": 3,
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for read status",
+      "content": "Testing read status update",
+      "priority": "normal",
+      "read": true,
+      "created_at": "2025-12-06T19:12:18.462Z",
+      "read_at": "2025-12-06T19:12:18.513Z",
+      "updated_at": "2025-12-06T19:12:18.513Z"
+    },
+    {
+      "id": 4,
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for reply",
+      "content": "Testing reply functionality",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:12:18.565Z"
+    },
+    {
+      "id": 5,
+      "from_user_id": 2,
+      "to_user_id": 3,
+      "subject": "Re: Test for reply",
+      "content": "This is my reply to your message.",
+      "priority": "normal",
+      "reply_to_id": 4,
+      "read": true,
+      "created_at": "2025-12-06T19:12:18.615Z",
+      "read_at": "2025-12-06T19:12:18.824Z",
+      "updated_at": "2025-12-06T19:12:18.824Z"
+    },
+    {
+      "id": 6,
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Question about medication",
+      "content": "I have a question about my prescription.",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:12:53.163Z"
+    },
+    {
+      "id": 7,
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for GET",
+      "content": "Testing single message retrieval",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:12:53.350Z"
+    },
+    {
+      "id": 8,
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for read status",
+      "content": "Testing read status update",
+      "priority": "normal",
+      "read": true,
+      "created_at": "2025-12-06T19:12:53.474Z",
+      "read_at": "2025-12-06T19:12:53.536Z",
+      "updated_at": "2025-12-06T19:12:53.536Z"
+    },
+    {
+      "id": 9,
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for reply",
+      "content": "Testing reply functionality",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:12:53.623Z"
+    },
+    {
+      "id": 10,
+      "from_user_id": 2,
+      "to_user_id": 3,
+      "subject": "Re: Test for reply",
+      "content": "This is my reply to your message.",
+      "priority": "normal",
+      "reply_to_id": 9,
+      "read": true,
+      "created_at": "2025-12-06T19:12:53.698Z",
+      "read_at": "2025-12-06T19:12:54.027Z",
+      "updated_at": "2025-12-06T19:12:54.027Z"
+    },
+    {
+      "id": 11,
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Question about medication",
+      "content": "I have a question about my prescription.",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:13:52.885Z"
+    },
+    {
+      "id": 12,
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for GET",
+      "content": "Testing single message retrieval",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:13:53.019Z"
+    },
+    {
+      "id": 13,
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for read status",
+      "content": "Testing read status update",
+      "priority": "normal",
+      "read": true,
+      "created_at": "2025-12-06T19:13:53.131Z",
+      "read_at": "2025-12-06T19:13:53.198Z",
+      "updated_at": "2025-12-06T19:13:53.199Z"
+    },
+    {
+      "id": 14,
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for reply",
+      "content": "Testing reply functionality",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:13:53.257Z"
     },
     {
       "id": 15,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:09:47.838Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:09:47.838Z"
+      "from_user_id": 2,
+      "to_user_id": 3,
+      "subject": "Re: Test for reply",
+      "content": "This is my reply to your message.",
+      "priority": "normal",
+      "reply_to_id": 14,
+      "read": true,
+      "created_at": "2025-12-06T19:13:53.302Z",
+      "read_at": "2025-12-06T19:13:53.563Z",
+      "updated_at": "2025-12-06T19:13:53.563Z"
     },
     {
       "id": 16,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:09:56.617Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:09:56.617Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Question about medication",
+      "content": "I have a question about my prescription.",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:14:16.710Z"
     },
     {
       "id": 17,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:10:21.766Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:10:21.766Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for GET",
+      "content": "Testing single message retrieval",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:14:16.911Z"
     },
     {
       "id": 18,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:10:37.970Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:10:37.970Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for read status",
+      "content": "Testing read status update",
+      "priority": "normal",
+      "read": true,
+      "created_at": "2025-12-06T19:14:17.054Z",
+      "read_at": "2025-12-06T19:14:17.137Z",
+      "updated_at": "2025-12-06T19:14:17.137Z"
     },
     {
       "id": 19,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:10:50.654Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:10:50.654Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for reply",
+      "content": "Testing reply functionality",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:14:17.222Z"
     },
     {
       "id": 20,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:13:08.364Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:13:08.364Z"
+      "from_user_id": 2,
+      "to_user_id": 3,
+      "subject": "Re: Test for reply",
+      "content": "This is my reply to your message.",
+      "priority": "normal",
+      "reply_to_id": 19,
+      "read": true,
+      "created_at": "2025-12-06T19:14:17.299Z",
+      "read_at": "2025-12-06T19:14:17.611Z",
+      "updated_at": "2025-12-06T19:14:17.611Z"
     },
     {
       "id": 21,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:13:46.841Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:13:46.841Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Question about medication",
+      "content": "I have a question about my prescription.",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:14:54.857Z"
     },
     {
       "id": 22,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:13:59.860Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:13:59.860Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for GET",
+      "content": "Testing single message retrieval",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:14:55.023Z"
     },
     {
       "id": 23,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:15:25.786Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:15:25.786Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for read status",
+      "content": "Testing read status update",
+      "priority": "normal",
+      "read": true,
+      "created_at": "2025-12-06T19:14:55.145Z",
+      "read_at": "2025-12-06T19:14:55.199Z",
+      "updated_at": "2025-12-06T19:14:55.199Z"
     },
     {
       "id": 24,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:16:40.116Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:16:40.116Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for reply",
+      "content": "Testing reply functionality",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:14:55.260Z"
     },
     {
       "id": 25,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:16:58.707Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:16:58.707Z"
+      "from_user_id": 2,
+      "to_user_id": 3,
+      "subject": "Re: Test for reply",
+      "content": "This is my reply to your message.",
+      "priority": "normal",
+      "reply_to_id": 24,
+      "read": true,
+      "created_at": "2025-12-06T19:14:55.311Z",
+      "read_at": "2025-12-06T19:14:55.561Z",
+      "updated_at": "2025-12-06T19:14:55.561Z"
     },
     {
       "id": 26,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:17:20.413Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:17:20.414Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Question about medication",
+      "content": "I have a question about my prescription.",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:15:24.445Z"
     },
     {
       "id": 27,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "Need refill",
-      "status": "pending",
-      "created_at": "2025-11-26T21:17:32.331Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for GET",
+      "content": "Testing single message retrieval",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:15:24.596Z"
     },
     {
       "id": 28,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Amoxicillin",
-      "dosage": "500mg",
-      "frequency": "As directed",
-      "pharmacy": "Walgreens",
-      "notes": "Take with food",
-      "status": "pending",
-      "created_at": "2025-11-26T21:17:32.350Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for read status",
+      "content": "Testing read status update",
+      "priority": "normal",
+      "read": true,
+      "created_at": "2025-12-06T19:15:24.703Z",
+      "read_at": "2025-12-06T19:15:24.756Z",
+      "updated_at": "2025-12-06T19:15:24.756Z"
     },
     {
       "id": 29,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "medication": "Ibuprofen",
-      "dosage": "400mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "",
-      "status": "pending",
-      "created_at": "2025-11-26T21:17:32.371Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for reply",
+      "content": "Testing reply functionality",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:15:24.808Z"
     },
     {
       "id": 30,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Metformin",
-      "dosage": "As prescribed",
-      "frequency": "As directed",
-      "pharmacy": "Walgreens",
-      "notes": "",
-      "status": "pending",
-      "created_at": "2025-11-26T21:17:32.418Z"
+      "from_user_id": 2,
+      "to_user_id": 3,
+      "subject": "Re: Test for reply",
+      "content": "This is my reply to your message.",
+      "priority": "normal",
+      "reply_to_id": 29,
+      "read": true,
+      "created_at": "2025-12-06T19:15:24.870Z",
+      "read_at": "2025-12-06T19:15:25.124Z",
+      "updated_at": "2025-12-06T19:15:25.124Z"
     },
     {
       "id": 31,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Atorvastatin",
-      "dosage": "20mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "Take with a glass of water. Avoid grapefruit juice.",
-      "status": "pending",
-      "created_at": "2025-11-26T21:17:32.438Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Question about medication",
+      "content": "I have a question about my prescription.",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:15:59.591Z"
     },
     {
       "id": 32,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:17:32.929Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:17:32.929Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for GET",
+      "content": "Testing single message retrieval",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:15:59.724Z"
     },
     {
       "id": 33,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:17:37.630Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:17:37.631Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for read status",
+      "content": "Testing read status update",
+      "priority": "normal",
+      "read": true,
+      "created_at": "2025-12-06T19:15:59.812Z",
+      "read_at": "2025-12-06T19:15:59.854Z",
+      "updated_at": "2025-12-06T19:15:59.855Z"
     },
     {
       "id": 34,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Amoxicillin",
-      "dosage": "500mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "Test prescription for pharmacy tests",
-      "status": "pending",
-      "created_at": "2025-11-26T21:17:56.293Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for reply",
+      "content": "Testing reply functionality",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:15:59.893Z"
     },
     {
       "id": 35,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "Need refill",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:04.590Z"
+      "from_user_id": 2,
+      "to_user_id": 3,
+      "subject": "Re: Test for reply",
+      "content": "This is my reply to your message.",
+      "priority": "normal",
+      "reply_to_id": 34,
+      "read": true,
+      "created_at": "2025-12-06T19:15:59.930Z",
+      "read_at": "2025-12-06T19:16:00.161Z",
+      "updated_at": "2025-12-06T19:16:00.162Z"
     },
     {
       "id": 36,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Amoxicillin",
-      "dosage": "500mg",
-      "frequency": "As directed",
-      "pharmacy": "Walgreens",
-      "notes": "Take with food",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:04.605Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Question about medication",
+      "content": "I have a question about my prescription.",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:23:19.995Z"
     },
     {
       "id": 37,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "medication": "Ibuprofen",
-      "dosage": "400mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:04.618Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for GET",
+      "content": "Testing single message retrieval",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:23:20.077Z"
     },
     {
       "id": 38,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Metformin",
-      "dosage": "As prescribed",
-      "frequency": "As directed",
-      "pharmacy": "Walgreens",
-      "notes": "",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:04.648Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for read status",
+      "content": "Testing read status update",
+      "priority": "normal",
+      "read": true,
+      "created_at": "2025-12-06T19:23:20.128Z",
+      "read_at": "2025-12-06T19:23:20.158Z",
+      "updated_at": "2025-12-06T19:23:20.158Z"
     },
     {
       "id": 39,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Atorvastatin",
-      "dosage": "20mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "Take with a glass of water. Avoid grapefruit juice.",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:04.661Z"
+      "from_user_id": 3,
+      "to_user_id": 2,
+      "subject": "Test for reply",
+      "content": "Testing reply functionality",
+      "priority": "normal",
+      "read": false,
+      "created_at": "2025-12-06T19:23:20.187Z"
     },
     {
       "id": 40,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:18:06.562Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:06.562Z"
-    },
-    {
-      "id": 41,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:18:11.273Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:11.273Z"
-    },
-    {
-      "id": 42,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Amoxicillin",
-      "dosage": "500mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "Test prescription for pharmacy tests",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:25.800Z"
-    },
-    {
-      "id": 43,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "Need refill",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:33.975Z"
-    },
-    {
-      "id": 44,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Amoxicillin",
-      "dosage": "500mg",
-      "frequency": "As directed",
-      "pharmacy": "Walgreens",
-      "notes": "Take with food",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:33.989Z"
-    },
-    {
-      "id": 45,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "medication": "Ibuprofen",
-      "dosage": "400mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:34.002Z"
-    },
-    {
-      "id": 46,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Metformin",
-      "dosage": "As prescribed",
-      "frequency": "As directed",
-      "pharmacy": "Walgreens",
-      "notes": "",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:34.031Z"
-    },
-    {
-      "id": 47,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Atorvastatin",
-      "dosage": "20mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "Take with a glass of water. Avoid grapefruit juice.",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:34.044Z"
-    },
-    {
-      "id": 48,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:18:35.874Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:35.874Z"
-    },
-    {
-      "id": 49,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:18:40.832Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:40.832Z"
-    },
-    {
-      "id": 50,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Amoxicillin",
-      "dosage": "500mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "Test prescription for pharmacy tests",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:52.205Z"
-    },
-    {
-      "id": 51,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:18:58.860Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:18:58.860Z"
-    },
-    {
-      "id": 52,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "Need refill",
-      "status": "pending",
-      "created_at": "2025-11-26T21:19:28.708Z"
-    },
-    {
-      "id": 53,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Amoxicillin",
-      "dosage": "500mg",
-      "frequency": "As directed",
-      "pharmacy": "Walgreens",
-      "notes": "Take with food",
-      "status": "pending",
-      "created_at": "2025-11-26T21:19:28.730Z"
-    },
-    {
-      "id": 54,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "medication": "Ibuprofen",
-      "dosage": "400mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "",
-      "status": "pending",
-      "created_at": "2025-11-26T21:19:28.754Z"
-    },
-    {
-      "id": 55,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Metformin",
-      "dosage": "As prescribed",
-      "frequency": "As directed",
-      "pharmacy": "Walgreens",
-      "notes": "",
-      "status": "pending",
-      "created_at": "2025-11-26T21:19:28.818Z"
-    },
-    {
-      "id": 56,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Atorvastatin",
-      "dosage": "20mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "Take with a glass of water. Avoid grapefruit juice.",
-      "status": "pending",
-      "created_at": "2025-11-26T21:19:28.858Z"
-    },
-    {
-      "id": 57,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:19:29.201Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:19:29.201Z"
-    },
-    {
-      "id": 58,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Amoxicillin",
-      "dosage": "500mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "Test prescription for pharmacy tests",
-      "status": "pending",
-      "created_at": "2025-11-26T21:19:37.345Z"
-    },
-    {
-      "id": 59,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "Need refill",
-      "status": "pending",
-      "created_at": "2025-11-26T21:19:45.552Z"
-    },
-    {
-      "id": 60,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Amoxicillin",
-      "dosage": "500mg",
-      "frequency": "As directed",
-      "pharmacy": "Walgreens",
-      "notes": "Take with food",
-      "status": "pending",
-      "created_at": "2025-11-26T21:19:45.569Z"
-    },
-    {
-      "id": 61,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "medication": "Ibuprofen",
-      "dosage": "400mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "",
-      "status": "pending",
-      "created_at": "2025-11-26T21:19:45.590Z"
-    },
-    {
-      "id": 62,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Metformin",
-      "dosage": "As prescribed",
-      "frequency": "As directed",
-      "pharmacy": "Walgreens",
-      "notes": "",
-      "status": "pending",
-      "created_at": "2025-11-26T21:19:45.632Z"
-    },
-    {
-      "id": 63,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Atorvastatin",
-      "dosage": "20mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "Take with a glass of water. Avoid grapefruit juice.",
-      "status": "pending",
-      "created_at": "2025-11-26T21:19:45.646Z"
-    },
-    {
-      "id": 64,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:19:47.508Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:19:47.508Z"
-    },
-    {
-      "id": 65,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:19:52.363Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:19:52.363Z"
-    },
-    {
-      "id": 66,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:20:51.206Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:20:51.206Z"
-    },
-    {
-      "id": 67,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:21:32.776Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:21:32.776Z"
-    },
-    {
-      "id": 68,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "Need refill",
-      "status": "pending",
-      "created_at": "2025-11-26T21:21:44.858Z"
-    },
-    {
-      "id": 69,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Amoxicillin",
-      "dosage": "500mg",
-      "frequency": "As directed",
-      "pharmacy": "Walgreens",
-      "notes": "Take with food",
-      "status": "pending",
-      "created_at": "2025-11-26T21:21:44.885Z"
-    },
-    {
-      "id": 70,
-      "patient_id": 2,
-      "doctor_id": 2,
-      "medication": "Ibuprofen",
-      "dosage": "400mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "",
-      "status": "pending",
-      "created_at": "2025-11-26T21:21:44.905Z"
-    },
-    {
-      "id": 71,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Metformin",
-      "dosage": "As prescribed",
-      "frequency": "As directed",
-      "pharmacy": "Walgreens",
-      "notes": "",
-      "status": "pending",
-      "created_at": "2025-11-26T21:21:44.963Z"
-    },
-    {
-      "id": 72,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Atorvastatin",
-      "dosage": "20mg",
-      "frequency": "As directed",
-      "pharmacy": "CVS Pharmacy",
-      "notes": "Take with a glass of water. Avoid grapefruit juice.",
-      "status": "pending",
-      "created_at": "2025-11-26T21:21:44.987Z"
-    },
-    {
-      "id": 73,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:24:28.005Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:24:28.006Z"
-    },
-    {
-      "id": 74,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-26T21:32:02.546Z",
-      "status": "pending",
-      "created_at": "2025-11-26T21:32:02.546Z"
-    },
-    {
-      "id": 75,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-27T09:46:04.657Z",
-      "status": "pending",
-      "created_at": "2025-11-27T09:46:04.657Z"
-    },
-    {
-      "id": 76,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-27T09:46:41.217Z",
-      "status": "pending",
-      "created_at": "2025-11-27T09:46:41.217Z"
-    },
-    {
-      "id": 77,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-27T10:10:03.785Z",
-      "status": "pending",
-      "created_at": "2025-11-27T10:10:03.785Z"
-    },
-    {
-      "id": 78,
-      "patient_id": 3,
-      "doctor_id": 2,
-      "medication": "Test Medication",
-      "dosage": "10mg",
-      "frequency": "Twice daily",
-      "duration": "7 days",
-      "instructions": "Take with food",
-      "date": "2025-11-29T11:21:52.120Z",
-      "status": "pending",
-      "created_at": "2025-11-29T11:21:52.120Z"
+      "from_user_id": 2,
+      "to_user_id": 3,
+      "subject": "Re: Test for reply",
+      "content": "This is my reply to your message.",
+      "priority": "normal",
+      "reply_to_id": 39,
+      "read": true,
+      "created_at": "2025-12-06T19:23:20.225Z",
+      "read_at": "2025-12-06T19:23:20.383Z",
+      "updated_at": "2025-12-06T19:23:20.383Z"
     }
   ],
-  "messages": []
+  "passwordResetTokens": [
+    {
+      "user_id": 2,
+      "token": "dc17fcab9e1ea9f2efe50a791a1616722dca5b0b3b1f1901dde81594a011438b",
+      "expires_at": "2025-12-06T20:15:58.053Z",
+      "created_at": "2025-12-06T19:15:58.053Z"
+    },
+    {
+      "user_id": 3,
+      "token": "7b00c99678bf97e4a39f95a13f649a96a12f2e88c64bc585b20e39b96377396e",
+      "expires_at": "2025-12-06T20:15:58.183Z",
+      "created_at": "2025-12-06T19:15:58.183Z"
+    }
+  ]
 }

@@ -1,6 +1,7 @@
 // AI Routes - Medical AI assistance endpoints
 const { requireAuth, requireRole } = require('../middleware/auth');
 const { AIService } = require('../services/ai-service');
+const logger = require('../utils/logger');
 
 const aiService = new AIService();
 
@@ -20,7 +21,7 @@ function setupAIRoutes(app, db) {
         return res.status(400).json({ error: 'Audio data is required' });
       }
 
-      console.log(`Transcribing consultation ${consultationId || 'unknown'}...`);
+      logger.info(`Transcribing consultation ${consultationId || 'unknown'}`);
 
       const result = await aiService.transcribeConsultation(audioData);
 
@@ -33,7 +34,7 @@ function setupAIRoutes(app, db) {
       // Save transcript to consultation if consultationId provided
       if (consultationId) {
         // TODO: Save to database when consultation model is ready
-        console.log(`Transcript saved for consultation ${consultationId}`);
+        logger.info(`Transcript saved for consultation ${consultationId}`);
       }
 
       res.json({
@@ -44,7 +45,7 @@ function setupAIRoutes(app, db) {
         confidence: result.confidence
       });
     } catch (error) {
-      console.error('Transcription endpoint error:', error);
+      logger.logApiError(error, req, { context: 'AI Transcription' });
       res.status(500).json({
         error: 'Failed to transcribe audio',
               });
@@ -59,8 +60,6 @@ function setupAIRoutes(app, db) {
       if (!transcript) {
         return res.status(400).json({ error: 'Transcript is required' });
       }
-
-      console.log(`Generating notes for patient ${patientId}...`);
 
       // Get patient context
       const patient = patientId ? db.getPatientById(patientId) : {};
@@ -86,7 +85,7 @@ function setupAIRoutes(app, db) {
         notes: result.notes
       });
     } catch (error) {
-      console.error('Note generation endpoint error:', error);
+      logger.logApiError(error, req, { context: 'AI Note generation' });
       res.status(500).json({
         error: 'Failed to generate notes',
               });
@@ -103,8 +102,6 @@ function setupAIRoutes(app, db) {
           error: 'Patient ID and notes are required'
         });
       }
-
-      console.log(`Generating medical report for patient ${patientId}...`);
 
       // Get patient and doctor information
       const patient = db.getPatientById(patientId);
@@ -144,7 +141,7 @@ function setupAIRoutes(app, db) {
         patientSummary: result.patientSummary
       });
     } catch (error) {
-      console.error('Report generation endpoint error:', error);
+      logger.logApiError(error, req, { context: 'AI Report generation' });
       res.status(500).json({
         error: 'Failed to generate report',
               });
@@ -160,8 +157,6 @@ function setupAIRoutes(app, db) {
       if (!symptoms) {
         return res.status(400).json({ error: 'Symptoms description is required' });
       }
-
-      console.log(`Performing triage for user ${userId}...`);
 
       // Get patient data if available
       const user = db.getUserById(userId);
@@ -181,15 +176,12 @@ function setupAIRoutes(app, db) {
                   });
       }
 
-      // Log triage result for analytics
-      console.log(`Triage result for user ${userId}:`, result.triage.urgencyLevel);
-
       res.json({
         success: true,
         triage: result.triage
       });
     } catch (error) {
-      console.error('Triage endpoint error:', error);
+      logger.logApiError(error, req, { context: 'AI Triage' });
       res.status(500).json({
         error: 'Failed to perform triage',
               });

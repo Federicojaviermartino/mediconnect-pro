@@ -161,7 +161,7 @@ describe('Prescriptions Endpoints', () => {
           notes: 'Need refill'
         });
 
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(201);
       expect(response.body).toHaveProperty('success', true);
     });
 
@@ -178,7 +178,7 @@ describe('Prescriptions Endpoints', () => {
         .set('Cookie', patientCookies)
         .send(prescriptionData);
 
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(201);
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('prescription');
       expect(response.body.prescription).toHaveProperty('id');
@@ -196,7 +196,7 @@ describe('Prescriptions Endpoints', () => {
           pharmacy: 'CVS Pharmacy'
         });
 
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(201);
       expect(response.body).toHaveProperty('success', true);
     });
 
@@ -235,7 +235,7 @@ describe('Prescriptions Endpoints', () => {
           pharmacy: 'Walgreens'
         });
 
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(201);
       expect(response.body.prescription).toHaveProperty('dosage', 'As prescribed');
     });
 
@@ -250,11 +250,341 @@ describe('Prescriptions Endpoints', () => {
           notes: 'Take with a glass of water. Avoid grapefruit juice.'
         });
 
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(201);
       expect(response.body.prescription).toHaveProperty('notes', 'Take with a glass of water. Avoid grapefruit juice.');
     });
   });
 
+
+  describe('GET /api/prescriptions/:id', () => {
+    let testPrescriptionId;
+
+    beforeAll(async () => {
+      const response = await request(app)
+        .post('/api/prescriptions')
+        .set('Cookie', patientCookies)
+        .send({
+          medication: 'Test Get Single',
+          dosage: '10mg',
+          pharmacy: 'Test Pharmacy'
+        });
+      testPrescriptionId = response.body.prescription.id;
+    });
+
+    test('should require authentication', async () => {
+      const response = await request(app).get(`/api/prescriptions/${testPrescriptionId}`);
+      expect(response.statusCode).toBe(401);
+    });
+
+    test('should return prescription for authorized patient', async () => {
+      const response = await request(app)
+        .get(`/api/prescriptions/${testPrescriptionId}`)
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty('prescription');
+      expect(response.body.prescription.id).toBe(testPrescriptionId);
+    });
+
+    test('should return 404 for non-existent prescription', async () => {
+      const response = await request(app)
+        .get('/api/prescriptions/99999')
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(404);
+    });
+
+    test('should include patient and doctor names', async () => {
+      const response = await request(app)
+        .get(`/api/prescriptions/${testPrescriptionId}`)
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.prescription).toHaveProperty('patient_name');
+      expect(response.body.prescription).toHaveProperty('doctor_name');
+    });
+  });
+
+  describe('GET /api/prescriptions/:id/status', () => {
+    let testPrescriptionId;
+
+    beforeAll(async () => {
+      const response = await request(app)
+        .post('/api/prescriptions')
+        .set('Cookie', patientCookies)
+        .send({
+          medication: 'Test Status',
+          pharmacy: 'Test Pharmacy'
+        });
+      testPrescriptionId = response.body.prescription.id;
+    });
+
+    test('should require authentication', async () => {
+      const response = await request(app).get(`/api/prescriptions/${testPrescriptionId}/status`);
+      expect(response.statusCode).toBe(401);
+    });
+
+    test('should return prescription status', async () => {
+      const response = await request(app)
+        .get(`/api/prescriptions/${testPrescriptionId}/status`)
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty('prescription_id');
+      expect(response.body).toHaveProperty('status');
+    });
+
+    test('should return 404 for non-existent prescription', async () => {
+      const response = await request(app)
+        .get('/api/prescriptions/99999/status')
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(404);
+    });
+  });
+
+  describe('PUT /api/prescriptions/:id', () => {
+    let testPrescriptionId;
+
+    beforeAll(async () => {
+      const response = await request(app)
+        .post('/api/prescriptions')
+        .set('Cookie', patientCookies)
+        .send({
+          medication: 'Test Update',
+          dosage: '10mg',
+          pharmacy: 'Test Pharmacy'
+        });
+      testPrescriptionId = response.body.prescription.id;
+    });
+
+    test('should require authentication', async () => {
+      const response = await request(app)
+        .put(`/api/prescriptions/${testPrescriptionId}`)
+        .send({ dosage: '20mg' });
+
+      expect(response.statusCode).toBe(401);
+    });
+
+    test('should require doctor role', async () => {
+      const response = await request(app)
+        .put(`/api/prescriptions/${testPrescriptionId}`)
+        .set('Cookie', patientCookies)
+        .send({ dosage: '20mg' });
+
+      expect(response.statusCode).toBe(403);
+    });
+
+    test('should update prescription for assigned doctor', async () => {
+      const response = await request(app)
+        .put(`/api/prescriptions/${testPrescriptionId}`)
+        .set('Cookie', doctorCookies)
+        .send({ dosage: '25mg' });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body.prescription.dosage).toBe('25mg');
+    });
+
+    test('should return 404 for non-existent prescription', async () => {
+      const response = await request(app)
+        .put('/api/prescriptions/99999')
+        .set('Cookie', doctorCookies)
+        .send({ dosage: '10mg' });
+
+      expect(response.statusCode).toBe(404);
+    });
+  });
+
+  describe('PUT /api/prescriptions/:id/approve', () => {
+    let testPrescriptionId;
+
+    beforeAll(async () => {
+      const response = await request(app)
+        .post('/api/prescriptions')
+        .set('Cookie', patientCookies)
+        .send({
+          medication: 'Test Approve',
+          pharmacy: 'Test Pharmacy'
+        });
+      testPrescriptionId = response.body.prescription.id;
+    });
+
+    test('should require authentication', async () => {
+      const response = await request(app)
+        .put(`/api/prescriptions/${testPrescriptionId}/approve`);
+
+      expect(response.statusCode).toBe(401);
+    });
+
+    test('should require doctor role', async () => {
+      const response = await request(app)
+        .put(`/api/prescriptions/${testPrescriptionId}/approve`)
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(403);
+    });
+
+    test('should approve prescription for assigned doctor', async () => {
+      const response = await request(app)
+        .put(`/api/prescriptions/${testPrescriptionId}/approve`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body.prescription.status).toBe('active');
+    });
+
+    test('should return 404 for non-existent prescription', async () => {
+      const response = await request(app)
+        .put('/api/prescriptions/99999/approve')
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(404);
+    });
+
+    test('should not approve already approved prescription', async () => {
+      const response = await request(app)
+        .put(`/api/prescriptions/${testPrescriptionId}/approve`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(400);
+    });
+  });
+
+  describe('PUT /api/prescriptions/:id/reject', () => {
+    let testPrescriptionId;
+
+    beforeAll(async () => {
+      const response = await request(app)
+        .post('/api/prescriptions')
+        .set('Cookie', patientCookies)
+        .send({
+          medication: 'Test Reject',
+          pharmacy: 'Test Pharmacy'
+        });
+      testPrescriptionId = response.body.prescription.id;
+    });
+
+    test('should require authentication', async () => {
+      const response = await request(app)
+        .put(`/api/prescriptions/${testPrescriptionId}/reject`)
+        .send({ reason: 'Not appropriate' });
+
+      expect(response.statusCode).toBe(401);
+    });
+
+    test('should require doctor role', async () => {
+      const response = await request(app)
+        .put(`/api/prescriptions/${testPrescriptionId}/reject`)
+        .set('Cookie', patientCookies)
+        .send({ reason: 'Not appropriate' });
+
+      expect(response.statusCode).toBe(403);
+    });
+
+    test('should require rejection reason', async () => {
+      const response = await request(app)
+        .put(`/api/prescriptions/${testPrescriptionId}/reject`)
+        .set('Cookie', doctorCookies)
+        .send({});
+
+      expect(response.statusCode).toBe(400);
+    });
+
+    test('should reject prescription for assigned doctor', async () => {
+      const response = await request(app)
+        .put(`/api/prescriptions/${testPrescriptionId}/reject`)
+        .set('Cookie', doctorCookies)
+        .send({ reason: 'Patient allergic to this medication' });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body.prescription.status).toBe('rejected');
+      expect(response.body.prescription.rejection_reason).toBe('Patient allergic to this medication');
+    });
+
+    test('should return 404 for non-existent prescription', async () => {
+      const response = await request(app)
+        .put('/api/prescriptions/88888/reject')
+        .set('Cookie', doctorCookies)
+        .send({ reason: 'Test reason' });
+
+      expect(response.statusCode).toBe(404);
+    });
+  });
+
+  describe('PUT /api/prescriptions/:id/complete', () => {
+    let testPrescriptionId;
+
+    beforeAll(async () => {
+      // Create and approve a prescription
+      const createResponse = await request(app)
+        .post('/api/prescriptions')
+        .set('Cookie', patientCookies)
+        .send({
+          medication: 'Test Complete',
+          pharmacy: 'Test Pharmacy'
+        });
+      testPrescriptionId = createResponse.body.prescription.id;
+
+      // Approve it first
+      await request(app)
+        .put(`/api/prescriptions/${testPrescriptionId}/approve`)
+        .set('Cookie', doctorCookies);
+    });
+
+    test('should require authentication', async () => {
+      const response = await request(app)
+        .put(`/api/prescriptions/${testPrescriptionId}/complete`);
+
+      expect(response.statusCode).toBe(401);
+    });
+
+    test('should require doctor role', async () => {
+      const response = await request(app)
+        .put(`/api/prescriptions/${testPrescriptionId}/complete`)
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(403);
+    });
+
+    test('should complete prescription for assigned doctor', async () => {
+      const response = await request(app)
+        .put(`/api/prescriptions/${testPrescriptionId}/complete`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty('success', true);
+      expect(response.body.prescription.status).toBe('completed');
+    });
+
+    test('should return 404 for non-existent prescription', async () => {
+      const response = await request(app)
+        .put('/api/prescriptions/99999/complete')
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(404);
+    });
+
+    test('should not complete pending prescription', async () => {
+      // Create a new pending prescription
+      const createResponse = await request(app)
+        .post('/api/prescriptions')
+        .set('Cookie', patientCookies)
+        .send({
+          medication: 'Test Pending Complete',
+          pharmacy: 'Test Pharmacy'
+        });
+      const pendingId = createResponse.body.prescription.id;
+
+      const response = await request(app)
+        .put(`/api/prescriptions/${pendingId}/complete`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(400);
+    });
+  });
 
   describe('Prescriptions Data Integrity', () => {
     test('should maintain consistent patient and doctor IDs', async () => {

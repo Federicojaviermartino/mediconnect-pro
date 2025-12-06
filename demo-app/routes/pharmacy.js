@@ -5,6 +5,7 @@
 
 const pharmacyService = require('../services/pharmacy-service');
 const { requireAuth } = require('../middleware/auth');
+const logger = require('../utils/logger');
 
 function setupPharmacyRoutes(app, db) {
   /**
@@ -36,8 +37,23 @@ function setupPharmacyRoutes(app, db) {
         pharmacies
       });
     } catch (error) {
-      console.error('Error fetching pharmacy network:', error);
+      logger.logApiError(error, req, { context: 'Fetch pharmacy network' });
       res.status(500).json({ error: 'Failed to fetch pharmacy network' });
+    }
+  });
+
+  /**
+   * GET /api/pharmacy/status
+   * Get pharmacy service status
+   * Note: This route must be defined BEFORE /api/pharmacy/:pharmacyId
+   */
+  app.get('/api/pharmacy/status', requireAuth, async (req, res) => {
+    try {
+      const status = pharmacyService.getStatus();
+      res.json(status);
+    } catch (error) {
+      logger.logApiError(error, req, { context: 'Get pharmacy status' });
+      res.status(500).json({ error: 'Failed to get pharmacy status' });
     }
   });
 
@@ -60,7 +76,7 @@ function setupPharmacyRoutes(app, db) {
         pharmacy
       });
     } catch (error) {
-      console.error('Error fetching pharmacy:', error);
+      logger.logApiError(error, req, { context: 'Fetch pharmacy' });
       res.status(500).json({ error: 'Failed to fetch pharmacy details' });
     }
   });
@@ -90,7 +106,7 @@ function setupPharmacyRoutes(app, db) {
         stock: stockInfo
       });
     } catch (error) {
-      console.error('Error checking medication stock:', error);
+      logger.logApiError(error, req, { context: 'Check medication stock' });
       res.status(500).json({ error: error.message || 'Failed to check medication stock' });
     }
   });
@@ -159,7 +175,7 @@ function setupPharmacyRoutes(app, db) {
 
       res.json(result);
     } catch (error) {
-      console.error('Error sending e-prescription:', error);
+      logger.logApiError(error, req, { context: 'Send e-prescription' });
       res.status(500).json({ error: error.message || 'Failed to send e-prescription' });
     }
   });
@@ -183,7 +199,7 @@ function setupPharmacyRoutes(app, db) {
         tracking
       });
     } catch (error) {
-      console.error('Error tracking order:', error);
+      logger.logApiError(error, req, { context: 'Track order' });
       res.status(500).json({ error: 'Failed to track order' });
     }
   });
@@ -214,26 +230,12 @@ function setupPharmacyRoutes(app, db) {
         cost: costBreakdown
       });
     } catch (error) {
-      console.error('Error calculating prescription cost:', error);
+      logger.logApiError(error, req, { context: 'Calculate prescription cost' });
       res.status(500).json({ error: error.message || 'Failed to calculate cost' });
     }
   });
 
-  /**
-   * GET /api/pharmacy/status
-   * Get pharmacy service status
-   */
-  app.get('/api/pharmacy/status', requireAuth, async (req, res) => {
-    try {
-      const status = pharmacyService.getStatus();
-      res.json(status);
-    } catch (error) {
-      console.error('Error getting pharmacy status:', error);
-      res.status(500).json({ error: 'Failed to get pharmacy status' });
-    }
-  });
-
-  console.log('✅ Pharmacy routes configured');
+  logger.info('Pharmacy routes configured');
 }
 
 module.exports = { setupPharmacyRoutes };

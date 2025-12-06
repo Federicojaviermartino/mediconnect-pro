@@ -1,7 +1,7 @@
 const { requireAuth, requireRole } = require('../middleware/auth');
-const db = require('../database/init');
+const logger = require('../utils/logger');
 
-function setupVitalsRoutes(app) {
+function setupVitalsRoutes(app, db) {
   // GET /api/vitals/thresholds - Get normal vital ranges by age
   app.get('/api/vitals/thresholds', requireAuth, async (req, res) => {
     try {
@@ -74,7 +74,7 @@ function setupVitalsRoutes(app) {
 
       res.json({ success: true, thresholds });
     } catch (error) {
-      console.error('Error getting thresholds:', error);
+      logger.logApiError(error, req, { context: 'Get thresholds' });
       res.status(500).json({ error: 'Failed to retrieve thresholds' });
     }
   });
@@ -107,7 +107,7 @@ function setupVitalsRoutes(app) {
       }
 
       // Check authorization (patient can only record their own, doctors/admins can record any)
-      if (req.session.user.role === 'patient' && patient.userId !== req.session.user.id) {
+      if (req.session.user.role === 'patient' && patient.user_id !== req.session.user.id) {
         return res.status(403).json({ error: 'Unauthorized to record vitals for this patient' });
       }
 
@@ -209,7 +209,7 @@ function setupVitalsRoutes(app) {
           : 'Vitals recorded successfully'
       });
     } catch (error) {
-      console.error('Error recording vitals:', error);
+      logger.logApiError(error, req, { context: 'Record vitals' });
       res.status(500).json({ error: 'Failed to record vital signs' });
     }
   });
@@ -227,7 +227,7 @@ function setupVitalsRoutes(app) {
       }
 
       // Check authorization
-      if (req.session.user.role === 'patient' && patient.userId !== req.session.user.id) {
+      if (req.session.user.role === 'patient' && patient.user_id !== req.session.user.id) {
         return res.status(403).json({ error: 'Unauthorized to view this patient\'s vitals' });
       }
 
@@ -292,7 +292,7 @@ function setupVitalsRoutes(app) {
         totalRecords: vitals.length
       });
     } catch (error) {
-      console.error('Error getting patient vitals:', error);
+      logger.logApiError(error, req, { context: 'Get patient vitals' });
       res.status(500).json({ error: 'Failed to retrieve vital signs' });
     }
   });
@@ -310,7 +310,7 @@ function setupVitalsRoutes(app) {
       }
 
       // Check authorization
-      if (req.session.user.role === 'patient' && patient.userId !== req.session.user.id) {
+      if (req.session.user.role === 'patient' && patient.user_id !== req.session.user.id) {
         return res.status(403).json({ error: 'Unauthorized to view this patient\'s alerts' });
       }
 
@@ -347,7 +347,7 @@ function setupVitalsRoutes(app) {
         alertsByLevel
       });
     } catch (error) {
-      console.error('Error getting alerts:', error);
+      logger.logApiError(error, req, { context: 'Get alerts' });
       res.status(500).json({ error: 'Failed to retrieve alerts' });
     }
   });
@@ -374,7 +374,7 @@ function setupVitalsRoutes(app) {
       }
 
       // Check authorization (only doctors and admins can acknowledge, or the patient themselves)
-      if (req.session.user.role === 'patient' && patient.userId !== req.session.user.id) {
+      if (req.session.user.role === 'patient' && patient.user_id !== req.session.user.id) {
         return res.status(403).json({ error: 'Unauthorized to acknowledge this alert' });
       }
 
@@ -389,7 +389,7 @@ function setupVitalsRoutes(app) {
         message: 'Alert acknowledged successfully'
       });
     } catch (error) {
-      console.error('Error acknowledging alert:', error);
+      logger.logApiError(error, req, { context: 'Acknowledge alert' });
       res.status(500).json({ error: 'Failed to acknowledge alert' });
     }
   });
@@ -523,7 +523,7 @@ Format your response as JSON with these exact fields:
       });
 
     } catch (error) {
-      console.error('Error analyzing vitals:', error);
+      logger.logApiError(error, req, { context: 'Analyze vitals' });
       res.status(500).json({
         error: 'Failed to analyze vital signs'
       });

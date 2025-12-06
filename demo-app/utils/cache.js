@@ -27,8 +27,9 @@ class MemoryCache {
    * @returns {string} Cache key
    */
   generateKey(req) {
-    const userId = req.session?.userId || 'anonymous';
-    const role = req.session?.userRole || 'guest';
+    // Support both session.user.id and session.userId formats
+    const userId = req.session?.user?.id || req.session?.userId || 'anonymous';
+    const role = req.session?.user?.role || req.session?.userRole || 'guest';
     return `${req.method}:${req.originalUrl}:${userId}:${role}`;
   }
 

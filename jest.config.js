@@ -18,13 +18,13 @@ module.exports = {
     '!**/dist/**'
   ],
 
-  // Coverage thresholds (Phase 7: adjusted for performance utilities)
+  // Coverage thresholds (Phase 3: increased after adding new route tests)
   coverageThreshold: {
     global: {
-      branches: 14,
-      functions: 20,
-      lines: 14,
-      statements: 14
+      branches: 28,
+      functions: 40,
+      lines: 30,
+      statements: 30
     }
   },
 

@@ -16,7 +16,8 @@ let db = {
   vitalSigns: [],
   appointments: [],
   prescriptions: [],
-  messages: []
+  messages: [],
+  passwordResetTokens: []
 };
 
 function loadDatabase() {
@@ -32,7 +33,8 @@ function loadDatabase() {
         vitalSigns: loadedDb.vitalSigns || [],
         appointments: loadedDb.appointments || [],
         prescriptions: loadedDb.prescriptions || [],
-        messages: loadedDb.messages || []
+        messages: loadedDb.messages || [],
+        passwordResetTokens: loadedDb.passwordResetTokens || []
       };
 
       console.log('✅ Database loaded from file');
@@ -191,6 +193,9 @@ async function initDatabase() {
   loadDatabase();
 
   return {
+    // Direct access to database object for modules that need it
+    database: db,
+
     getUserByEmail: (email) => {
       return db.users.find(u => u.email === email);
     },
@@ -370,6 +375,10 @@ async function initDatabase() {
       return db.messages.filter(m => m.to_user_id === userId || m.from_user_id === userId);
     },
 
+    getMessageById: (messageId) => {
+      return db.messages.find(m => m.id === parseInt(messageId));
+    },
+
     createMessage: (messageData) => {
       const newId = db.messages.length > 0 ? Math.max(...db.messages.map(m => m.id)) + 1 : 1;
       const message = {
@@ -380,6 +389,88 @@ async function initDatabase() {
       db.messages.push(message);
       saveDatabase();
       return message;
+    },
+
+    updateMessage: (messageId, updateData) => {
+      const index = db.messages.findIndex(m => m.id === parseInt(messageId));
+      if (index === -1) return null;
+
+      db.messages[index] = {
+        ...db.messages[index],
+        ...updateData,
+        updated_at: new Date().toISOString()
+      };
+      saveDatabase();
+      return db.messages[index];
+    },
+
+    // User creation
+    createUser: (userData) => {
+      const newId = db.users.length > 0 ? Math.max(...db.users.map(u => u.id)) + 1 : 1;
+      const user = {
+        id: newId,
+        ...userData,
+        created_at: new Date().toISOString()
+      };
+      db.users.push(user);
+      saveDatabase();
+      return user;
+    },
+
+    updateUser: (userId, updateData) => {
+      const index = db.users.findIndex(u => u.id === parseInt(userId));
+      if (index === -1) return null;
+
+      db.users[index] = {
+        ...db.users[index],
+        ...updateData,
+        updated_at: new Date().toISOString()
+      };
+      saveDatabase();
+      return db.users[index];
+    },
+
+    // Password reset tokens
+    createPasswordResetToken: (userId, token, expiresAt) => {
+      // Remove any existing tokens for this user
+      db.passwordResetTokens = db.passwordResetTokens.filter(t => t.user_id !== userId);
+
+      const resetToken = {
+        user_id: userId,
+        token,
+        expires_at: expiresAt,
+        created_at: new Date().toISOString()
+      };
+      db.passwordResetTokens.push(resetToken);
+      saveDatabase();
+      return resetToken;
+    },
+
+    getPasswordResetToken: (token) => {
+      return db.passwordResetTokens.find(t => t.token === token);
+    },
+
+    deletePasswordResetToken: (token) => {
+      const index = db.passwordResetTokens.findIndex(t => t.token === token);
+      if (index !== -1) {
+        db.passwordResetTokens.splice(index, 1);
+        saveDatabase();
+        return true;
+      }
+      return false;
+    },
+
+    // Create patient record for new user
+    createPatientRecord: (userId, patientData = {}) => {
+      const newId = db.patients.length > 0 ? Math.max(...db.patients.map(p => p.id)) + 1 : 1;
+      const patient = {
+        id: newId,
+        user_id: userId,
+        ...patientData
+      };
+      db.patients.push(patient);
+      saveDatabase();
+      return patient;
     }
   };
 }

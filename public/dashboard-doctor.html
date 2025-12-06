@@ -3,136 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MediConnect Pro Doctor Dashboard - Manage patients, appointments, and prescriptions">
     <title>Doctor Dashboard - MediConnect Pro</title>
     <link rel="stylesheet" href="/dashboard-styles.css">
 </head>
 <body>
-    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
-    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
+    <!-- Skip to main content for keyboard users -->
+    <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="sidebar">
+        <span aria-hidden="true">☰</span>
+    </button>
+    <div class="mobile-overlay" onclick="toggleMobileMenu()" aria-hidden="true"></div>
 
     <div class="dashboard">
-        <aside class="sidebar" id="sidebar">
-            <div class="logo">
-                <span class="logo-icon">🏥</span>
+        <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+            <div class="logo" role="banner">
+                <span class="logo-icon" aria-hidden="true">🏥</span>
                 <span class="logo-text">MediConnect Pro</span>
             </div>
-            <nav class="nav-menu">
-                <a href="#" class="nav-item active" onclick="event.preventDefault(); showNotification('You are on the Dashboard', 'info')">
-                    <span>📊</span> Dashboard
+            <nav class="nav-menu" aria-label="Dashboard navigation">
+                <a href="#" class="nav-item active" onclick="event.preventDefault(); showNotification('You are on the Dashboard', 'info')" aria-current="page">
+                    <span aria-hidden="true">📊</span> Dashboard
                 </a>
                 <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('AI Assistant')">
-                    <span>🤖</span> AI Assistant
+                    <span aria-hidden="true">🤖</span> AI Assistant
                 </a>
                 <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Patients')">
-                    <span>👥</span> Patients
+                    <span aria-hidden="true">👥</span> Patients
                 </a>
                 <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Appointments')">
-                    <span>📅</span> Appointments
+                    <span aria-hidden="true">📅</span> Appointments
                 </a>
                 <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Prescriptions')">
-                    <span>💊</span> Prescriptions
+                    <span aria-hidden="true">💊</span> Prescriptions
                 </a>
                 <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Analytics')">
-                    <span>📈</span> Analytics
+                    <span aria-hidden="true">📈</span> Analytics
                 </a>
             </nav>
-            <button onclick="logout()" class="logout-btn">
-                <span>🚪</span> Logout
+            <button onclick="logout()" class="logout-btn" aria-label="Logout from dashboard">
+                <span aria-hidden="true">🚪</span> Logout
             </button>
         </aside>
 
-        <main class="main-content">
+        <main class="main-content" role="main">
             <header class="header">
-                <h1>👨‍⚕️ Doctor Dashboard</h1>
-                <div class="user-info">
-                    <span class="user-name" id="userName">Loading...</span>
+                <h1><span aria-hidden="true">👨‍⚕️</span> Doctor Dashboard</h1>
+                <div class="user-info" aria-label="User information">
+                    <span class="user-name" id="userName" aria-live="polite">Loading...</span>
                     <span class="user-role">Doctor</span>
                 </div>
             </header>
 
             <div class="content" id="main-content">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">👥</div>
+                <section class="stats-grid" aria-label="Doctor statistics">
+                    <article class="stat-card" role="region" aria-labelledby="totalPatientsLabel">
+                        <div class="stat-icon" aria-hidden="true">👥</div>
                         <div class="stat-info">
-                            <div class="stat-label">Total Patients</div>
-                            <div class="stat-value" id="totalPatients">--</div>
+                            <div class="stat-label" id="totalPatientsLabel">Total Patients</div>
+                            <div class="stat-value" id="totalPatients" aria-live="polite">--</div>
                         </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">📅</div>
+                    </article>
+                    <article class="stat-card" role="region" aria-labelledby="appointmentsTodayLabel">
+                        <div class="stat-icon" aria-hidden="true">📅</div>
                         <div class="stat-info">
-                            <div class="stat-label">Appointments Today</div>
-                            <div class="stat-value">0</div>
+                            <div class="stat-label" id="appointmentsTodayLabel">Appointments Today</div>
+                            <div class="stat-value" aria-live="polite">0</div>
                         </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">⚠️</div>
+                    </article>
+                    <article class="stat-card" role="region" aria-labelledby="criticalAlertsLabel">
+                        <div class="stat-icon" aria-hidden="true">⚠️</div>
                         <div class="stat-info">
-                            <div class="stat-label">Critical Alerts</div>
-                            <div class="stat-value">0</div>
+                            <div class="stat-label" id="criticalAlertsLabel">Critical Alerts</div>
+                            <div class="stat-value" aria-live="polite">0</div>
                         </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">📊</div>
+                    </article>
+                    <article class="stat-card" role="region" aria-labelledby="reportsPendingLabel">
+                        <div class="stat-icon" aria-hidden="true">📊</div>
                         <div class="stat-info">
-                            <div class="stat-label">Reports Pending</div>
-                            <div class="stat-value">0</div>
+                            <div class="stat-label" id="reportsPendingLabel">Reports Pending</div>
+                            <div class="stat-value" aria-live="polite">0</div>
                         </div>
-                    </div>
-                </div>
+                    </article>
+                </section>
 
-                <div class="section">
-                    <h2>My Patients</h2>
-                    <div class="table-container">
-                        <table class="data-table">
+                <section class="section" aria-labelledby="patientsHeading">
+                    <h2 id="patientsHeading">My Patients</h2>
+                    <div class="table-container" tabindex="0" role="region" aria-label="Patients table">
+                        <table class="data-table" role="table">
                             <thead>
                                 <tr>
-                                    <th>Patient Name</th>
-                                    <th>Email</th>
-                                    <th>Blood Type</th>
-                                    <th>Conditions</th>
-                                    <th>Allergies</th>
-                                    <th>Actions</th>
+                                    <th scope="col">Patient Name</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Blood Type</th>
+                                    <th scope="col">Conditions</th>
+                                    <th scope="col">Allergies</th>
+                                    <th scope="col">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="patientsTable">
+                            <tbody id="patientsTable" aria-live="polite">
                                 <tr>
                                     <td colspan="6" style="text-align: center; padding: 40px;">
-                                        <div class="loading">Loading patients...</div>
+                                        <div class="loading" role="status">Loading patients...</div>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </section>
 
-                <div class="section">
-                    <h2>Recent Activity</h2>
-                    <div class="activity-list">
-                        <div class="activity-item">
-                            <span class="activity-icon">✅</span>
+                <section class="section" aria-labelledby="activityHeading">
+                    <h2 id="activityHeading">Recent Activity</h2>
+                    <div class="activity-list" role="feed" aria-label="Recent activity feed">
+                        <article class="activity-item">
+                            <span class="activity-icon" aria-hidden="true">✅</span>
                             <div class="activity-content">
                                 <div class="activity-title">Consultation completed</div>
-                                <div class="activity-time">2 hours ago</div>
+                                <time class="activity-time" datetime="PT2H">2 hours ago</time>
                             </div>
-                        </div>
-                        <div class="activity-item">
-                            <span class="activity-icon">📝</span>
+                        </article>
+                        <article class="activity-item">
+                            <span class="activity-icon" aria-hidden="true">📝</span>
                             <div class="activity-content">
                                 <div class="activity-title">Prescription issued</div>
-                                <div class="activity-time">3 hours ago</div>
+                                <time class="activity-time" datetime="PT3H">3 hours ago</time>
                             </div>
-                        </div>
-                        <div class="activity-item">
-                            <span class="activity-icon">📊</span>
+                        </article>
+                        <article class="activity-item">
+                            <span class="activity-icon" aria-hidden="true">📊</span>
                             <div class="activity-content">
                                 <div class="activity-title">Vital signs reviewed</div>
-                                <div class="activity-time">5 hours ago</div>
+                                <time class="activity-time" datetime="PT5H">5 hours ago</time>
                             </div>
-                        </div>
+                        </article>
                     </div>
-                </div>
+                </section>
             </div>
         </main>
     </div>
