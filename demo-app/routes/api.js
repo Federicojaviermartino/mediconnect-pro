@@ -1,6 +1,7 @@
 // API routes for demo data
 const { requireAuth } = require('../middleware/auth');
 const { cacheMiddleware } = require('../utils/cache');
+const { validateParams, paramSchemas } = require('../middleware/validators');
 const logger = require('../utils/logger');
 
 // Cache configurations
@@ -48,7 +49,7 @@ function setupApiRoutes(app, db) {
   });
 
   // Get patient details with vitals (for doctors/admin)
-  app.get('/api/patients/:id', requireAuth, (req, res) => {
+  app.get('/api/patients/:id', requireAuth, validateParams(paramSchemas.id), (req, res) => {
     try {
       if (req.session.user.role !== 'doctor' && req.session.user.role !== 'admin') {
         return res.status(403).json({ error: 'Insufficient permissions' });

@@ -47,7 +47,7 @@ module.exports = {
   ],
 
   // Setup files
-  setupFilesAfterEnv: [],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
 
   // Verbose output
   verbose: true,

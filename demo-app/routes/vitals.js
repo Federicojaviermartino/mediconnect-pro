@@ -1,4 +1,5 @@
 const { requireAuth, requireRole } = require('../middleware/auth');
+const { validateParams, paramSchemas } = require('../middleware/validators');
 const logger = require('../utils/logger');
 
 function setupVitalsRoutes(app, db) {
@@ -107,7 +108,7 @@ function setupVitalsRoutes(app, db) {
       }
 
       // Check authorization (patient can only record their own, doctors/admins can record any)
-      if (req.session.user.role === 'patient' && patient.user_id !== req.session.user.id) {
+      if (req.session.user.role === 'patient' && patient.id !== req.session.user.id) {
         return res.status(403).json({ error: 'Unauthorized to record vitals for this patient' });
       }
 
@@ -215,7 +216,7 @@ function setupVitalsRoutes(app, db) {
   });
 
   // GET /api/vitals/patient/:id - Get patient vitals history
-  app.get('/api/vitals/patient/:id', requireAuth, async (req, res) => {
+  app.get('/api/vitals/patient/:id', requireAuth, validateParams(paramSchemas.id), async (req, res) => {
     try {
       const patientId = req.params.id;
       const { limit, days } = req.query;
@@ -227,7 +228,7 @@ function setupVitalsRoutes(app, db) {
       }
 
       // Check authorization
-      if (req.session.user.role === 'patient' && patient.user_id !== req.session.user.id) {
+      if (req.session.user.role === 'patient' && patient.id !== req.session.user.id) {
         return res.status(403).json({ error: 'Unauthorized to view this patient\'s vitals' });
       }
 
@@ -298,7 +299,7 @@ function setupVitalsRoutes(app, db) {
   });
 
   // GET /api/vitals/alerts/:id - Get active alerts for patient
-  app.get('/api/vitals/alerts/:id', requireAuth, async (req, res) => {
+  app.get('/api/vitals/alerts/:id', requireAuth, validateParams(paramSchemas.id), async (req, res) => {
     try {
       const patientId = req.params.id;
       const { includeAcknowledged } = req.query;
@@ -310,7 +311,7 @@ function setupVitalsRoutes(app, db) {
       }
 
       // Check authorization
-      if (req.session.user.role === 'patient' && patient.user_id !== req.session.user.id) {
+      if (req.session.user.role === 'patient' && patient.id !== req.session.user.id) {
         return res.status(403).json({ error: 'Unauthorized to view this patient\'s alerts' });
       }
 
@@ -353,7 +354,7 @@ function setupVitalsRoutes(app, db) {
   });
 
   // POST /api/vitals/alerts/:id/acknowledge - Acknowledge an alert
-  app.post('/api/vitals/alerts/:id/acknowledge', requireAuth, async (req, res) => {
+  app.post('/api/vitals/alerts/:id/acknowledge', requireAuth, validateParams(paramSchemas.id), async (req, res) => {
     try {
       const alertId = req.params.id;
 
@@ -374,7 +375,7 @@ function setupVitalsRoutes(app, db) {
       }
 
       // Check authorization (only doctors and admins can acknowledge, or the patient themselves)
-      if (req.session.user.role === 'patient' && patient.user_id !== req.session.user.id) {
+      if (req.session.user.role === 'patient' && patient.id !== req.session.user.id) {
         return res.status(403).json({ error: 'Unauthorized to acknowledge this alert' });
       }
 

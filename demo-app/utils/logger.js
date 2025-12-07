@@ -36,6 +36,61 @@ const colors = {
 
 winston.addColors(colors);
 
+// Sensitive fields that should never be logged
+const SENSITIVE_FIELDS = [
+  'password',
+  'newPassword',
+  'oldPassword',
+  'confirmPassword',
+  'token',
+  'accessToken',
+  'refreshToken',
+  'apiKey',
+  'secret',
+  'authorization',
+  'cookie',
+  'session',
+  'csrfToken',
+  '_csrf',
+  'creditCard',
+  'cvv',
+  'ssn',
+  'taxId'
+];
+
+/**
+ * Sanitize object by removing sensitive fields
+ * @param {Object} obj - Object to sanitize
+ * @returns {Object} Sanitized object
+ */
+function sanitizeObject(obj) {
+  if (!obj || typeof obj !== 'object') {
+    return obj;
+  }
+
+  // Handle arrays
+  if (Array.isArray(obj)) {
+    return obj.map(item => sanitizeObject(item));
+  }
+
+  // Deep clone and sanitize
+  const sanitized = {};
+  for (const [key, value] of Object.entries(obj)) {
+    const lowerKey = key.toLowerCase();
+
+    // Check if field is sensitive
+    if (SENSITIVE_FIELDS.some(field => lowerKey.includes(field.toLowerCase()))) {
+      sanitized[key] = '[REDACTED]';
+    } else if (value && typeof value === 'object') {
+      sanitized[key] = sanitizeObject(value);
+    } else {
+      sanitized[key] = value;
+    }
+  }
+
+  return sanitized;
+}
+
 // Custom format for development (pretty, colorized)
 const devFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
@@ -116,6 +171,7 @@ logger.logRequest = (req, res, duration) => {
     ip: req.ip,
     userAgent: req.get('user-agent'),
     userId: req.session?.user?.id,
+    // Never log request body in HTTP logs (may contain passwords)
   });
 };
 
@@ -166,10 +222,10 @@ logger.logApiError = (error, req, metadata = {}) => {
     method: req.method,
     url: req.url,
     userId: req.session?.user?.id,
-    body: req.body,
-    params: req.params,
-    query: req.query,
-    ...metadata
+    body: sanitizeObject(req.body),
+    params: sanitizeObject(req.params),
+    query: sanitizeObject(req.query),
+    ...sanitizeObject(metadata)
   });
 };
 

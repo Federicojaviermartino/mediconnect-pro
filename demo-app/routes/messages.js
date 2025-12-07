@@ -117,7 +117,7 @@ function setupMessageRoutes(app, db) {
   });
 
   // Get conversation with specific user
-  app.get('/api/messages/conversation/:userId', requireAuth, (req, res) => {
+  app.get('/api/messages/conversation/:userId', requireAuth, validateParams(paramSchemas.userId), (req, res) => {
     try {
       const currentUserId = req.session.user.id;
       const otherUserId = parseInt(req.params.userId);

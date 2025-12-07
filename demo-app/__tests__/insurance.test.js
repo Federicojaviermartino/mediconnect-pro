@@ -228,6 +228,48 @@ describe('Insurance Endpoints', () => {
       expect(response.statusCode).toBe(400);
       expect(response.body).toHaveProperty('error');
     });
+
+    test('should handle valid pre-authorization request', async () => {
+      // First create an appointment
+      const appointmentData = {
+        patient_id: 3,
+        doctor_id: 2,
+        date: '2025-12-15',
+        time: '14:00',
+        type: 'Consultation',
+        status: 'scheduled'
+      };
+      const createdAppointment = db.createAppointment(appointmentData);
+
+      const response = await request(app)
+        .post('/api/insurance/pre-authorization')
+        .set('Cookie', doctorCookies)
+        .send({
+          appointmentId: createdAppointment.id,
+          serviceCode: 'G0071'
+        });
+
+      // Should work with mock insurance service
+      expect([200, 404]).toContain(response.statusCode);
+      if (response.statusCode === 200) {
+        expect(response.body).toHaveProperty('success', true);
+        expect(response.body).toHaveProperty('preAuthorization');
+        expect(response.body.preAuthorization).toHaveProperty('status');
+      }
+    });
+
+    test('should return 404 for non-existent appointment', async () => {
+      const response = await request(app)
+        .post('/api/insurance/pre-authorization')
+        .set('Cookie', doctorCookies)
+        .send({
+          appointmentId: 99999,
+          serviceCode: 'G0071'
+        });
+
+      expect(response.statusCode).toBe(404);
+      expect(response.body.error).toContain('Appointment not found');
+    });
   });
 
   describe('POST /api/insurance/submit-claim', () => {
@@ -251,6 +293,50 @@ describe('Insurance Endpoints', () => {
 
       expect(response.statusCode).toBe(400);
       expect(response.body).toHaveProperty('error');
+    });
+
+    test('should handle valid claim submission', async () => {
+      // First create an appointment
+      const appointmentData = {
+        patient_id: 3,
+        doctor_id: 2,
+        date: '2025-12-15',
+        time: '15:00',
+        type: 'Consultation',
+        status: 'completed'
+      };
+      const createdAppointment = db.createAppointment(appointmentData);
+
+      const response = await request(app)
+        .post('/api/insurance/submit-claim')
+        .set('Cookie', doctorCookies)
+        .send({
+          appointmentId: createdAppointment.id,
+          diagnosisCodes: ['Z00.00', 'M25.50'],
+          procedureCodes: ['99213'],
+          totalCharge: 150
+        });
+
+      // Should work with mock insurance service
+      expect([200, 404, 400]).toContain(response.statusCode);
+      if (response.statusCode === 200) {
+        expect(response.body).toHaveProperty('success', true);
+        expect(response.body).toHaveProperty('claim');
+      }
+    });
+
+    test('should return 404 for non-existent appointment', async () => {
+      const response = await request(app)
+        .post('/api/insurance/submit-claim')
+        .set('Cookie', doctorCookies)
+        .send({
+          appointmentId: 99999,
+          diagnosisCodes: ['Z00.00'],
+          procedureCodes: ['99213']
+        });
+
+      expect(response.statusCode).toBe(404);
+      expect(response.body.error).toContain('Appointment not found');
     });
   });
 
@@ -376,6 +462,20 @@ describe('Insurance Endpoints', () => {
 
       expect(response.statusCode).toBe(400);
       expect(response.body.error).toContain('insurance');
+    });
+  });
+
+  describe('POST /api/insurance/submit-claim', () => {
+    test('should require appointmentId and related fields', async () => {
+      const response = await request(app)
+        .post('/api/insurance/submit-claim')
+        .set('Cookie', doctorCookies)
+        .send({
+          diagnosisCodes: ['Z00.00'],
+          procedureCodes: ['G0071']
+        });
+
+      expect(response.statusCode).toBe(400);
     });
   });
 

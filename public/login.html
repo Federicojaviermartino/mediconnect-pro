@@ -381,6 +381,25 @@
             }
         };
 
+        // Store CSRF token
+        let csrfToken = null;
+
+        // Fetch CSRF token on page load
+        async function fetchCsrfToken() {
+            try {
+                const response = await fetch('/api/csrf-token', {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                csrfToken = data.csrfToken;
+            } catch (error) {
+                console.error('Failed to fetch CSRF token:', error);
+            }
+        }
+
+        // Fetch CSRF token when page loads
+        fetchCsrfToken();
+
         function quickLogin(role) {
             const creds = credentials[role];
             document.getElementById('email').value = creds.email;
@@ -407,11 +426,18 @@
             loginBtn.textContent = 'Signing in...';
 
             try {
+                // Ensure we have a CSRF token
+                if (!csrfToken) {
+                    await fetchCsrfToken();
+                }
+
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
                     },
+                    credentials: 'include',
                     body: JSON.stringify({ email, password })
                 });
 
@@ -425,12 +451,18 @@
                     showError(data.error || 'Login failed');
                     loginBtn.disabled = false;
                     loginBtn.textContent = 'Sign In';
+
+                    // Refresh CSRF token on failed login
+                    await fetchCsrfToken();
                 }
             } catch (error) {
                 console.error('Login error:', error);
                 showError('Network error. Please try again.');
                 loginBtn.disabled = false;
                 loginBtn.textContent = 'Sign In';
+
+                // Refresh CSRF token on error
+                await fetchCsrfToken();
             }
         });
     </script>

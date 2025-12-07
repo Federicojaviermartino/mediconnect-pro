@@ -13,6 +13,7 @@ describe('Vitals Endpoints', () => {
   let doctorCookies;
   let patientCookies;
   let createdAlertId;
+  let secondPatientId;
 
   beforeAll(async () => {
     app = express();
@@ -63,6 +64,19 @@ describe('Vitals Endpoints', () => {
         password: 'Demo2024!Patient'
       });
     patientCookies = patientLogin.headers['set-cookie'];
+
+    // Create a second patient for testing authorization
+    const secondPatientUser = db.createUser({
+      email: 'patient2@test.demo',
+      password: 'Test123!',
+      name: 'Second Patient',
+      role: 'patient'
+    });
+    secondPatientId = secondPatientUser.id;
+    db.createPatientRecord(secondPatientId, {
+      name: 'Second Patient',
+      dateOfBirth: '1985-05-15'
+    });
   });
 
   describe('GET /api/vitals/thresholds', () => {
@@ -196,6 +210,19 @@ describe('Vitals Endpoints', () => {
       expect(response.statusCode).toBe(404);
     });
 
+    test('should prevent patient from recording vitals for another patient', async () => {
+      const response = await request(app)
+        .post('/api/vitals/record')
+        .set('Cookie', patientCookies)
+        .send({
+          patientId: secondPatientId, // Trying to record for a different patient
+          heartRate: 75
+        });
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+    });
+
     test('should generate alerts for abnormal values', async () => {
       const response = await request(app)
         .post('/api/vitals/record')
@@ -214,6 +241,38 @@ describe('Vitals Endpoints', () => {
       if (response.body.alerts.length > 0) {
         createdAlertId = response.body.alerts[0].id;
       }
+    });
+
+    test('should generate warning alerts for values below normal', async () => {
+      const response = await request(app)
+        .post('/api/vitals/record')
+        .set('Cookie', doctorCookies)
+        .send({
+          patientId: 3,
+          heartRate: 55, // Below normal (60-100)
+          temperature: 35.5 // Below normal (36.1-37.2)
+        });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty('alerts');
+      const alerts = response.body.alerts;
+      expect(alerts.some(a => a.severity === 'warning')).toBe(true);
+    });
+
+    test('should generate warning alerts for values above normal', async () => {
+      const response = await request(app)
+        .post('/api/vitals/record')
+        .set('Cookie', doctorCookies)
+        .send({
+          patientId: 3,
+          heartRate: 105, // Above normal (60-100)
+          systolicBP: 145 // Above normal (90-130)
+        });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty('alerts');
+      const alerts = response.body.alerts;
+      expect(alerts.some(a => a.severity === 'warning')).toBe(true);
     });
   });
 
@@ -239,6 +298,15 @@ describe('Vitals Endpoints', () => {
         .set('Cookie', doctorCookies);
 
       expect(response.statusCode).toBe(404);
+    });
+
+    test('should prevent patient from viewing another patient vitals', async () => {
+      const response = await request(app)
+        .get(`/api/vitals/patient/${secondPatientId}`) // Trying to view another patient's vitals
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
     });
 
     test('should filter vitals by days parameter', async () => {

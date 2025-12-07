@@ -204,6 +204,45 @@ const paramSchemas = {
       'number.positive': 'Patient ID must be positive',
       'any.required': 'Patient ID is required'
     })
+  }),
+  userId: Joi.object({
+    userId: Joi.number().integer().positive().required().messages({
+      'number.base': 'User ID must be a number',
+      'number.positive': 'User ID must be positive',
+      'any.required': 'User ID is required'
+    })
+  }),
+  claimId: Joi.object({
+    claimId: Joi.alternatives().try(
+      Joi.string().pattern(/^CLM-[A-Z0-9]{10}$/),
+      Joi.string().min(1).max(100)
+    ).required().messages({
+      'any.required': 'Claim ID is required'
+    })
+  }),
+  pharmacyId: Joi.object({
+    pharmacyId: Joi.alternatives().try(
+      Joi.number().integer().positive(),
+      Joi.string().pattern(/^[a-zA-Z0-9_-]+$/).max(50)
+    ).required().messages({
+      'alternatives.match': 'Pharmacy ID must be a positive number or valid string identifier',
+      'any.required': 'Pharmacy ID is required'
+    })
+  }),
+  orderId: Joi.object({
+    orderId: Joi.alternatives().try(
+      Joi.string().pattern(/^ORD-[A-Z0-9]{10}$/),
+      Joi.string().min(1).max(100)
+    ).required().messages({
+      'any.required': 'Order ID is required'
+    })
+  }),
+  token: Joi.object({
+    token: Joi.string().min(1).max(256).required().messages({
+      'string.min': 'Token cannot be empty',
+      'string.max': 'Token is too long',
+      'any.required': 'Token is required'
+    })
   })
 };
 

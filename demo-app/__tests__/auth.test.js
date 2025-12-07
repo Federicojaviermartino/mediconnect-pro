@@ -403,4 +403,78 @@ describe('Authentication API', () => {
       expect(cookies[0]).toContain('SameSite');
     });
   });
+
+  describe('POST /api/auth/reset-password/:token', () => {
+    test('should reject invalid token', async () => {
+      const response = await request(app)
+        .post('/api/auth/reset-password/invalid-token')
+        .send({
+          password: 'NewPassword123!',
+          confirmPassword: 'NewPassword123!'
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.error).toBeDefined();
+    });
+
+    test('should reject expired token', async () => {
+      const userId = 1;
+      const token = 'expired-token-' + Date.now();
+      const expiresAt = new Date(Date.now() - 3600000).toISOString(); // 1 hour ago
+
+      db.createPasswordResetToken(userId, token, expiresAt);
+
+      const response = await request(app)
+        .post(`/api/auth/reset-password/${token}`)
+        .send({
+          password: 'NewPassword123!',
+          confirmPassword: 'NewPassword123!'
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.error).toBeDefined();
+    });
+
+    test('should reset password with valid token', async () => {
+      const userId = 1;
+      const token = 'valid-token-' + Date.now();
+      const expiresAt = new Date(Date.now() + 3600000).toISOString(); // 1 hour from now
+
+      db.createPasswordResetToken(userId, token, expiresAt);
+
+      const response = await request(app)
+        .post(`/api/auth/reset-password/${token}`)
+        .send({
+          password: 'NewPassword123!',
+          confirmPassword: 'NewPassword123!'
+        });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.message).toBeDefined();
+
+      // Token should be deleted after use
+      expect(db.getPasswordResetToken(token)).toBeUndefined();
+    });
+
+    test('should require password field', async () => {
+      const response = await request(app)
+        .post('/api/auth/reset-password/some-token')
+        .send({});
+
+      expect(response.statusCode).toBe(400);
+    });
+
+    test('should require matching passwords', async () => {
+      const response = await request(app)
+        .post('/api/auth/reset-password/some-token')
+        .send({
+          password: 'NewPassword123!',
+          confirmPassword: 'DifferentPassword123!'
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.error).toBeDefined();
+    });
+  });
 });

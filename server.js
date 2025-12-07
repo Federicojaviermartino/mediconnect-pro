@@ -6,6 +6,7 @@ const { createClient } = require('redis');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 const path = require('path');
 const logger = require('./demo-app/utils/logger');
 const { requestLogger, errorLogger } = require('./demo-app/middleware/request-logger');
@@ -39,41 +40,43 @@ let db = null;
 // Trust proxy (required for Render)
 app.set('trust proxy', 1);
 
-// Security headers middleware
-app.use((req, res, next) => {
-  // Remove X-Powered-By header to hide Express.js
-  res.removeHeader('X-Powered-By');
-
-  // Prevent MIME type sniffing
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-
-  // Prevent clickjacking attacks
-  res.setHeader('X-Frame-Options', 'DENY');
-
-  // XSS Protection
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-
-  // Content Security Policy
-  res.setHeader('Content-Security-Policy',
-    "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-    "font-src 'self' https://fonts.gstatic.com; " +
-    "img-src 'self' data: https:; " +
-    "connect-src 'self' https://api.openai.com https://api.anthropic.com; " +
-    "frame-ancestors 'none';"
-  );
-
-  // Referrer Policy
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-
-  // HTTP Strict Transport Security (HSTS) - only in production
-  if (process.env.NODE_ENV === 'production') {
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-  }
-
-  next();
-});
+// Security headers with Helmet
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "https://api.openai.com", "https://api.anthropic.com"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      workerSrc: ["'self'"],
+      formAction: ["'self'"],
+      frameAncestors: ["'none'"],
+      baseUri: ["'self'"],
+      upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null
+    }
+  },
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "same-site" },
+  dnsPrefetchControl: { allow: false },
+  frameguard: { action: 'deny' },
+  hidePoweredBy: true,
+  hsts: process.env.NODE_ENV === 'production' ? {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  } : false,
+  ieNoOpen: true,
+  noSniff: true,
+  originAgentCluster: true,
+  permittedCrossDomainPolicies: { permittedPolicies: "none" },
+  referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+  xssFilter: true
+}));
 
 // Compression middleware - gzip responses for better performance
 app.use(compression({
@@ -280,13 +283,20 @@ const aiLimiter = rateLimit({
   legacyHeaders: false
 });
 
-// CSRF protection middleware (excludes safe routes)
+const messageLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 20, // 20 messages per minute (prevent spam)
+  message: 'Too many messages sent, please slow down',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// CSRF protection middleware (excludes only truly safe routes)
 const csrfExcludedPaths = [
-  '/api/auth/login',      // Login needs to work without token initially
-  '/api/csrf-token',      // Used to get the token
-  '/health',              // Health checks
-  '/health/live',
-  '/health/ready'
+  '/api/csrf-token',      // Used to get the token (must be accessible before login)
+  '/health',              // Health checks (monitoring systems need access)
+  '/health/live',         // Kubernetes liveness probe
+  '/health/ready'         // Kubernetes readiness probe
 ];
 
 const conditionalCsrf = (req, res, next) => {
@@ -306,8 +316,12 @@ app.use('/api/ai', aiLimiter);
 app.use('/api/appointments', apiLimiter);
 app.use('/api/prescriptions', apiLimiter);
 app.use('/api/vitals', apiLimiter);
-app.use('/api/insurance', apiLimiter);
+app.use('/api/insurance', aiLimiter);
 app.use('/api/pharmacy', apiLimiter);
+app.use('/api/messages', messageLimiter); // More restrictive for messaging
+app.use('/api/consultations', apiLimiter);
+app.use('/api/medical-records', apiLimiter);
+app.use('/api/analytics', apiLimiter);
 
 // Routes will be setup after database initialization in startServer()
 
@@ -439,18 +453,61 @@ async function startServer() {
     logger.info('✅ Routes configured');
 
     // Start listening
-    app.listen(PORT, '0.0.0.0', () => {
+    const server = app.listen(PORT, '0.0.0.0', () => {
       logger.info(`🏥 MediConnect Pro running on port ${PORT}`);
       logger.info(`🌐 Health check: http://localhost:${PORT}/health`);
       logger.info(`🔐 Login page: http://localhost:${PORT}/login.html`);
     });
+
+    return server;
   } catch (error) {
     logger.error('❌ Failed to start server:', error);
     process.exit(1);
   }
 }
 
-startServer();
+// Initialize app for testing (without starting server)
+async function initApp() {
+  try {
+    // Initialize database
+    db = await initDatabase();
+    logger.info('✅ Database initialized');
+
+    // Setup routes (after database is ready)
+    setupAuthRoutes(app, db, authLimiter);
+    setupApiRoutes(app, db);
+    setupAppointmentRoutes(app, db);
+    setupPrescriptionRoutes(app, db);
+    setupMessageRoutes(app, db);
+    setupAdminRoutes(app, db);
+    setupConsultationRoutes(app, db);
+    setupMedicalRecordsRoutes(app, db);
+    setupAnalyticsRoutes(app, db);
+    setupAIRoutes(app, db);
+    setupVitalsRoutes(app, db);
+    setupInsuranceRoutes(app, db);
+    setupPharmacyRoutes(app, db);
+
+    // CSRF token endpoint (for AJAX requests)
+    setupCsrfEndpoint(app);
+    logger.info('✅ Routes configured');
+
+    return app;
+  } catch (error) {
+    logger.error('❌ Failed to initialize app:', error);
+    throw error;
+  }
+}
+
+// Only start server if running directly (not being required as a module)
+if (require.main === module) {
+  startServer();
+}
+
+// Export for testing
+module.exports = app;
+module.exports.initApp = initApp;
+module.exports.startServer = startServer;
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {

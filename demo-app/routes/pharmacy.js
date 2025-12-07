@@ -5,6 +5,7 @@
 
 const pharmacyService = require('../services/pharmacy-service');
 const { requireAuth } = require('../middleware/auth');
+const { validateParams, paramSchemas } = require('../middleware/validators');
 const logger = require('../utils/logger');
 
 function setupPharmacyRoutes(app, db) {
@@ -61,7 +62,7 @@ function setupPharmacyRoutes(app, db) {
    * GET /api/pharmacy/:pharmacyId
    * Get details of a specific pharmacy
    */
-  app.get('/api/pharmacy/:pharmacyId', requireAuth, async (req, res) => {
+  app.get('/api/pharmacy/:pharmacyId', requireAuth, validateParams(paramSchemas.pharmacyId), async (req, res) => {
     try {
       const { pharmacyId } = req.params;
 
@@ -184,7 +185,7 @@ function setupPharmacyRoutes(app, db) {
    * GET /api/pharmacy/track-order/:orderId
    * Track prescription order status
    */
-  app.get('/api/pharmacy/track-order/:orderId', requireAuth, async (req, res) => {
+  app.get('/api/pharmacy/track-order/:orderId', requireAuth, validateParams(paramSchemas.orderId), async (req, res) => {
     try {
       const { orderId } = req.params;
 

@@ -1,7 +1,7 @@
 // Authentication routes
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
-const { validate, authSchemas } = require('../middleware/validators');
+const { validate, validateParams, authSchemas, paramSchemas } = require('../middleware/validators');
 const logger = require('../utils/logger');
 
 function setupAuthRoutes(app, db, authLimiter) {
@@ -83,7 +83,7 @@ function setupAuthRoutes(app, db, authLimiter) {
   });
 
   // Reset password endpoint
-  app.post('/api/auth/reset-password/:token', validate(authSchemas.resetPassword), async (req, res) => {
+  app.post('/api/auth/reset-password/:token', validateParams(paramSchemas.token), validate(authSchemas.resetPassword), async (req, res) => {
     const { token } = req.params;
     const { password } = req.body;
 

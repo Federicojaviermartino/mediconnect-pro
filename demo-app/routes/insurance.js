@@ -5,6 +5,7 @@
 
 const insuranceService = require('../services/insurance-service');
 const { requireAuth } = require('../middleware/auth');
+const { validateParams, paramSchemas } = require('../middleware/validators');
 const logger = require('../utils/logger');
 
 function setupInsuranceRoutes(app, db) {
@@ -171,7 +172,7 @@ function setupInsuranceRoutes(app, db) {
    * GET /api/insurance/claim-status/:claimId
    * Check status of submitted claim
    */
-  app.get('/api/insurance/claim-status/:claimId', requireAuth, async (req, res) => {
+  app.get('/api/insurance/claim-status/:claimId', requireAuth, validateParams(paramSchemas.claimId), async (req, res) => {
     try {
       const { claimId } = req.params;
 
