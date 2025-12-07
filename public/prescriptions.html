@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescriptions - MediConnect Pro</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <style>
+        .prescriptions-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .prescriptions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .prescriptions-header h1 {
+            font-size: 2rem;
+            color: #1a1a2e;
+            margin: 0;
+        }
+
+        .prescriptions-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .new-prescription-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .new-prescription-btn:hover {
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            padding: 0.75rem 1.5rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .filter-tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .filter-tab.active {
+            color: #f5576c;
+            border-bottom-color: #f5576c;
+        }
+
+        .prescriptions-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .prescriptions-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .prescriptions-table thead {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .prescriptions-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .prescriptions-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .prescriptions-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-pending {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .status-completed {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .status-cancelled {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="prescriptions-container">
+        <div class="prescriptions-header">
+            <h1>💊 My Prescriptions</h1>
+            <div class="prescriptions-actions">
+                <button class="new-prescription-btn" onclick="createPrescription()">
+                    + New Prescription
+                </button>
+                <a href="javascript:history.back()" class="back-btn">← Back</a>
+            </div>
+        </div>
+
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-status="all" onclick="filterByStatus('all')">
+                All
+            </button>
+            <button class="filter-tab" data-status="active" onclick="filterByStatus('active')">
+                Active
+            </button>
+            <button class="filter-tab" data-status="pending" onclick="filterByStatus('pending')">
+                Pending
+            </button>
+            <button class="filter-tab" data-status="completed" onclick="filterByStatus('completed')">
+                Completed
+            </button>
+        </div>
+
+        <div class="prescriptions-table" id="prescriptionsTable">
+            <div class="loading">Loading prescriptions...</div>
+        </div>
+    </div>
+
+    <script src="utils/csrf.js"></script>
+    <script>
+        let allPrescriptions = [];
+        let currentFilter = 'all';
+
+        async function loadPrescriptions() {
+            try {
+                const response = await fetch('/api/prescriptions', {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load prescriptions');
+                }
+
+                const data = await response.json();
+                allPrescriptions = data.prescriptions || [];
+                renderPrescriptions();
+            } catch (error) {
+                console.error('Error loading prescriptions:', error);
+                document.getElementById('prescriptionsTable').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <p>Failed to load prescriptions. Please try again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function filterByStatus(status) {
+            currentFilter = status;
+
+            // Update tab styling
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.status === status) {
+                    tab.classList.add('active');
+                }
+            });
+
+            renderPrescriptions();
+        }
+
+        function renderPrescriptions() {
+            const tableContainer = document.getElementById('prescriptionsTable');
+
+            const filtered = currentFilter === 'all'
+                ? allPrescriptions
+                : allPrescriptions.filter(rx => rx.status === currentFilter);
+
+            if (filtered.length === 0) {
+                tableContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💊</div>
+                        <p>No prescriptions found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Medication</th>
+                            <th>Dosage</th>
+                            <th>Frequency</th>
+                            <th>Pharmacy</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filtered.map(rx => `
+                            <tr>
+                                <td><strong>${escapeHtml(rx.medication)}</strong></td>
+                                <td>${escapeHtml(rx.dosage || 'N/A')}</td>
+                                <td>${escapeHtml(rx.frequency || 'As directed')}</td>
+                                <td>${escapeHtml(rx.pharmacy || 'Any')}</td>
+                                <td><span class="status-badge status-${rx.status}">${escapeHtml(rx.status)}</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            tableContainer.innerHTML = tableHTML;
+        }
+
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+
+        function createPrescription() {
+            alert('Create prescription feature coming soon!');
+        }
+
+        // Initialize CSRF and load prescriptions
+        (async () => {
+            if (typeof initCsrfProtection === 'function') {
+                await initCsrfProtection();
+            }
+            loadPrescriptions();
+        })();
+    </script>
+</body>
+</html>

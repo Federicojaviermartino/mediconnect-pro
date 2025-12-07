@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patients - MediConnect Pro</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <style>
+        .patients-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .patients-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .patients-header h1 {
+            font-size: 2rem;
+            color: #1a1a2e;
+            margin: 0;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .filter-select {
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .patients-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .patients-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .patients-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .patients-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .patients-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .patients-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .blood-type-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .view-btn {
+            padding: 0.5rem 1rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .view-btn:hover {
+            background: #5568d3;
+        }
+
+        .back-btn {
+            padding: 0.75rem 1.5rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="patients-container">
+        <div class="patients-header">
+            <h1>👥 All Patients</h1>
+            <a href="javascript:history.back()" class="back-btn">← Back to Dashboard</a>
+        </div>
+
+        <div class="search-box">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search by name or email...">
+            <select class="filter-select" id="filterBloodType">
+                <option value="">All Blood Types</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+            </select>
+        </div>
+
+        <div class="patients-table" id="patientsTable">
+            <div class="loading">Loading patients...</div>
+        </div>
+    </div>
+
+    <script src="utils/csrf.js"></script>
+    <script>
+        let allPatients = [];
+        let filteredPatients = [];
+
+        async function loadPatients() {
+            try {
+                const response = await fetch('/api/patients', {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load patients');
+                }
+
+                const data = await response.json();
+                allPatients = data.patients || [];
+                filteredPatients = [...allPatients];
+                renderPatients();
+            } catch (error) {
+                console.error('Error loading patients:', error);
+                document.getElementById('patientsTable').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <p>Failed to load patients. Please try again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderPatients() {
+            const tableContainer = document.getElementById('patientsTable');
+
+            if (filteredPatients.length === 0) {
+                tableContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">👥</div>
+                        <p>No patients found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Blood Type</th>
+                            <th>Conditions</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredPatients.map(patient => `
+                            <tr>
+                                <td>${escapeHtml(patient.name)}</td>
+                                <td>${escapeHtml(patient.email)}</td>
+                                <td><span class="blood-type-badge">${escapeHtml(patient.bloodType || 'N/A')}</span></td>
+                                <td>${escapeHtml(patient.conditions || 'None')}</td>
+                                <td>
+                                    <button class="view-btn" onclick="viewPatient(${patient.id})">
+                                        View Details
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            tableContainer.innerHTML = tableHTML;
+        }
+
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+
+        function viewPatient(patientId) {
+            window.location.href = `patient-details.html?id=${patientId}`;
+        }
+
+        function filterPatients() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const bloodTypeFilter = document.getElementById('filterBloodType').value;
+
+            filteredPatients = allPatients.filter(patient => {
+                const matchesSearch = !searchTerm ||
+                    (patient.name && patient.name.toLowerCase().includes(searchTerm)) ||
+                    (patient.email && patient.email.toLowerCase().includes(searchTerm));
+
+                const matchesBloodType = !bloodTypeFilter || patient.bloodType === bloodTypeFilter;
+
+                return matchesSearch && matchesBloodType;
+            });
+
+            renderPatients();
+        }
+
+        document.getElementById('searchInput').addEventListener('input', filterPatients);
+        document.getElementById('filterBloodType').addEventListener('change', filterPatients);
+
+        // Initialize CSRF and load patients
+        (async () => {
+            if (typeof initCsrfProtection === 'function') {
+                await initCsrfProtection();
+            }
+            loadPatients();
+        })();
+    </script>
+</body>
+</html>

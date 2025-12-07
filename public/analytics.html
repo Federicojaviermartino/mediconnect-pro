@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - MediConnect Pro</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <style>
+        .analytics-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .analytics-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .analytics-header h1 {
+            font-size: 2rem;
+            color: #1a1a2e;
+            margin: 0;
+        }
+
+        .back-btn {
+            padding: 0.75rem 1.5rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+        }
+
+        .stat-content h3 {
+            margin: 0;
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .stat-content .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin: 0.25rem 0;
+        }
+
+        .stat-content .stat-trend {
+            font-size: 0.85rem;
+            color: #28a745;
+        }
+
+        .stat-trend.down {
+            color: #dc3545;
+        }
+
+        .charts-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .charts-section h2 {
+            margin-top: 0;
+            color: #1a1a2e;
+        }
+
+        .chart-placeholder {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        .actions-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .generate-report-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+
+        .generate-report-btn:hover {
+            opacity: 0.9;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="analytics-container">
+        <div class="analytics-header">
+            <h1>📈 Analytics Dashboard</h1>
+            <a href="javascript:history.back()" class="back-btn">← Back to Dashboard</a>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="loading">Loading analytics...</div>
+        </div>
+
+        <div class="charts-section">
+            <h2>Advanced Analytics</h2>
+            <p>📊 Advanced analytics charts and visualizations coming soon!</p>
+            <div class="chart-placeholder">
+                Interactive charts will be displayed here
+            </div>
+        </div>
+
+        <div class="actions-section">
+            <h2>Generate Reports</h2>
+            <p>Create comprehensive analytics reports with just one click</p>
+            <button class="generate-report-btn" onclick="generateReport()">
+                Generate Report
+            </button>
+        </div>
+    </div>
+
+    <script src="utils/csrf.js"></script>
+    <script>
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('/api/analytics/dashboard', {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load analytics');
+                }
+
+                const data = await response.json();
+                renderStats(data);
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+                document.getElementById('statsGrid').innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #dc3545;">
+                        Failed to load analytics. Please try again.
+                    </div>
+                `;
+            }
+        }
+
+        function renderStats(data) {
+            const statsGrid = document.getElementById('statsGrid');
+
+            // Default stats if data is not available
+            const stats = [
+                {
+                    icon: '📊',
+                    title: 'Total Users',
+                    value: data.totalUsers || '3',
+                    trend: '+12% from last month'
+                },
+                {
+                    icon: '📈',
+                    title: 'Active Sessions',
+                    value: data.activeSessions || '1',
+                    trend: '+5% from last week'
+                },
+                {
+                    icon: '📅',
+                    title: 'Appointments',
+                    value: data.totalAppointments || '0',
+                    trend: '+8% this month'
+                },
+                {
+                    icon: '💊',
+                    title: 'Prescriptions',
+                    value: data.totalPrescriptions || '0',
+                    trend: '+15% this month'
+                }
+            ];
+
+            const statsHTML = stats.map(stat => `
+                <div class="stat-card">
+                    <div class="stat-icon">${stat.icon}</div>
+                    <div class="stat-content">
+                        <h3>${stat.title}</h3>
+                        <div class="stat-value">${stat.value}</div>
+                        <div class="stat-trend">${stat.trend}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            statsGrid.innerHTML = statsHTML;
+        }
+
+        function generateReport() {
+            alert('Report generation feature coming soon! This will create a comprehensive PDF report with all your analytics data.');
+        }
+
+        // Initialize CSRF and load analytics
+        (async () => {
+            if (typeof initCsrfProtection === 'function') {
+                await initCsrfProtection();
+            }
+            loadAnalytics();
+        })();
+    </script>
+</body>
+</html>

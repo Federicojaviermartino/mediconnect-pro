@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointments - MediConnect Pro</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <style>
+        .appointments-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .appointments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .appointments-header h1 {
+            font-size: 2rem;
+            color: #1a1a2e;
+            margin: 0;
+        }
+
+        .appointments-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .new-appointment-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .new-appointment-btn:hover {
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            padding: 0.75rem 1.5rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .filter-tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .filter-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .appointments-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .appointments-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .appointments-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .appointments-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .appointments-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .appointments-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .status-scheduled {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-confirmed {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-completed {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .status-cancelled {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="appointments-container">
+        <div class="appointments-header">
+            <h1>📅 My Appointments</h1>
+            <div class="appointments-actions">
+                <button class="new-appointment-btn" onclick="scheduleAppointment()">
+                    + New Appointment
+                </button>
+                <a href="javascript:history.back()" class="back-btn">← Back</a>
+            </div>
+        </div>
+
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-status="all" onclick="filterByStatus('all')">
+                All
+            </button>
+            <button class="filter-tab" data-status="scheduled" onclick="filterByStatus('scheduled')">
+                Scheduled
+            </button>
+            <button class="filter-tab" data-status="confirmed" onclick="filterByStatus('confirmed')">
+                Confirmed
+            </button>
+            <button class="filter-tab" data-status="completed" onclick="filterByStatus('completed')">
+                Completed
+            </button>
+            <button class="filter-tab" data-status="cancelled" onclick="filterByStatus('cancelled')">
+                Cancelled
+            </button>
+        </div>
+
+        <div class="appointments-table" id="appointmentsTable">
+            <div class="loading">Loading appointments...</div>
+        </div>
+    </div>
+
+    <script src="utils/csrf.js"></script>
+    <script>
+        let allAppointments = [];
+        let currentFilter = 'all';
+
+        async function loadAppointments() {
+            try {
+                const response = await fetch('/api/appointments', {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load appointments');
+                }
+
+                const data = await response.json();
+                allAppointments = data.appointments || [];
+                renderAppointments();
+            } catch (error) {
+                console.error('Error loading appointments:', error);
+                document.getElementById('appointmentsTable').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <p>Failed to load appointments. Please try again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function filterByStatus(status) {
+            currentFilter = status;
+
+            // Update tab styling
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.status === status) {
+                    tab.classList.add('active');
+                }
+            });
+
+            renderAppointments();
+        }
+
+        function renderAppointments() {
+            const tableContainer = document.getElementById('appointmentsTable');
+
+            const filtered = currentFilter === 'all'
+                ? allAppointments
+                : allAppointments.filter(apt => apt.status === currentFilter);
+
+            if (filtered.length === 0) {
+                tableContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📅</div>
+                        <p>No appointments found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Patient/Doctor</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filtered.map(apt => `
+                            <tr>
+                                <td>${formatDate(apt.date)}</td>
+                                <td>${escapeHtml(apt.time || 'N/A')}</td>
+                                <td>${escapeHtml(apt.patientName || apt.doctorName || 'N/A')}</td>
+                                <td>${escapeHtml(apt.reason || apt.type || 'General consultation')}</td>
+                                <td><span class="status-badge status-${apt.status}">${escapeHtml(apt.status)}</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            tableContainer.innerHTML = tableHTML;
+        }
+
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        }
+
+        function scheduleAppointment() {
+            alert('Schedule appointment feature coming soon!');
+        }
+
+        // Initialize CSRF and load appointments
+        (async () => {
+            if (typeof initCsrfProtection === 'function') {
+                await initCsrfProtection();
+            }
+            loadAppointments();
+        })();
+    </script>
+</body>
+</html>

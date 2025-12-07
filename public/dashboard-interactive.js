@@ -66,13 +66,13 @@ function navigateTo(page) {
     // Route to specific functions based on page
     switch(page) {
         case 'Patients':
-            viewAllPatients();
+            window.location.href = 'patients.html';
             break;
         case 'My Vitals':
             viewMyVitals();
             break;
         case 'Appointments':
-            viewAppointments();
+            window.location.href = 'appointments.html';
             break;
         case 'Medications':
             viewMedications();
@@ -81,13 +81,13 @@ function navigateTo(page) {
             viewMedicalRecords();
             break;
         case 'Prescriptions':
-            viewPrescriptions();
+            window.location.href = 'prescriptions.html';
             break;
         case 'AI Assistant':
             showTriageForm();
             break;
         case 'Analytics':
-            viewAnalytics();
+            window.location.href = 'analytics.html';
             break;
         case 'Users':
             manageUsers();
