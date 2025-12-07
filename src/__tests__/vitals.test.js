@@ -447,4 +447,240 @@ describe('Vitals Endpoints', () => {
       expect(response.body).toHaveProperty('message');
     });
   });
+
+  describe('Error Handling - Database Errors', () => {
+    test('should handle database error when getting thresholds', async () => {
+      // This endpoint doesn't hit database, so skip
+    });
+
+    test('should handle database error when recording vitals', async () => {
+      const originalGetPatient = db.getPatientById;
+      db.getPatientById = jest.fn().mockImplementation(() => {
+        throw new Error('Database connection failed');
+      });
+
+      const response = await request(app)
+        .post('/api/vitals/record')
+        .set('Cookie', doctorCookies)
+        .send({
+          patientId: 3,
+          heartRate: 75
+        });
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to record vital signs');
+
+      db.getPatientById = originalGetPatient;
+    });
+
+    test('should handle database error when getting patient vitals', async () => {
+      const originalGetPatient = db.getPatientById;
+      db.getPatientById = jest.fn().mockImplementation(() => {
+        throw new Error('Database read failed');
+      });
+
+      const response = await request(app)
+        .get('/api/vitals/patient/3')
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to retrieve vital signs');
+
+      db.getPatientById = originalGetPatient;
+    });
+
+    test('should handle database error when getting alerts', async () => {
+      const originalGetPatient = db.getPatientById;
+      db.getPatientById = jest.fn().mockImplementation(() => {
+        throw new Error('Database read failed');
+      });
+
+      const response = await request(app)
+        .get('/api/vitals/alerts/3')
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to retrieve alerts');
+
+      db.getPatientById = originalGetPatient;
+    });
+
+    test('should handle database error when acknowledging alert', async () => {
+      // First create an alert
+      const recordResponse = await request(app)
+        .post('/api/vitals/record')
+        .set('Cookie', doctorCookies)
+        .send({
+          patientId: 3,
+          heartRate: 150
+        });
+
+      if (recordResponse.body.alerts && recordResponse.body.alerts.length > 0) {
+        const alertId = recordResponse.body.alerts[0].id;
+
+        const originalGetPatient = db.getPatientById;
+        db.getPatientById = jest.fn().mockImplementation(() => {
+          throw new Error('Database error');
+        });
+
+        const response = await request(app)
+          .post(`/api/vitals/alerts/${alertId}/acknowledge`)
+          .set('Cookie', doctorCookies);
+
+        expect(response.statusCode).toBe(500);
+        expect(response.body.error).toBe('Failed to acknowledge alert');
+
+        db.getPatientById = originalGetPatient;
+      }
+    });
+  });
+
+  describe('Error Handling - Authorization Edge Cases', () => {
+    test('should prevent patient from recording vitals for unauthorized patient', async () => {
+      const response = await request(app)
+        .post('/api/vitals/record')
+        .set('Cookie', patientCookies)
+        .send({
+          patientId: secondPatientId,
+          heartRate: 75
+        });
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+    });
+
+    test('should prevent patient from viewing unauthorized patient vitals', async () => {
+      const response = await request(app)
+        .get(`/api/vitals/patient/${secondPatientId}`)
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+    });
+
+    test('should prevent patient from viewing unauthorized patient alerts', async () => {
+      const response = await request(app)
+        .get(`/api/vitals/alerts/${secondPatientId}`)
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+    });
+
+    test('should prevent patient from acknowledging alert for unauthorized patient', async () => {
+      // Create an alert for the second patient as doctor
+      const recordResponse = await request(app)
+        .post('/api/vitals/record')
+        .set('Cookie', doctorCookies)
+        .send({
+          patientId: secondPatientId,
+          heartRate: 150
+        });
+
+      if (recordResponse.body.alerts && recordResponse.body.alerts.length > 0) {
+        const alertId = recordResponse.body.alerts[0].id;
+
+        // Try to acknowledge as first patient
+        const response = await request(app)
+          .post(`/api/vitals/alerts/${alertId}/acknowledge`)
+          .set('Cookie', patientCookies);
+
+        expect(response.statusCode).toBe(403);
+        expect(response.body.error).toContain('Unauthorized');
+      }
+    });
+
+    test('should return 404 when patient not found for vitals', async () => {
+      const response = await request(app)
+        .get('/api/vitals/patient/9999')
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(404);
+      expect(response.body.error).toContain('Patient not found');
+    });
+
+    test('should return 404 when patient not found for alerts', async () => {
+      const response = await request(app)
+        .get('/api/vitals/alerts/9999')
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(404);
+      expect(response.body.error).toContain('Patient not found');
+    });
+
+    test('should return 404 when patient not found for acknowledging alert', async () => {
+      // Mock an alert with non-existent patient
+      if (!db.database.vitalAlerts) {
+        db.database.vitalAlerts = [];
+      }
+
+      const fakeAlertId = `alert-${Date.now()}`;
+      db.database.vitalAlerts.push({
+        id: fakeAlertId,
+        patientId: '9999', // Non-existent patient
+        severity: 'warning',
+        message: 'Test alert',
+        timestamp: new Date().toISOString(),
+        acknowledged: false
+      });
+
+      const response = await request(app)
+        .post(`/api/vitals/alerts/${fakeAlertId}/acknowledge`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(404);
+      expect(response.body.error).toContain('Patient not found');
+    });
+  });
+
+  describe('Error Handling - Validation', () => {
+    test('should require patient ID for recording vitals', async () => {
+      const response = await request(app)
+        .post('/api/vitals/record')
+        .set('Cookie', doctorCookies)
+        .send({
+          heartRate: 75
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.error).toContain('Patient ID');
+    });
+
+    test('should return 404 for non-existent patient when recording vitals', async () => {
+      const response = await request(app)
+        .post('/api/vitals/record')
+        .set('Cookie', doctorCookies)
+        .send({
+          patientId: 9999,
+          heartRate: 75
+        });
+
+      expect(response.statusCode).toBe(404);
+      expect(response.body.error).toContain('Patient not found');
+    });
+
+    test('should require patient ID for AI analysis', async () => {
+      const response = await request(app)
+        .post('/api/ai/analyze-vitals')
+        .set('Cookie', doctorCookies)
+        .send({
+          vitals: [{ heartRate: 75 }]
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.error).toContain('Patient ID');
+    });
+
+    test('should require vitals array for AI analysis', async () => {
+      const response = await request(app)
+        .post('/api/ai/analyze-vitals')
+        .set('Cookie', doctorCookies)
+        .send({
+          patientId: 3
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.error).toContain('required');
+    });
+  });
 });

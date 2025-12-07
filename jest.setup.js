@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-// Path to the test database
-const DB_PATH = path.join(__dirname, 'demo-app', 'database', 'database.json');
+// Path to the test database (correct path is src/database)
+const DB_PATH = path.join(__dirname, 'src', 'database', 'database.json');
 
 // Delete database.json before each test suite to ensure isolation
 beforeAll(() => {

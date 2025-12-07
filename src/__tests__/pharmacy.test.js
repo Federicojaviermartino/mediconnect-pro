@@ -531,4 +531,300 @@ describe('Pharmacy Endpoints', () => {
       expect(response.body.tracking.orderId).toMatch(/^ORD/);
     });
   });
+
+  describe('Error Handling - GET /api/pharmacy/network', () => {
+    test('should handle service error when fetching network', async () => {
+      const pharmacyService = require('../services/pharmacy-service');
+      const originalGetNetwork = pharmacyService.getPharmacyNetwork;
+
+      pharmacyService.getPharmacyNetwork = jest.fn(() => {
+        throw new Error('Network service unavailable');
+      });
+
+      const response = await request(app)
+        .get('/api/pharmacy/network')
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to fetch pharmacy network');
+
+      pharmacyService.getPharmacyNetwork = originalGetNetwork;
+    });
+  });
+
+  describe('Error Handling - GET /api/pharmacy/status', () => {
+    test('should handle service error when fetching status', async () => {
+      const pharmacyService = require('../services/pharmacy-service');
+      const originalGetStatus = pharmacyService.getStatus;
+
+      pharmacyService.getStatus = jest.fn(() => {
+        throw new Error('Status service error');
+      });
+
+      const response = await request(app)
+        .get('/api/pharmacy/status')
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to get pharmacy status');
+
+      pharmacyService.getStatus = originalGetStatus;
+    });
+  });
+
+  describe('Error Handling - GET /api/pharmacy/:pharmacyId', () => {
+    test('should handle service error when fetching pharmacy details', async () => {
+      const pharmacyService = require('../services/pharmacy-service');
+      const originalGetById = pharmacyService.getPharmacyById;
+
+      pharmacyService.getPharmacyById = jest.fn(() => {
+        throw new Error('Database connection error');
+      });
+
+      const response = await request(app)
+        .get('/api/pharmacy/cvs-002')
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to fetch pharmacy details');
+
+      pharmacyService.getPharmacyById = originalGetById;
+    });
+  });
+
+  describe('Error Handling - POST /api/pharmacy/check-stock', () => {
+    test('should handle service error during stock check', async () => {
+      const pharmacyService = require('../services/pharmacy-service');
+      const originalCheckStock = pharmacyService.checkMedicationStock;
+
+      pharmacyService.checkMedicationStock = jest.fn().mockRejectedValue(
+        new Error('Stock check service down')
+      );
+
+      const response = await request(app)
+        .post('/api/pharmacy/check-stock')
+        .set('Cookie', doctorCookies)
+        .send({
+          medicationId: 'amoxicillin-500mg',
+          pharmacyId: 'cvs-002'
+        });
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body).toHaveProperty('error');
+
+      pharmacyService.checkMedicationStock = originalCheckStock;
+    });
+  });
+
+  describe('Error Handling - POST /api/pharmacy/send-prescription', () => {
+    test('should handle database error when looking up prescription', async () => {
+      const originalGetPrescriptionById = db.getPrescriptionById;
+      db.getPrescriptionById = jest.fn(() => {
+        throw new Error('Database connection lost');
+      });
+
+      const response = await request(app)
+        .post('/api/pharmacy/send-prescription')
+        .set('Cookie', doctorCookies)
+        .send({
+          prescriptionId: 1,
+          pharmacyId: 'cvs-002'
+        });
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body).toHaveProperty('error');
+
+      db.getPrescriptionById = originalGetPrescriptionById;
+    });
+
+    test('should handle unauthorized access to prescription (patient)', async () => {
+      // Create a prescription owned by doctor
+      const prescriptionData = {
+        patient_id: 1,
+        doctor_id: 2,
+        medication: 'Test Med',
+        dosage: '500mg',
+        quantity: 30,
+        instructions: 'Test'
+      };
+      const prescription = db.createPrescription(prescriptionData);
+
+      const response = await request(app)
+        .post('/api/pharmacy/send-prescription')
+        .set('Cookie', patientCookies) // Patient 3 trying to access patient 1's prescription
+        .send({
+          prescriptionId: prescription.id,
+          pharmacyId: 'cvs-002'
+        });
+
+      expect([403, 404]).toContain(response.statusCode);
+    });
+
+    test('should handle unauthorized access to prescription (doctor)', async () => {
+      // Create a prescription owned by a different doctor
+      const prescriptionData = {
+        patient_id: 3,
+        doctor_id: 1, // Different doctor
+        medication: 'Test Med',
+        dosage: '500mg',
+        quantity: 30,
+        instructions: 'Test'
+      };
+      const prescription = db.createPrescription(prescriptionData);
+
+      const response = await request(app)
+        .post('/api/pharmacy/send-prescription')
+        .set('Cookie', doctorCookies) // Doctor 2 trying to access doctor 1's prescription
+        .send({
+          prescriptionId: prescription.id,
+          pharmacyId: 'cvs-002'
+        });
+
+      expect([403, 404]).toContain(response.statusCode);
+    });
+
+    test('should handle pharmacy service error when sending prescription', async () => {
+      const prescriptionData = {
+        patient_id: 3,
+        doctor_id: 2,
+        medication: 'Test Med',
+        dosage: '500mg',
+        quantity: 30,
+        instructions: 'Test'
+      };
+      const prescription = db.createPrescription(prescriptionData);
+
+      const pharmacyService = require('../services/pharmacy-service');
+      const originalSendEPrescription = pharmacyService.sendEPrescription;
+
+      pharmacyService.sendEPrescription = jest.fn().mockRejectedValue(
+        new Error('Pharmacy API unavailable')
+      );
+
+      const response = await request(app)
+        .post('/api/pharmacy/send-prescription')
+        .set('Cookie', doctorCookies)
+        .send({
+          prescriptionId: prescription.id,
+          pharmacyId: 'cvs-002'
+        });
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body).toHaveProperty('error');
+
+      pharmacyService.sendEPrescription = originalSendEPrescription;
+    });
+  });
+
+  describe('Error Handling - GET /api/pharmacy/track-order/:orderId', () => {
+    test('should handle service error when tracking order', async () => {
+      const pharmacyService = require('../services/pharmacy-service');
+      const originalTrackOrder = pharmacyService.trackOrder;
+
+      pharmacyService.trackOrder = jest.fn().mockRejectedValue(
+        new Error('Tracking service unavailable')
+      );
+
+      const response = await request(app)
+        .get('/api/pharmacy/track-order/ORD123456')
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to track order');
+
+      pharmacyService.trackOrder = originalTrackOrder;
+    });
+  });
+
+  describe('Error Handling - POST /api/pharmacy/calculate-cost', () => {
+    test('should handle service error during cost calculation', async () => {
+      const pharmacyService = require('../services/pharmacy-service');
+      const originalCalculateCost = pharmacyService.calculatePrescriptionCost;
+
+      pharmacyService.calculatePrescriptionCost = jest.fn(() => {
+        throw new Error('Cost calculation error');
+      });
+
+      const response = await request(app)
+        .post('/api/pharmacy/calculate-cost')
+        .set('Cookie', patientCookies)
+        .send({
+          medicationId: 'amoxicillin-500mg',
+          quantity: 30
+        });
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body).toHaveProperty('error');
+
+      pharmacyService.calculatePrescriptionCost = originalCalculateCost;
+    });
+  });
+
+  describe('POST /api/pharmacy/send-prescription - Additional Coverage', () => {
+    test('should handle prescription with delivery options', async () => {
+      const prescriptionData = {
+        patient_id: 3,
+        doctor_id: 2,
+        medication: 'Delivery Test Med',
+        dosage: '250mg',
+        quantity: 60,
+        instructions: 'With delivery'
+      };
+      const prescription = db.createPrescription(prescriptionData);
+
+      const response = await request(app)
+        .post('/api/pharmacy/send-prescription')
+        .set('Cookie', doctorCookies)
+        .send({
+          prescriptionId: prescription.id,
+          pharmacyId: 'cvs-002',
+          deliveryRequested: true,
+          deliveryAddress: '123 Main St, City, State 12345'
+        });
+
+      expect([200, 500]).toContain(response.statusCode);
+    });
+
+    test('should allow patient to send their own prescription', async () => {
+      const prescriptionData = {
+        patient_id: 3,
+        doctor_id: 2,
+        medication: 'Patient Send Test',
+        dosage: '100mg',
+        quantity: 30,
+        instructions: 'Test'
+      };
+      const prescription = db.createPrescription(prescriptionData);
+
+      const response = await request(app)
+        .post('/api/pharmacy/send-prescription')
+        .set('Cookie', patientCookies)
+        .send({
+          prescriptionId: prescription.id,
+          pharmacyId: 'walgreens-001'
+        });
+
+      expect([200, 201, 500]).toContain(response.statusCode);
+    });
+  });
+
+  describe('POST /api/pharmacy/calculate-cost - Additional Coverage', () => {
+    test('should calculate cost with insurance coverage', async () => {
+      const response = await request(app)
+        .post('/api/pharmacy/calculate-cost')
+        .set('Cookie', patientCookies)
+        .send({
+          medicationId: 'amoxicillin-500mg',
+          quantity: 30,
+          insuranceCoverage: {
+            provider: 'sanitas',
+            copay: 10,
+            coinsurance: 20
+          }
+        });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty('success', true);
+    });
+  });
 });

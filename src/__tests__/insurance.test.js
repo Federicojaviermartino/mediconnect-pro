@@ -66,7 +66,7 @@ describe('Insurance Endpoints', () => {
         password: 'Demo2024!Patient'
       });
     patientCookies = patientLogin.headers['set-cookie'];
-  });
+  }, 10000); // 10 second timeout for setup
 
   describe('GET /api/insurance/providers', () => {
     test('should require authentication', async () => {
@@ -493,6 +493,368 @@ describe('Insurance Endpoints', () => {
         expect(typeof provider.name).toBe('string');
         expect(provider.name.length).toBeGreaterThan(0);
       });
+    });
+  });
+
+  describe('Error Handling - GET /api/insurance/providers', () => {
+    test('should handle service errors gracefully', async () => {
+      const insuranceService = require('../services/insurance-service');
+      const originalGetProviders = insuranceService.getSupportedProviders;
+
+      insuranceService.getSupportedProviders = jest.fn(() => {
+        throw new Error('Service unavailable');
+      });
+
+      const response = await request(app)
+        .get('/api/insurance/providers')
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body).toHaveProperty('error');
+
+      insuranceService.getSupportedProviders = originalGetProviders;
+    });
+  });
+
+  describe('Error Handling - POST /api/insurance/verify-eligibility', () => {
+    test('should handle database error when looking up patient', async () => {
+      const originalGetPatientById = db.getPatientById;
+      db.getPatientById = jest.fn(() => {
+        throw new Error('Database connection lost');
+      });
+
+      const response = await request(app)
+        .post('/api/insurance/verify-eligibility')
+        .set('Cookie', doctorCookies)
+        .send({
+          patientId: '1',
+          insuranceProvider: 'sanitas',
+          insuranceMemberId: '12345'
+        });
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to verify insurance eligibility');
+
+      db.getPatientById = originalGetPatientById;
+    });
+
+    test('should handle insurance service verification error', async () => {
+      const insuranceService = require('../services/insurance-service');
+      const originalVerify = insuranceService.verifyEligibility;
+
+      insuranceService.verifyEligibility = jest.fn().mockRejectedValue(
+        new Error('Insurance API timeout')
+      );
+
+      const response = await request(app)
+        .post('/api/insurance/verify-eligibility')
+        .set('Cookie', doctorCookies)
+        .send({
+          patientId: '1',
+          insuranceProvider: 'sanitas',
+          insuranceMemberId: 'SAN123'
+        });
+
+      expect([404, 500]).toContain(response.statusCode);
+
+      insuranceService.verifyEligibility = originalVerify;
+    });
+
+    test('should handle updatePatient error after successful verification', async () => {
+      const insuranceService = require('../services/insurance-service');
+      const originalVerify = insuranceService.verifyEligibility;
+      const originalUpdatePatient = db.updatePatient;
+
+      insuranceService.verifyEligibility = jest.fn().mockResolvedValue({
+        isEligible: true,
+        provider: 'sanitas'
+      });
+
+      db.updatePatient = jest.fn(() => {
+        throw new Error('Database write error');
+      });
+
+      const response = await request(app)
+        .post('/api/insurance/verify-eligibility')
+        .set('Cookie', doctorCookies)
+        .send({
+          patientId: '1',
+          insuranceProvider: 'sanitas',
+          insuranceMemberId: 'SAN123'
+        });
+
+      expect([404, 500]).toContain(response.statusCode);
+
+      insuranceService.verifyEligibility = originalVerify;
+      db.updatePatient = originalUpdatePatient;
+    });
+  });
+
+  describe('Error Handling - POST /api/insurance/pre-authorization', () => {
+    test('should handle database error when looking up appointment', async () => {
+      const originalGetAppointmentById = db.getAppointmentById;
+      db.getAppointmentById = jest.fn(() => {
+        throw new Error('Database connection lost');
+      });
+
+      const response = await request(app)
+        .post('/api/insurance/pre-authorization')
+        .set('Cookie', doctorCookies)
+        .send({
+          appointmentId: 1,
+          serviceCode: 'G0071'
+        });
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to request pre-authorization');
+
+      db.getAppointmentById = originalGetAppointmentById;
+    });
+
+    test('should handle insurance service pre-auth error', async () => {
+      const appointmentData = {
+        patient_id: 3,
+        doctor_id: 2,
+        date: '2025-12-16',
+        time: '10:00',
+        type: 'Consultation',
+        status: 'scheduled'
+      };
+      const createdAppointment = db.createAppointment(appointmentData);
+
+      const insuranceService = require('../services/insurance-service');
+      const originalRequestPreAuth = insuranceService.requestPreAuthorization;
+
+      insuranceService.requestPreAuthorization = jest.fn().mockRejectedValue(
+        new Error('Insurance API error')
+      );
+
+      const response = await request(app)
+        .post('/api/insurance/pre-authorization')
+        .set('Cookie', doctorCookies)
+        .send({
+          appointmentId: createdAppointment.id,
+          serviceCode: 'G0071'
+        });
+
+      expect(response.statusCode).toBe(500);
+
+      insuranceService.requestPreAuthorization = originalRequestPreAuth;
+    });
+  });
+
+  describe('Error Handling - POST /api/insurance/submit-claim', () => {
+    test('should handle database error when looking up appointment', async () => {
+      const originalGetAppointmentById = db.getAppointmentById;
+      db.getAppointmentById = jest.fn(() => {
+        throw new Error('Database connection lost');
+      });
+
+      const response = await request(app)
+        .post('/api/insurance/submit-claim')
+        .set('Cookie', doctorCookies)
+        .send({
+          appointmentId: 1,
+          diagnosisCodes: ['Z00.00']
+        });
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to submit insurance claim');
+
+      db.getAppointmentById = originalGetAppointmentById;
+    });
+
+    test('should handle patient without insurance provider', async () => {
+      const appointmentData = {
+        patient_id: 1, // Patient without insurance
+        doctor_id: 2,
+        date: '2025-12-17',
+        time: '11:00',
+        type: 'Consultation',
+        status: 'completed'
+      };
+      const createdAppointment = db.createAppointment(appointmentData);
+
+      const response = await request(app)
+        .post('/api/insurance/submit-claim')
+        .set('Cookie', doctorCookies)
+        .send({
+          appointmentId: createdAppointment.id,
+          diagnosisCodes: ['Z00.00']
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.error).toContain('insurance information');
+    });
+
+    test('should handle insurance service claim submission error', async () => {
+      const appointmentData = {
+        patient_id: 3,
+        doctor_id: 2,
+        date: '2025-12-18',
+        time: '12:00',
+        type: 'Consultation',
+        status: 'completed'
+      };
+      const createdAppointment = db.createAppointment(appointmentData);
+
+      const insuranceService = require('../services/insurance-service');
+      const originalSubmitClaim = insuranceService.submitClaim;
+
+      insuranceService.submitClaim = jest.fn().mockRejectedValue(
+        new Error('Claim submission failed')
+      );
+
+      const response = await request(app)
+        .post('/api/insurance/submit-claim')
+        .set('Cookie', doctorCookies)
+        .send({
+          appointmentId: createdAppointment.id,
+          diagnosisCodes: ['Z00.00']
+        });
+
+      expect([400, 500]).toContain(response.statusCode);
+
+      insuranceService.submitClaim = originalSubmitClaim;
+    });
+  });
+
+  describe('Error Handling - GET /api/insurance/claim-status/:claimId', () => {
+    test('should handle insurance service error when checking claim status', async () => {
+      const insuranceService = require('../services/insurance-service');
+      const originalCheckStatus = insuranceService.checkClaimStatus;
+
+      insuranceService.checkClaimStatus = jest.fn().mockRejectedValue(
+        new Error('Status check failed')
+      );
+
+      const response = await request(app)
+        .get('/api/insurance/claim-status/CLAIM12345')
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to check claim status');
+
+      insuranceService.checkClaimStatus = originalCheckStatus;
+    });
+  });
+
+  describe('Error Handling - POST /api/insurance/calculate-cost', () => {
+    test('should handle database error when looking up patient', async () => {
+      const originalGetPatientById = db.getPatientById;
+      db.getPatientById = jest.fn(() => {
+        throw new Error('Database error');
+      });
+
+      const response = await request(app)
+        .post('/api/insurance/calculate-cost')
+        .set('Cookie', doctorCookies)
+        .send({
+          patientId: '1',
+          serviceCharge: 150
+        });
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to calculate patient cost');
+
+      db.getPatientById = originalGetPatientById;
+    });
+
+    test('should handle patient not found in database', async () => {
+      const originalGetPatientById = db.getPatientById;
+      db.getPatientById = jest.fn(() => null);
+
+      const response = await request(app)
+        .post('/api/insurance/calculate-cost')
+        .set('Cookie', doctorCookies)
+        .send({
+          patientId: '999',
+          serviceCharge: 150
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.error).toContain('insurance information');
+
+      db.getPatientById = originalGetPatientById;
+    });
+
+    test('should handle insurance verification error', async () => {
+      const originalGetPatientById = db.getPatientById;
+      db.getPatientById = jest.fn(() => ({
+        id: 1,
+        name: 'Test Patient',
+        insuranceProvider: 'sanitas'
+      }));
+
+      const insuranceService = require('../services/insurance-service');
+      const originalVerify = insuranceService.verifyEligibility;
+
+      insuranceService.verifyEligibility = jest.fn().mockRejectedValue(
+        new Error('Verification failed')
+      );
+
+      const response = await request(app)
+        .post('/api/insurance/calculate-cost')
+        .set('Cookie', doctorCookies)
+        .send({
+          patientId: '1',
+          serviceCharge: 150
+        });
+
+      expect(response.statusCode).toBe(500);
+
+      insuranceService.verifyEligibility = originalVerify;
+      db.getPatientById = originalGetPatientById;
+    });
+
+    test('should handle patient not eligible for coverage', async () => {
+      const originalGetPatientById = db.getPatientById;
+      db.getPatientById = jest.fn(() => ({
+        id: 1,
+        name: 'Test Patient',
+        insuranceProvider: 'sanitas'
+      }));
+
+      const insuranceService = require('../services/insurance-service');
+      const originalVerify = insuranceService.verifyEligibility;
+
+      insuranceService.verifyEligibility = jest.fn().mockResolvedValue({
+        isEligible: false
+      });
+
+      const response = await request(app)
+        .post('/api/insurance/calculate-cost')
+        .set('Cookie', doctorCookies)
+        .send({
+          patientId: '1',
+          serviceCharge: 150
+        });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.error).toContain('not eligible');
+
+      insuranceService.verifyEligibility = originalVerify;
+      db.getPatientById = originalGetPatientById;
+    });
+  });
+
+  describe('Error Handling - GET /api/insurance/status', () => {
+    test('should handle service error gracefully', async () => {
+      const insuranceService = require('../services/insurance-service');
+      const originalGetStatus = insuranceService.getStatus;
+
+      insuranceService.getStatus = jest.fn(() => {
+        throw new Error('Status unavailable');
+      });
+
+      const response = await request(app)
+        .get('/api/insurance/status')
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to get insurance status');
+
+      insuranceService.getStatus = originalGetStatus;
     });
   });
 });

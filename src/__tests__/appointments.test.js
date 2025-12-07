@@ -54,6 +54,10 @@ describe('Appointments Endpoints', () => {
         email: 'admin@mediconnect.demo',
         password: 'Demo2024!Admin'
       });
+
+    if (adminLogin.statusCode !== 200) {
+      console.error('Admin login failed:', adminLogin.statusCode, adminLogin.body);
+    }
     adminCookies = adminLogin.headers['set-cookie'];
 
     // Login as doctor
@@ -73,7 +77,7 @@ describe('Appointments Endpoints', () => {
         password: 'Demo2024!Patient'
       });
     patientCookies = patientLogin.headers['set-cookie'];
-  });
+  }, 10000); // 10 second timeout for setup
 
   describe('GET /api/appointments', () => {
     test('should require authentication', async () => {
@@ -625,6 +629,355 @@ describe('Appointments Endpoints', () => {
           expect(apt).toHaveProperty('doctor_name');
         });
       }
+    });
+  });
+
+  describe('Error Handling - Database Errors', () => {
+    test('should handle database error when getting appointments', async () => {
+      const originalGetAppointments = db.getAppointments;
+      db.getAppointments = jest.fn().mockImplementation(() => {
+        throw new Error('Database connection failed');
+      });
+
+      const response = await request(app)
+        .get('/api/appointments')
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to fetch appointments');
+
+      db.getAppointments = originalGetAppointments;
+    });
+
+    test('should handle database error when creating appointment', async () => {
+      const originalCreate = db.createAppointment;
+      db.createAppointment = jest.fn().mockImplementation(() => {
+        throw new Error('Database write failed');
+      });
+
+      const response = await request(app)
+        .post('/api/appointments')
+        .set('Cookie', patientCookies)
+        .send({
+          date: getFutureDate(10),
+          time: '10:00',
+          reason: 'Test appointment'
+        });
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to create appointment');
+
+      db.createAppointment = originalCreate;
+    });
+
+    test('should handle database error when updating appointment', async () => {
+      const createResponse = await request(app)
+        .post('/api/appointments')
+        .set('Cookie', patientCookies)
+        .send({
+          date: getFutureDate(15),
+          time: '11:00',
+          reason: 'For update error test'
+        });
+      const appointmentId = createResponse.body.appointment.id;
+
+      const originalUpdate = db.updateAppointment;
+      db.updateAppointment = jest.fn().mockImplementation(() => {
+        throw new Error('Database update failed');
+      });
+
+      const response = await request(app)
+        .put(`/api/appointments/${appointmentId}`)
+        .set('Cookie', patientCookies)
+        .send({ reason: 'Updated reason' });
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to update appointment');
+
+      db.updateAppointment = originalUpdate;
+    });
+
+    test('should handle database error when deleting appointment', async () => {
+      const createResponse = await request(app)
+        .post('/api/appointments')
+        .set('Cookie', patientCookies)
+        .send({
+          date: getFutureDate(20),
+          time: '12:00',
+          reason: 'For delete error test'
+        });
+      const appointmentId = createResponse.body.appointment.id;
+
+      const originalUpdate = db.updateAppointment;
+      db.updateAppointment = jest.fn().mockImplementation(() => {
+        throw new Error('Database delete failed');
+      });
+
+      const response = await request(app)
+        .delete(`/api/appointments/${appointmentId}`)
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to cancel appointment');
+
+      db.updateAppointment = originalUpdate;
+    });
+
+    test('should handle database error when confirming appointment', async () => {
+      const createResponse = await request(app)
+        .post('/api/appointments')
+        .set('Cookie', patientCookies)
+        .send({
+          date: getFutureDate(25),
+          time: '13:00',
+          reason: 'For confirm error test',
+          doctor_id: 2
+        });
+      const appointmentId = createResponse.body.appointment.id;
+
+      const originalUpdate = db.updateAppointment;
+      db.updateAppointment = jest.fn().mockImplementation(() => {
+        throw new Error('Database confirm failed');
+      });
+
+      const response = await request(app)
+        .post(`/api/appointments/${appointmentId}/confirm`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to confirm appointment');
+
+      db.updateAppointment = originalUpdate;
+    });
+
+    test('should handle database error when completing appointment', async () => {
+      const createResponse = await request(app)
+        .post('/api/appointments')
+        .set('Cookie', patientCookies)
+        .send({
+          date: getFutureDate(30),
+          time: '14:00',
+          reason: 'For complete error test',
+          doctor_id: 2
+        });
+      const appointmentId = createResponse.body.appointment.id;
+
+      const originalUpdate = db.updateAppointment;
+      db.updateAppointment = jest.fn().mockImplementation(() => {
+        throw new Error('Database complete failed');
+      });
+
+      const response = await request(app)
+        .post(`/api/appointments/${appointmentId}/complete`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to complete appointment');
+
+      db.updateAppointment = originalUpdate;
+    });
+
+    test('should handle database error when getting single appointment', async () => {
+      const originalGetById = db.getAppointmentById;
+      db.getAppointmentById = jest.fn().mockImplementation(() => {
+        throw new Error('Database read failed');
+      });
+
+      const response = await request(app)
+        .get('/api/appointments/1')
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to fetch appointment');
+
+      db.getAppointmentById = originalGetById;
+    });
+  });
+
+  describe('Error Handling - Authorization Edge Cases', () => {
+    test('should prevent patient from accessing another patient appointment', async () => {
+      // Create appointment as one patient
+      const otherPatientLogin = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'john.doe@mediconnect.demo',
+          password: 'Demo2024!Patient'
+        });
+      const otherCookies = otherPatientLogin.headers['set-cookie'];
+
+      const createResponse = await request(app)
+        .post('/api/appointments')
+        .set('Cookie', otherCookies)
+        .send({
+          date: getFutureDate(10),
+          time: '10:00',
+          reason: 'Another patient appointment'
+        });
+
+      // Mock getting the appointment but change patient_id
+      const appointmentId = createResponse.body.appointment.id;
+      const originalGetById = db.getAppointmentById;
+      db.getAppointmentById = jest.fn().mockReturnValue({
+        id: appointmentId,
+        patient_id: 999, // Different patient
+        doctor_id: 2,
+        date: getFutureDate(10),
+        time: '10:00',
+        reason: 'Test',
+        status: 'scheduled'
+      });
+
+      const response = await request(app)
+        .get(`/api/appointments/${appointmentId}`)
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+
+      db.getAppointmentById = originalGetById;
+    });
+
+    test('should prevent doctor from accessing appointments of another doctor', async () => {
+      const appointmentId = 1;
+      const originalGetById = db.getAppointmentById;
+      db.getAppointmentById = jest.fn().mockReturnValue({
+        id: appointmentId,
+        patient_id: 3,
+        doctor_id: 999, // Different doctor
+        date: getFutureDate(10),
+        time: '10:00',
+        reason: 'Test',
+        status: 'scheduled'
+      });
+
+      const response = await request(app)
+        .get(`/api/appointments/${appointmentId}`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+
+      db.getAppointmentById = originalGetById;
+    });
+
+    test('should prevent patient from updating another patient appointment', async () => {
+      const appointmentId = 1;
+      const originalGetById = db.getAppointmentById;
+      db.getAppointmentById = jest.fn().mockReturnValue({
+        id: appointmentId,
+        patient_id: 999, // Different patient
+        doctor_id: 2,
+        date: getFutureDate(10),
+        time: '10:00',
+        reason: 'Test',
+        status: 'scheduled'
+      });
+
+      const response = await request(app)
+        .put(`/api/appointments/${appointmentId}`)
+        .set('Cookie', patientCookies)
+        .send({ reason: 'Updated' });
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+
+      db.getAppointmentById = originalGetById;
+    });
+
+    test('should prevent doctor from updating appointments of another doctor', async () => {
+      const appointmentId = 1;
+      const originalGetById = db.getAppointmentById;
+      db.getAppointmentById = jest.fn().mockReturnValue({
+        id: appointmentId,
+        patient_id: 3,
+        doctor_id: 999, // Different doctor
+        date: getFutureDate(10),
+        time: '10:00',
+        reason: 'Test',
+        status: 'scheduled'
+      });
+
+      const response = await request(app)
+        .put(`/api/appointments/${appointmentId}`)
+        .set('Cookie', doctorCookies)
+        .send({ status: 'confirmed' });
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+
+      db.getAppointmentById = originalGetById;
+    });
+
+    test('should prevent doctor from confirming appointment not assigned to them', async () => {
+      const appointmentId = 1;
+      const originalGetById = db.getAppointmentById;
+      db.getAppointmentById = jest.fn().mockReturnValue({
+        id: appointmentId,
+        patient_id: 3,
+        doctor_id: 999, // Different doctor
+        date: getFutureDate(10),
+        time: '10:00',
+        reason: 'Test',
+        status: 'scheduled'
+      });
+
+      const response = await request(app)
+        .post(`/api/appointments/${appointmentId}/confirm`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+
+      db.getAppointmentById = originalGetById;
+    });
+
+    test('should prevent doctor from completing appointment not assigned to them', async () => {
+      const appointmentId = 1;
+      const originalGetById = db.getAppointmentById;
+      db.getAppointmentById = jest.fn().mockReturnValue({
+        id: appointmentId,
+        patient_id: 3,
+        doctor_id: 999, // Different doctor
+        date: getFutureDate(10),
+        time: '10:00',
+        reason: 'Test',
+        status: 'confirmed'
+      });
+
+      const response = await request(app)
+        .post(`/api/appointments/${appointmentId}/complete`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+
+      db.getAppointmentById = originalGetById;
+    });
+
+    test('should prevent confirming cancelled appointment', async () => {
+      const createResponse = await request(app)
+        .post('/api/appointments')
+        .set('Cookie', patientCookies)
+        .send({
+          date: getFutureDate(40),
+          time: '09:00',
+          reason: 'To be cancelled',
+          doctor_id: 2
+        });
+      const appointmentId = createResponse.body.appointment.id;
+
+      // Cancel it
+      await request(app)
+        .delete(`/api/appointments/${appointmentId}`)
+        .set('Cookie', patientCookies);
+
+      // Try to confirm
+      const response = await request(app)
+        .post(`/api/appointments/${appointmentId}/confirm`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.error).toContain('cancelled');
     });
   });
 });

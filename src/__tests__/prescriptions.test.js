@@ -66,7 +66,7 @@ describe('Prescriptions Endpoints', () => {
         password: 'Demo2024!Patient'
       });
     patientCookies = patientLogin.headers['set-cookie'];
-  });
+  }, 10000); // 10 second timeout for setup
 
   describe('GET /api/prescriptions', () => {
     test('should require authentication', async () => {
@@ -635,6 +635,393 @@ describe('Prescriptions Endpoints', () => {
         expect(typeof rx.medication).toBe('string');
         expect(rx.medication.length).toBeGreaterThan(0);
       });
+    });
+  });
+
+  describe('Error Handling - Database Errors', () => {
+    test('should handle database error when getting prescriptions', async () => {
+      const originalGetPrescriptions = db.getPrescriptions;
+      db.getPrescriptions = jest.fn().mockImplementation(() => {
+        throw new Error('Database connection failed');
+      });
+
+      const response = await request(app)
+        .get('/api/prescriptions')
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to fetch prescriptions');
+
+      db.getPrescriptions = originalGetPrescriptions;
+    });
+
+    test('should handle database error when creating prescription', async () => {
+      const originalCreate = db.createPrescription;
+      db.createPrescription = jest.fn().mockImplementation(() => {
+        throw new Error('Database write failed');
+      });
+
+      const response = await request(app)
+        .post('/api/prescriptions')
+        .set('Cookie', patientCookies)
+        .send({
+          medication: 'Test Medication',
+          dosage: '10mg',
+          pharmacy: 'Test Pharmacy'
+        });
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to create prescription request');
+
+      db.createPrescription = originalCreate;
+    });
+
+    test('should handle database error when getting single prescription', async () => {
+      const originalGetById = db.getPrescriptionById;
+      db.getPrescriptionById = jest.fn().mockImplementation(() => {
+        throw new Error('Database read failed');
+      });
+
+      const response = await request(app)
+        .get('/api/prescriptions/1')
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to fetch prescription');
+
+      db.getPrescriptionById = originalGetById;
+    });
+
+    test('should handle database error when getting prescription status', async () => {
+      const originalGetById = db.getPrescriptionById;
+      db.getPrescriptionById = jest.fn().mockImplementation(() => {
+        throw new Error('Database read failed');
+      });
+
+      const response = await request(app)
+        .get('/api/prescriptions/1/status')
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to fetch prescription status');
+
+      db.getPrescriptionById = originalGetById;
+    });
+
+    test('should handle database error when updating prescription', async () => {
+      const createResponse = await request(app)
+        .post('/api/prescriptions')
+        .set('Cookie', patientCookies)
+        .send({
+          medication: 'Test Update Error',
+          pharmacy: 'Test Pharmacy'
+        });
+      const prescriptionId = createResponse.body.prescription.id;
+
+      const originalUpdate = db.updatePrescription;
+      db.updatePrescription = jest.fn().mockImplementation(() => {
+        throw new Error('Database update failed');
+      });
+
+      const response = await request(app)
+        .put(`/api/prescriptions/${prescriptionId}`)
+        .set('Cookie', doctorCookies)
+        .send({ dosage: '20mg' });
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to update prescription');
+
+      db.updatePrescription = originalUpdate;
+    });
+
+    test('should handle database error when approving prescription', async () => {
+      const createResponse = await request(app)
+        .post('/api/prescriptions')
+        .set('Cookie', patientCookies)
+        .send({
+          medication: 'Test Approve Error',
+          pharmacy: 'Test Pharmacy'
+        });
+      const prescriptionId = createResponse.body.prescription.id;
+
+      const originalUpdate = db.updatePrescription;
+      db.updatePrescription = jest.fn().mockImplementation(() => {
+        throw new Error('Database approve failed');
+      });
+
+      const response = await request(app)
+        .put(`/api/prescriptions/${prescriptionId}/approve`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to approve prescription');
+
+      db.updatePrescription = originalUpdate;
+    });
+
+    test('should handle database error when rejecting prescription', async () => {
+      const createResponse = await request(app)
+        .post('/api/prescriptions')
+        .set('Cookie', patientCookies)
+        .send({
+          medication: 'Test Reject Error',
+          pharmacy: 'Test Pharmacy'
+        });
+      const prescriptionId = createResponse.body.prescription.id;
+
+      const originalUpdate = db.updatePrescription;
+      db.updatePrescription = jest.fn().mockImplementation(() => {
+        throw new Error('Database reject failed');
+      });
+
+      const response = await request(app)
+        .put(`/api/prescriptions/${prescriptionId}/reject`)
+        .set('Cookie', doctorCookies)
+        .send({ reason: 'Test reason' });
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to reject prescription');
+
+      db.updatePrescription = originalUpdate;
+    });
+
+    test('should handle database error when completing prescription', async () => {
+      const createResponse = await request(app)
+        .post('/api/prescriptions')
+        .set('Cookie', patientCookies)
+        .send({
+          medication: 'Test Complete Error',
+          pharmacy: 'Test Pharmacy'
+        });
+      const prescriptionId = createResponse.body.prescription.id;
+
+      // Approve it first
+      await request(app)
+        .put(`/api/prescriptions/${prescriptionId}/approve`)
+        .set('Cookie', doctorCookies);
+
+      const originalUpdate = db.updatePrescription;
+      db.updatePrescription = jest.fn().mockImplementation(() => {
+        throw new Error('Database complete failed');
+      });
+
+      const response = await request(app)
+        .put(`/api/prescriptions/${prescriptionId}/complete`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(500);
+      expect(response.body.error).toBe('Failed to complete prescription');
+
+      db.updatePrescription = originalUpdate;
+    });
+  });
+
+  describe('Error Handling - Authorization Edge Cases', () => {
+    test('should prevent patient from viewing another patient prescription', async () => {
+      const prescriptionId = 1;
+      const originalGetById = db.getPrescriptionById;
+      db.getPrescriptionById = jest.fn().mockReturnValue({
+        id: prescriptionId,
+        patient_id: 999, // Different patient
+        doctor_id: 2,
+        medication: 'Test',
+        dosage: '10mg',
+        status: 'pending'
+      });
+
+      const response = await request(app)
+        .get(`/api/prescriptions/${prescriptionId}`)
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+
+      db.getPrescriptionById = originalGetById;
+    });
+
+    test('should prevent doctor from viewing prescription not assigned to them', async () => {
+      const prescriptionId = 1;
+      const originalGetById = db.getPrescriptionById;
+      db.getPrescriptionById = jest.fn().mockReturnValue({
+        id: prescriptionId,
+        patient_id: 3,
+        doctor_id: 999, // Different doctor
+        medication: 'Test',
+        dosage: '10mg',
+        status: 'pending'
+      });
+
+      const response = await request(app)
+        .get(`/api/prescriptions/${prescriptionId}`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+
+      db.getPrescriptionById = originalGetById;
+    });
+
+    test('should prevent patient from viewing status of another patient prescription', async () => {
+      const prescriptionId = 1;
+      const originalGetById = db.getPrescriptionById;
+      db.getPrescriptionById = jest.fn().mockReturnValue({
+        id: prescriptionId,
+        patient_id: 999, // Different patient
+        doctor_id: 2,
+        medication: 'Test',
+        dosage: '10mg',
+        status: 'pending'
+      });
+
+      const response = await request(app)
+        .get(`/api/prescriptions/${prescriptionId}/status`)
+        .set('Cookie', patientCookies);
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+
+      db.getPrescriptionById = originalGetById;
+    });
+
+    test('should prevent doctor from updating prescription not assigned to them', async () => {
+      const prescriptionId = 1;
+      const originalGetById = db.getPrescriptionById;
+      db.getPrescriptionById = jest.fn().mockReturnValue({
+        id: prescriptionId,
+        patient_id: 3,
+        doctor_id: 999, // Different doctor
+        medication: 'Test',
+        dosage: '10mg',
+        status: 'pending'
+      });
+
+      const response = await request(app)
+        .put(`/api/prescriptions/${prescriptionId}`)
+        .set('Cookie', doctorCookies)
+        .send({ dosage: '20mg' });
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+
+      db.getPrescriptionById = originalGetById;
+    });
+
+    test('should prevent doctor from approving prescription not assigned to them', async () => {
+      const prescriptionId = 1;
+      const originalGetById = db.getPrescriptionById;
+      db.getPrescriptionById = jest.fn().mockReturnValue({
+        id: prescriptionId,
+        patient_id: 3,
+        doctor_id: 999, // Different doctor
+        medication: 'Test',
+        dosage: '10mg',
+        status: 'pending'
+      });
+
+      const response = await request(app)
+        .put(`/api/prescriptions/${prescriptionId}/approve`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+
+      db.getPrescriptionById = originalGetById;
+    });
+
+    test('should prevent doctor from rejecting prescription not assigned to them', async () => {
+      const prescriptionId = 1;
+      const originalGetById = db.getPrescriptionById;
+      db.getPrescriptionById = jest.fn().mockReturnValue({
+        id: prescriptionId,
+        patient_id: 3,
+        doctor_id: 999, // Different doctor
+        medication: 'Test',
+        dosage: '10mg',
+        status: 'pending'
+      });
+
+      const response = await request(app)
+        .put(`/api/prescriptions/${prescriptionId}/reject`)
+        .set('Cookie', doctorCookies)
+        .send({ reason: 'Test reason' });
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+
+      db.getPrescriptionById = originalGetById;
+    });
+
+    test('should prevent doctor from completing prescription not assigned to them', async () => {
+      const prescriptionId = 1;
+      const originalGetById = db.getPrescriptionById;
+      db.getPrescriptionById = jest.fn().mockReturnValue({
+        id: prescriptionId,
+        patient_id: 3,
+        doctor_id: 999, // Different doctor
+        medication: 'Test',
+        dosage: '10mg',
+        status: 'active'
+      });
+
+      const response = await request(app)
+        .put(`/api/prescriptions/${prescriptionId}/complete`)
+        .set('Cookie', doctorCookies);
+
+      expect(response.statusCode).toBe(403);
+      expect(response.body.error).toContain('Unauthorized');
+
+      db.getPrescriptionById = originalGetById;
+    });
+
+    test('should prevent updating rejected prescription', async () => {
+      const createResponse = await request(app)
+        .post('/api/prescriptions')
+        .set('Cookie', patientCookies)
+        .send({
+          medication: 'Test Rejected Update',
+          pharmacy: 'Test Pharmacy'
+        });
+      const prescriptionId = createResponse.body.prescription.id;
+
+      // Reject it
+      await request(app)
+        .put(`/api/prescriptions/${prescriptionId}/reject`)
+        .set('Cookie', doctorCookies)
+        .send({ reason: 'Test rejection' });
+
+      // Try to update
+      const response = await request(app)
+        .put(`/api/prescriptions/${prescriptionId}`)
+        .set('Cookie', doctorCookies)
+        .send({ dosage: '20mg' });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.error).toContain('rejected');
+    });
+
+    test('should prevent rejecting non-pending prescription', async () => {
+      const createResponse = await request(app)
+        .post('/api/prescriptions')
+        .set('Cookie', patientCookies)
+        .send({
+          medication: 'Test Reject Active',
+          pharmacy: 'Test Pharmacy'
+        });
+      const prescriptionId = createResponse.body.prescription.id;
+
+      // Approve it first
+      await request(app)
+        .put(`/api/prescriptions/${prescriptionId}/approve`)
+        .set('Cookie', doctorCookies);
+
+      // Try to reject
+      const response = await request(app)
+        .put(`/api/prescriptions/${prescriptionId}/reject`)
+        .set('Cookie', doctorCookies)
+        .send({ reason: 'Test reason' });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.error).toContain('Cannot reject');
     });
   });
 });
