@@ -1,5 +1,11 @@
-// Database initialization with JSON file storage or PostgreSQL
-// Supports backend switching via USE_POSTGRES environment variable
+/**
+ * Database initialization with JSON file storage or PostgreSQL
+ * Supports backend switching via USE_POSTGRES environment variable
+ *
+ * @module database/init
+ * @description Core database module providing data access layer with optional PostgreSQL support
+ */
+
 const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
@@ -31,7 +37,14 @@ let indexes = {
   prescriptionsByDoctor: new Map()
 };
 
-// Rebuild indexes for performance optimization
+/**
+ * Rebuild in-memory indexes for performance optimization
+ * Creates Map-based indexes for O(1) lookups instead of O(n) array scans
+ *
+ * @function rebuildIndexes
+ * @description Rebuilds all in-memory indexes from current database state
+ * Indexes: users (by email, by id), patients (by user_id), appointments, prescriptions
+ */
 function rebuildIndexes() {
   // Clear existing indexes
   indexes.usersByEmail.clear();
@@ -236,6 +249,26 @@ function seedDatabase() {
   console.log('✅ Demo users seeded successfully!');
 }
 
+/**
+ * Initialize database with either PostgreSQL or JSON file storage
+ * Returns database interface with all CRUD operations
+ *
+ * @async
+ * @function initDatabase
+ * @returns {Promise<Object>} Database interface object with methods:
+ *   - getUserByEmail(email): Get user by email address
+ *   - getUserById(userId): Get user by ID
+ *   - getAllUsers(): Get all users
+ *   - getPatientByUserId(userId): Get patient record by user ID
+ *   - getVitalsByPatientId(patientId): Get vitals for patient
+ *   - getAllPatients(): Get all patient records
+ *   - getAppointments(userId, role): Get appointments for user
+ *   - getPrescriptions(userId, role): Get prescriptions for user
+ *   - And many more CRUD operations
+ * @example
+ * const db = await initDatabase();
+ * const user = db.getUserByEmail('user@example.com');
+ */
 async function initDatabase() {
   // Use PostgreSQL if environment variable is set
   if (USE_POSTGRES) {
