@@ -2,6 +2,7 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const { validate, validateParams, authSchemas, paramSchemas } = require('../middleware/validators');
+const { requireAuth } = require('../middleware/auth');
 const logger = require('../utils/logger');
 
 function setupAuthRoutes(app, db, authLimiter) {
@@ -158,6 +159,44 @@ function setupAuthRoutes(app, db, authLimiter) {
     } catch (error) {
       logger.logApiError(error, req, { context: 'Login' });
       res.status(500).json({ error: 'Login failed' });
+    }
+  });
+
+  // Change password endpoint (requires authentication)
+  app.post('/api/auth/change-password', requireAuth, authLimiter, validate(authSchemas.changePassword), async (req, res) => {
+    const { oldPassword, newPassword } = req.body;
+    const userId = req.session.user.id;
+
+    try {
+      const user = db.getUserById(userId);
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Verify old password
+      const validPassword = await bcrypt.compare(oldPassword, user.password);
+
+      if (!validPassword) {
+        logger.logAuth('change-password-failed', userId, user.email, false, { reason: 'Invalid old password' });
+        return res.status(401).json({ error: 'Current password is incorrect' });
+      }
+
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update user password
+      db.updateUser(userId, { password: hashedPassword });
+
+      logger.logAuth('password-changed', userId, user.email, true);
+
+      res.json({
+        success: true,
+        message: 'Password changed successfully'
+      });
+    } catch (error) {
+      logger.logApiError(error, req, { context: 'Change password' });
+      res.status(500).json({ error: 'Failed to change password' });
     }
   });
 

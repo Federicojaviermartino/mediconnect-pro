@@ -14,11 +14,30 @@ function setupPrescriptionRoutes(app, db) {
 
       const userId = req.session.user.id;
       const role = req.session.user.role;
+      const { status, medication, page = 1, limit = 20 } = req.query;
 
-      const prescriptions = db.getPrescriptions(userId, role);
+      let prescriptions = db.getPrescriptions(userId, role);
+
+      // Filter by status
+      if (status && ['pending', 'active', 'completed', 'rejected'].includes(status)) {
+        prescriptions = prescriptions.filter(p => p.status === status);
+      }
+
+      // Filter by medication name
+      if (medication) {
+        const medLower = medication.toLowerCase();
+        prescriptions = prescriptions.filter(p =>
+          p.medication?.toLowerCase().includes(medLower)
+        );
+      }
+
+      // Pagination
+      const total = prescriptions.length;
+      const startIndex = (page - 1) * limit;
+      const paginatedPrescriptions = prescriptions.slice(startIndex, startIndex + parseInt(limit));
 
       // Enrich with user names
-      const enrichedPrescriptions = prescriptions.map(presc => {
+      const enrichedPrescriptions = paginatedPrescriptions.map(presc => {
         const patient = db.getUserById(presc.patient_id);
         const doctor = db.getUserById(presc.doctor_id);
         return {
@@ -27,7 +46,16 @@ function setupPrescriptionRoutes(app, db) {
           doctor_name: doctor?.name || 'Unknown'
         };
       });
-      res.json({ prescriptions: enrichedPrescriptions });
+
+      res.json({
+        prescriptions: enrichedPrescriptions,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      });
     } catch (error) {
       logger.logApiError(error, req, { context: 'Get prescriptions' });
       res.status(500).json({ error: 'Failed to fetch prescriptions' });

@@ -14,11 +14,30 @@ function setupAppointmentRoutes(app, db) {
 
       const userId = req.session.user.id;
       const role = req.session.user.role;
+      const { status, startDate, endDate, page = 1, limit = 20 } = req.query;
 
-      const appointments = db.getAppointments(userId, role);
+      let appointments = db.getAppointments(userId, role);
+
+      // Filter by status
+      if (status && ['scheduled', 'confirmed', 'cancelled', 'completed'].includes(status)) {
+        appointments = appointments.filter(apt => apt.status === status);
+      }
+
+      // Filter by date range
+      if (startDate) {
+        appointments = appointments.filter(apt => apt.date >= startDate);
+      }
+      if (endDate) {
+        appointments = appointments.filter(apt => apt.date <= endDate);
+      }
+
+      // Pagination
+      const total = appointments.length;
+      const startIndex = (page - 1) * limit;
+      const paginatedAppointments = appointments.slice(startIndex, startIndex + parseInt(limit));
 
       // Enrich with user names
-      const enrichedAppointments = appointments.map(apt => {
+      const enrichedAppointments = paginatedAppointments.map(apt => {
         const patient = db.getUserById(apt.patient_id);
         const doctor = db.getUserById(apt.doctor_id);
         return {
@@ -27,7 +46,16 @@ function setupAppointmentRoutes(app, db) {
           doctor_name: doctor?.name || 'Unknown'
         };
       });
-      res.json({ appointments: enrichedAppointments });
+
+      res.json({
+        appointments: enrichedAppointments,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      });
     } catch (error) {
       logger.logApiError(error, req, { context: 'Get appointments' });
       res.status(500).json({ error: 'Failed to fetch appointments' });

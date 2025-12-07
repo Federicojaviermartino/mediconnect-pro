@@ -39,9 +39,31 @@ function setupApiRoutes(app, db) {
         return res.status(403).json({ error: 'Insufficient permissions' });
       }
 
-      const patients = db.getAllPatients();
+      const { search, page = 1, limit = 20 } = req.query;
+      let patients = db.getAllPatients();
 
-      res.json({ patients });
+      // Search by name
+      if (search) {
+        const searchLower = search.toLowerCase();
+        patients = patients.filter(p =>
+          p.name?.toLowerCase().includes(searchLower)
+        );
+      }
+
+      // Pagination
+      const total = patients.length;
+      const startIndex = (page - 1) * limit;
+      const paginatedPatients = patients.slice(startIndex, startIndex + parseInt(limit));
+
+      res.json({
+        patients: paginatedPatients,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      });
     } catch (error) {
       logger.logApiError(error, req, { context: 'Get patients' });
       res.status(500).json({ error: 'Failed to fetch patients' });
