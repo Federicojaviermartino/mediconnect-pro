@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Details - MediConnect Pro</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <style>
+        .content {
+            padding: 2rem;
+        }
+
+        .patient-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .patient-info h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
+        }
+
+        .patient-meta {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .patient-meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .patient-meta-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .patient-meta-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .back-btn {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-card h3 {
+            margin-top: 0;
+            color: #1a1a2e;
+            font-size: 1.25rem;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 0.875rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: #1a1a2e;
+            font-weight: 500;
+        }
+
+        .blood-type-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 1.125rem;
+            font-weight: 700;
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .vitals-chart {
+            width: 100%;
+            height: 300px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            margin-top: 1rem;
+        }
+
+        .vital-card {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .vital-name {
+            font-size: 0.875rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .vital-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .vital-unit {
+            font-size: 0.875rem;
+            color: #666;
+            margin-left: 0.25rem;
+        }
+
+        .vital-date {
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 0.5rem;
+        }
+
+        .list-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .list-table thead {
+            background: #f8f9fa;
+        }
+
+        .list-table th {
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .list-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .list-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-scheduled {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-completed {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        @media (max-width: 768px) {
+            .patient-meta {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .patient-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .back-btn {
+                margin-top: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu">
+        <span>☰</span>
+    </button>
+    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
+
+    <div class="dashboard">
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🏥</span>
+                <span class="logo-text">MediConnect Pro</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard-doctor.html" class="nav-item">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="#" class="nav-item" onclick="event.preventDefault(); alert('AI Assistant coming soon!')">
+                    <span>🤖</span> AI Assistant
+                </a>
+                <a href="patients.html" class="nav-item active">
+                    <span>👥</span> Patients
+                </a>
+                <a href="appointments.html" class="nav-item">
+                    <span>📅</span> Appointments
+                </a>
+                <a href="prescriptions.html" class="nav-item">
+                    <span>💊</span> Prescriptions
+                </a>
+                <a href="analytics.html" class="nav-item">
+                    <span>📈</span> Analytics
+                </a>
+            </nav>
+            <button onclick="logout()" class="logout-btn">
+                <span>🚪</span> Logout
+            </button>
+        </aside>
+
+        <main class="main-content">
+            <div class="content">
+                <div id="patientContainer">
+                    <div class="loading">Loading patient details...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="utils/csrf.js"></script>
+    <script src="dashboard-interactive.js"></script>
+    <script>
+        let patientId = null;
+        let patientData = null;
+        let vitalsData = [];
+        let appointmentsData = [];
+        let prescriptionsData = [];
+
+        // Get patient ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        patientId = urlParams.get('id');
+
+        if (!patientId) {
+            document.getElementById('patientContainer').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⚠️</div>
+                    <p>No patient ID provided</p>
+                    <a href="patients.html" class="btn btn-primary">Back to Patients</a>
+                </div>
+            `;
+        } else {
+            loadPatientData();
+        }
+
+        async function loadPatientData() {
+            try {
+                // Load patient basic info
+                const patientResponse = await fetch(`/api/patients/${patientId}`, {
+                    credentials: 'include'
+                });
+
+                if (!patientResponse.ok) {
+                    throw new Error('Failed to load patient');
+                }
+
+                patientData = await patientResponse.json();
+
+                // Load vitals
+                try {
+                    const vitalsResponse = await fetch(`/api/vitals/${patientId}`, {
+                        credentials: 'include'
+                    });
+                    if (vitalsResponse.ok) {
+                        const vitalsResult = await vitalsResponse.json();
+                        vitalsData = vitalsResult.vitals || [];
+                    }
+                } catch (error) {
+                    console.error('Error loading vitals:', error);
+                }
+
+                // Load appointments
+                try {
+                    const appointmentsResponse = await fetch('/api/appointments', {
+                        credentials: 'include'
+                    });
+                    if (appointmentsResponse.ok) {
+                        const appointmentsResult = await appointmentsResponse.json();
+                        appointmentsData = (appointmentsResult.appointments || [])
+                            .filter(apt => apt.patientId === parseInt(patientId));
+                    }
+                } catch (error) {
+                    console.error('Error loading appointments:', error);
+                }
+
+                // Load prescriptions
+                try {
+                    const prescriptionsResponse = await fetch('/api/prescriptions', {
+                        credentials: 'include'
+                    });
+                    if (prescriptionsResponse.ok) {
+                        const prescriptionsResult = await prescriptionsResponse.json();
+                        prescriptionsData = (prescriptionsResult.prescriptions || [])
+                            .filter(rx => rx.patientId === parseInt(patientId));
+                    }
+                } catch (error) {
+                    console.error('Error loading prescriptions:', error);
+                }
+
+                renderPatientDetails();
+
+            } catch (error) {
+                console.error('Error loading patient data:', error);
+                document.getElementById('patientContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <p>Failed to load patient details</p>
+                        <a href="patients.html" class="btn btn-primary">Back to Patients</a>
+                    </div>
+                `;
+            }
+        }
+
+        function renderPatientDetails() {
+            const latestVitals = vitalsData.length > 0 ? vitalsData[vitalsData.length - 1] : null;
+
+            const html = `
+                <div class="patient-header">
+                    <div class="patient-info">
+                        <h1>${escapeHtml(patientData.name)}</h1>
+                        <div class="patient-meta">
+                            <div class="patient-meta-item">
+                                <span class="patient-meta-label">Email</span>
+                                <span class="patient-meta-value">${escapeHtml(patientData.email)}</span>
+                            </div>
+                            <div class="patient-meta-item">
+                                <span class="patient-meta-label">Patient ID</span>
+                                <span class="patient-meta-value">#${patientData.id}</span>
+                            </div>
+                            <div class="patient-meta-item">
+                                <span class="patient-meta-label">Blood Type</span>
+                                <span class="patient-meta-value">${escapeHtml(patientData.bloodType || 'N/A')}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="patients.html" class="back-btn">
+                        ← Back to Patients
+                    </a>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('overview')">Overview</button>
+                    <button class="tab" onclick="switchTab('vitals')">Vital Signs</button>
+                    <button class="tab" onclick="switchTab('appointments')">Appointments</button>
+                    <button class="tab" onclick="switchTab('prescriptions')">Prescriptions</button>
+                </div>
+
+                <!-- Overview Tab -->
+                <div id="tab-overview" class="tab-content active">
+                    <div class="section-card">
+                        <h3>📋 Basic Information</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Full Name</span>
+                                <span class="info-value">${escapeHtml(patientData.name)}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Email</span>
+                                <span class="info-value">${escapeHtml(patientData.email)}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Blood Type</span>
+                                <span class="info-value">
+                                    <span class="blood-type-badge">${escapeHtml(patientData.bloodType || 'N/A')}</span>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Medical Conditions</span>
+                                <span class="info-value">${escapeHtml(patientData.conditions || 'None reported')}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${latestVitals ? `
+                        <div class="section-card">
+                            <h3>❤️ Latest Vital Signs</h3>
+                            <div class="info-grid">
+                                <div class="vital-card">
+                                    <div class="vital-name">Heart Rate</div>
+                                    <div class="vital-value">${latestVitals.heartRate}<span class="vital-unit">bpm</span></div>
+                                    <div class="vital-date">${formatDate(latestVitals.recordedAt)}</div>
+                                </div>
+                                <div class="vital-card">
+                                    <div class="vital-name">Blood Pressure</div>
+                                    <div class="vital-value">${latestVitals.systolicBP}/${latestVitals.diastolicBP}<span class="vital-unit">mmHg</span></div>
+                                    <div class="vital-date">${formatDate(latestVitals.recordedAt)}</div>
+                                </div>
+                                <div class="vital-card">
+                                    <div class="vital-name">Temperature</div>
+                                    <div class="vital-value">${latestVitals.temperature}<span class="vital-unit">°C</span></div>
+                                    <div class="vital-date">${formatDate(latestVitals.recordedAt)}</div>
+                                </div>
+                                <div class="vital-card">
+                                    <div class="vital-name">Oxygen Saturation</div>
+                                    <div class="vital-value">${latestVitals.oxygenSaturation}<span class="vital-unit">%</span></div>
+                                    <div class="vital-date">${formatDate(latestVitals.recordedAt)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <div class="section-card">
+                        <h3>📊 Summary</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Total Appointments</span>
+                                <span class="info-value">${appointmentsData.length}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Active Prescriptions</span>
+                                <span class="info-value">${prescriptionsData.filter(p => p.status === 'active').length}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Vital Signs Records</span>
+                                <span class="info-value">${vitalsData.length}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vitals Tab -->
+                <div id="tab-vitals" class="tab-content">
+                    <div class="section-card">
+                        <h3>❤️ Vital Signs History</h3>
+                        ${vitalsData.length > 0 ? renderVitalsTable() : '<div class="empty-state"><div class="empty-state-icon">📊</div><p>No vital signs recorded</p></div>'}
+                    </div>
+                </div>
+
+                <!-- Appointments Tab -->
+                <div id="tab-appointments" class="tab-content">
+                    <div class="section-card">
+                        <h3>📅 Appointments History</h3>
+                        ${appointmentsData.length > 0 ? renderAppointmentsTable() : '<div class="empty-state"><div class="empty-state-icon">📅</div><p>No appointments found</p></div>'}
+                    </div>
+                </div>
+
+                <!-- Prescriptions Tab -->
+                <div id="tab-prescriptions" class="tab-content">
+                    <div class="section-card">
+                        <h3>💊 Prescriptions</h3>
+                        ${prescriptionsData.length > 0 ? renderPrescriptionsTable() : '<div class="empty-state"><div class="empty-state-icon">💊</div><p>No prescriptions found</p></div>'}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('patientContainer').innerHTML = html;
+        }
+
+        function renderVitalsTable() {
+            return `
+                <table class="list-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Heart Rate</th>
+                            <th>Blood Pressure</th>
+                            <th>Temperature</th>
+                            <th>SpO2</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${vitalsData.slice(-10).reverse().map(vital => `
+                            <tr>
+                                <td>${formatDate(vital.recordedAt)}</td>
+                                <td>${vital.heartRate} bpm</td>
+                                <td>${vital.systolicBP}/${vital.diastolicBP} mmHg</td>
+                                <td>${vital.temperature}°C</td>
+                                <td>${vital.oxygenSaturation}%</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function renderAppointmentsTable() {
+            return `
+                <table class="list-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${appointmentsData.map(apt => `
+                            <tr>
+                                <td>${formatDate(apt.date)}</td>
+                                <td>${escapeHtml(apt.time || 'N/A')}</td>
+                                <td>${escapeHtml(apt.type || 'General')}</td>
+                                <td>${escapeHtml(apt.reason || 'N/A')}</td>
+                                <td><span class="status-badge status-${apt.status}">${escapeHtml(apt.status)}</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function renderPrescriptionsTable() {
+            return `
+                <table class="list-table">
+                    <thead>
+                        <tr>
+                            <th>Medication</th>
+                            <th>Dosage</th>
+                            <th>Frequency</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${prescriptionsData.map(rx => `
+                            <tr>
+                                <td><strong>${escapeHtml(rx.medication)}</strong></td>
+                                <td>${escapeHtml(rx.dosage || 'N/A')}</td>
+                                <td>${escapeHtml(rx.frequency || 'As directed')}</td>
+                                <td><span class="status-badge status-${rx.status}">${escapeHtml(rx.status)}</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Initialize CSRF
+        (async () => {
+            if (typeof initCsrfProtection === 'function') {
+                await initCsrfProtection();
+            }
+        })();
+    </script>
+</body>
+</html>
