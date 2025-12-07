@@ -566,7 +566,7 @@ Configuración automática:
 ### Modo JSON (Desarrollo)
 
 Por defecto, el sistema usa archivo JSON:
-- **Ubicación**: `demo-app/database/database.json`
+- **Ubicación**: `src/database/database.json`
 - **Ventajas**: Fácil de inspeccionar, sin configuración
 - **Desventajas**: No escalable, lento con muchos datos
 
@@ -613,7 +613,7 @@ Esto crea todas las tablas necesarias:
 
 Si tienes datos en JSON:
 ```bash
-node demo-app/database/migrate-to-postgres.js
+node src/database/migrate-to-postgres.js
 ```
 
 Este script:
@@ -786,7 +786,7 @@ npm restart
 df -h
 
 # Ver tamaño de base de datos
-du -sh demo-app/database/
+du -sh src/database/
 
 # Ver tamaño de logs
 du -sh logs/

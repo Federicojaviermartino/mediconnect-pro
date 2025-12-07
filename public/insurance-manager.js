@@ -29,7 +29,6 @@ async function initInsuranceManager() {
     // Load insurance status
     await loadInsuranceStatus();
 
-    console.log('✅ Insurance Manager initialized');
   } catch (error) {
     console.error('Error initializing insurance manager:', error);
   }

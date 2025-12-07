@@ -86,7 +86,7 @@ El servidor estará disponible en: **http://localhost:3000**
 ## 🗄️ Base de Datos
 
 ### Desarrollo (JSON - por defecto)
-No requiere configuración. Los datos se guardan en `demo-app/database/database.json`
+No requiere configuración. Los datos se guardan en `src/database/database.json`
 
 ### Producción (PostgreSQL - recomendado)
 
@@ -252,7 +252,7 @@ curl http://localhost:3000/api/ai/status
 npx jest --clearCache
 
 # Ejecuta tests individualmente
-npx jest demo-app/__tests__/auth.test.js
+npx jest src/__tests__/auth.test.js
 ```
 
 ---
@@ -262,7 +262,7 @@ npx jest demo-app/__tests__/auth.test.js
 Si encuentras problemas:
 
 1. Revisa los logs del servidor en la consola
-2. Verifica el archivo `demo-app/logs/app.log`
+2. Verifica el archivo `src/logs/app.log`
 3. Consulta la documentación en `/docs`
 4. Crea un issue en GitHub
 

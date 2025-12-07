@@ -371,10 +371,10 @@ If you have existing data in JSON format:
 
 ```bash
 # Backup JSON file first
-cp demo-app/database/database.json demo-app/database/database.json.backup
+cp src/database/database.json src/database/database.json.backup
 
 # Run migration script
-node demo-app/database/migrate-to-postgres.js
+node src/database/migrate-to-postgres.js
 ```
 
 ### Test Application Locally

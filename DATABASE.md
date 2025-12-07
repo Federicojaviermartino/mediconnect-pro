@@ -64,7 +64,7 @@ USE_POSTGRES=true
 npm run db:migrate
 
 # Or manually
-node demo-app/database/migrate.js run
+node src/database/migrate.js run
 ```
 
 ### 4. Start the Application
@@ -204,21 +204,21 @@ npm run db:migrate:rollback
 
 ```bash
 # Run all migrations
-node demo-app/database/migrate.js run
+node src/database/migrate.js run
 
 # Run a specific migration
-node demo-app/database/migrate.js specific 001_initial_schema.sql
+node src/database/migrate.js specific 001_initial_schema.sql
 
 # Check which migrations have been executed
-node demo-app/database/migrate.js status
+node src/database/migrate.js status
 
 # Rollback (drops all tables - dev only)
-node demo-app/database/migrate.js rollback
+node src/database/migrate.js rollback
 ```
 
 ### Migration Files
 
-Migrations are stored in `demo-app/database/migrations/`:
+Migrations are stored in `src/database/migrations/`:
 
 - `001_initial_schema.sql` - Creates all tables, indexes, views, and triggers
 - `002_seed_demo_data.sql` - Populates database with demo users and sample data
@@ -337,7 +337,7 @@ npm start
 The application uses connection pooling for optimal performance:
 
 ```javascript
-const db = require('./demo-app/database/postgres');
+const db = require('./src/database/postgres');
 
 // Configuration (via environment variables)
 POSTGRES_POOL_MAX=20          // Maximum connections
@@ -349,7 +349,7 @@ POSTGRES_CONNECTION_TIMEOUT=10000 // 10 seconds
 ### Query Examples
 
 ```javascript
-const db = require('./demo-app/database/postgres');
+const db = require('./src/database/postgres');
 
 // Simple query
 const users = await db.queryAll('SELECT * FROM users WHERE role = $1', ['doctor']);
@@ -374,7 +374,7 @@ await db.transaction(async (client) => {
 ### Health Check
 
 ```javascript
-const db = require('./demo-app/database/postgres');
+const db = require('./src/database/postgres');
 
 // Test connection
 const connected = await db.testConnection();

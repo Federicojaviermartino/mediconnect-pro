@@ -302,7 +302,7 @@ services:
 
 ```
 mediconnect-pro/
-├── demo-app/                   # Demo application code
+├── src/                   # Demo application code
 │   ├── database/              # Database operations
 │   │   ├── database.json      # JSON data store
 │   │   └── init.js            # Database initialization

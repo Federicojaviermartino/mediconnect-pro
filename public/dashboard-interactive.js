@@ -12,7 +12,7 @@ function escapeHtml(text) {
 // Global function stubs for AI Assistant (will be implemented by ai-assistant.js)
 // These are defined here to avoid "not defined" errors when onclick fires before script loads
 window.showTriageForm = window.showTriageForm || function() {
-    console.log('AI Assistant module loading...');
+
     // If the actual function hasn't loaded yet, wait a bit and retry
     setTimeout(() => {
         if (typeof window.showTriageForm === 'function') {
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Navigation between pages
 function navigateTo(page) {
-    console.log('Navigating to:', page); // Debug log
+    // Debug log removed
 
     // Close mobile menu if open
     if (window.innerWidth <= 768) {
@@ -507,7 +507,7 @@ async function viewAppointments() {
     try {
         const response = await fetch('/api/appointments');
         const data = await response.json();
-        console.log('Appointments data:', data); // Debug
+        // Debug log removed
 
         if (response.ok && data.appointments) {
             const modal = createModal('My Appointments', `
@@ -550,7 +550,7 @@ async function viewPrescriptions() {
     try {
         const response = await fetch('/api/prescriptions');
         const data = await response.json();
-        console.log('Prescriptions data:', data); // Debug
+        // Debug log removed
 
         if (response.ok && data.prescriptions) {
             const modal = createModal('My Prescriptions', `

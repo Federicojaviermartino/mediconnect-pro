@@ -265,7 +265,7 @@ Validates database structure, data integrity, and relationships.
 node scripts/validate-database.js
 
 # Validate specific database file
-node scripts/validate-database.js demo-app/database/database.json
+node scripts/validate-database.js src/database/database.json
 
 # Validate custom path
 node scripts/validate-database.js /path/to/database.json
@@ -319,7 +319,7 @@ TPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPW
 Q   MediConnect Pro - Database Validation                   Q
 ZPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP]
 
-Database: demo-app/database/database.json
+Database: src/database/database.json
 
 === Database File Validation ===
    Database file exists
@@ -469,7 +469,7 @@ exit $TEST_RESULT
 
 **Solutions**:
 - Check database file path
-- Verify file exists: `demo-app/database/database.json`
+- Verify file exists: `src/database/database.json`
 - Ensure database was initialized: run server once
 - Check file permissions
 

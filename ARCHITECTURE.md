@@ -122,7 +122,7 @@ Request Flow:
 The demo application uses a JSON file-based database with an adapter pattern:
 
 ```
-Database Module (demo-app/database/init.js)
+Database Module (src/database/init.js)
 ├── Data Storage
 │   └── database.json
 │       ├── users[]
@@ -187,7 +187,7 @@ Security Layers:
 ### Caching Architecture
 
 ```
-Cache System (demo-app/utils/cache.js)
+Cache System (src/utils/cache.js)
 ├── In-Memory Cache (MemoryCache class)
 │   ├── Map-based storage
 │   ├── TTL-based expiration

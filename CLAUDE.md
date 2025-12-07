@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **MediConnect Pro** is an enterprise-grade telemedicine platform with AI-powered risk prediction and remote patient monitoring. The project has a **dual architecture**:
 
 1. **Full Microservices Architecture** (planned/scaffolded) - in `services/` directory
-2. **Demo Application** (currently functional) - in `demo-app/` directory with a single Express server
+2. **Demo Application** (currently functional) - in `src/` directory with a single Express server
 
 The live demo at https://mediconnect-pro.onrender.com runs the **demo application** (server.js), not the microservices.
 
@@ -15,9 +15,9 @@ The live demo at https://mediconnect-pro.onrender.com runs the **demo applicatio
 
 ### Current Implementation (Demo App)
 - **Single Express.js server** at `server.js` (port 3000)
-- **JSON file-based database** at `demo-app/database/database.json` (with PostgreSQL adapter ready)
+- **JSON file-based database** at `src/database/database.json` (with PostgreSQL adapter ready)
 - **Static HTML/CSS/JS frontend** served from `public/`
-- **Routes organized by feature** in `demo-app/routes/`:
+- **Routes organized by feature** in `src/routes/`:
   - `auth.js` - Authentication (login/logout/session) with rate limiting
   - `api.js` - Patient data, vitals, stats
   - `appointments.js` - Appointment management with validation
@@ -28,21 +28,21 @@ The live demo at https://mediconnect-pro.onrender.com runs the **demo applicatio
   - `vitals.js` - Vital signs monitoring
 
 ### Middleware Layer
-- `demo-app/middleware/auth.js` - Authentication middleware (requireAuth, requireRole)
-- `demo-app/middleware/validators.js` - Joi input validation schemas
-- `demo-app/middleware/csrf.js` - CSRF protection middleware
-- `demo-app/middleware/request-logger.js` - HTTP request logging
+- `src/middleware/auth.js` - Authentication middleware (requireAuth, requireRole)
+- `src/middleware/validators.js` - Joi input validation schemas
+- `src/middleware/csrf.js` - CSRF protection middleware
+- `src/middleware/request-logger.js` - HTTP request logging
 
 ### Utilities
-- `demo-app/utils/logger.js` - Winston structured logging
-- `demo-app/utils/health-check.js` - System health monitoring
-- `demo-app/utils/cache.js` - In-memory caching with TTL support
+- `src/utils/logger.js` - Winston structured logging
+- `src/utils/health-check.js` - System health monitoring
+- `src/utils/cache.js` - In-memory caching with TTL support
 
 ### Services
-- `demo-app/services/ai-service.js` - AI integration (OpenAI/Anthropic)
-- `demo-app/services/insurance-service.js` - Insurance API integration
-- `demo-app/services/pharmacy-service.js` - Pharmacy integration
-- `demo-app/services/vitals-monitoring.js` - Vitals processing
+- `src/services/ai-service.js` - AI integration (OpenAI/Anthropic)
+- `src/services/insurance-service.js` - Insurance API integration
+- `src/services/pharmacy-service.js` - Pharmacy integration
+- `src/services/vitals-monitoring.js` - Vitals processing
 
 ### Planned Architecture (Microservices)
 The `services/` directory contains scaffolding for:
@@ -58,7 +58,7 @@ The `services/` directory contains scaffolding for:
 ## Database
 
 ### JSON File Storage (Default)
-Located at `demo-app/database/database.json`:
+Located at `src/database/database.json`:
 
 ```javascript
 {
@@ -73,10 +73,10 @@ Located at `demo-app/database/database.json`:
 
 ### PostgreSQL Support (Ready)
 Set `USE_POSTGRES=true` or provide `DATABASE_URL` to use PostgreSQL:
-- `demo-app/database/postgres-adapter.js` - PostgreSQL adapter
-- `demo-app/database/migrate.js` - Database migrations
+- `src/database/postgres-adapter.js` - PostgreSQL adapter
+- `src/database/migrate.js` - Database migrations
 
-The database module (`demo-app/database/init.js`) provides:
+The database module (`src/database/init.js`) provides:
 - `getUserByEmail(email)`, `getUserById(userId)`
 - `getPatientById(patientId)`, `getAllPatients()`
 - `getVitalsByPatientId(patientId)`
@@ -151,10 +151,10 @@ The database auto-initializes with demo users on first run:
 - **Session-based auth** using `express-session`
 - **Rate limiting** on login endpoint (5 attempts per 15 minutes)
 - **Role-based access control** (admin, doctor, patient)
-- Auth middleware in `demo-app/middleware/auth.js`
+- Auth middleware in `src/middleware/auth.js`
 
 ### Input Validation
-- **Joi validation schemas** in `demo-app/middleware/validators.js`
+- **Joi validation schemas** in `src/middleware/validators.js`
 - Validates: login, appointments, prescriptions, vitals
 - Email validation supports `.demo` TLD for testing
 
@@ -170,7 +170,7 @@ The database auto-initializes with demo users on first run:
 - All dynamic content sanitized before DOM insertion
 
 ### CSRF Protection
-- CSRF middleware in `demo-app/middleware/csrf.js`
+- CSRF middleware in `src/middleware/csrf.js`
 - Token-based protection for state-changing requests
 
 ## Testing
@@ -178,7 +178,7 @@ The database auto-initializes with demo users on first run:
 ### Test Infrastructure
 - **Jest** for unit and integration tests
 - **Supertest** for HTTP endpoint testing
-- Tests located in `demo-app/__tests__/`
+- Tests located in `src/__tests__/`
 
 ### Running Tests
 
@@ -187,7 +187,7 @@ The database auto-initializes with demo users on first run:
 npm test
 
 # Run specific test file
-npx jest demo-app/__tests__/auth.test.js
+npx jest src/__tests__/auth.test.js
 
 # Run tests in watch mode
 npm run test:watch
@@ -240,7 +240,7 @@ async function loadData() {
 
 ## AI Integration
 
-The AI assistant (`demo-app/routes/ai.js`) integrates with:
+The AI assistant (`src/routes/ai.js`) integrates with:
 
 1. **OpenAI GPT-4** - Medical transcription, note generation, reports
 2. **Anthropic Claude** - Triage assessment, differential diagnosis
@@ -263,7 +263,7 @@ API endpoints:
 ## Logging
 
 ### Winston Logger
-Located at `demo-app/utils/logger.js`:
+Located at `src/utils/logger.js`:
 - **Development**: Pretty console output with colors
 - **Production**: JSON format for log aggregation
 - Log levels: error, warn, info, http, debug
@@ -276,7 +276,7 @@ Located at `demo-app/utils/logger.js`:
 
 ## Health Checks
 
-Located at `demo-app/utils/health-check.js`:
+Located at `src/utils/health-check.js`:
 
 ### Endpoints
 - `GET /health` - Comprehensive health check
@@ -313,7 +313,7 @@ Located at `demo-app/utils/health-check.js`:
 - **ETag support** for conditional requests
 
 ### In-Memory Caching
-Located at `demo-app/utils/cache.js`:
+Located at `src/utils/cache.js`:
 - TTL-based caching (default: 30 seconds for API responses)
 - Maximum 500 cache entries
 - Automatic cleanup of expired entries
@@ -365,10 +365,10 @@ DATABASE_URL=postgres://user:pass@host:5432/db
 ## Important Files to Review
 
 1. **server.js** - Main entry point, route setup, session config
-2. **demo-app/database/init.js** - Database schema and operations
-3. **demo-app/routes/*.js** - API endpoint implementations
-4. **demo-app/middleware/validators.js** - Input validation schemas
-5. **demo-app/utils/logger.js** - Structured logging
+2. **src/database/init.js** - Database schema and operations
+3. **src/routes/*.js** - API endpoint implementations
+4. **src/middleware/validators.js** - Input validation schemas
+5. **src/utils/logger.js** - Structured logging
 6. **public/dashboard-interactive.js** - Frontend application logic
 
 ## Known Limitations

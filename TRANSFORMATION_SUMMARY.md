@@ -14,12 +14,12 @@ Successfully transformed MediConnect Pro from an MVP to a production-ready enter
 ## FASE 1: Critical Security ✅ (Completed in previous session)
 
 ### Security Enhancements Implemented
-1. **CSRF Protection** - `demo-app/middleware/csrf.js`
-2. **Input Validation** - Joi schemas in `demo-app/middleware/validators.js`
+1. **CSRF Protection** - `src/middleware/csrf.js`
+2. **Input Validation** - Joi schemas in `src/middleware/validators.js`
 3. **XSS Protection** - Frontend sanitization in `public/utils/sanitize.js`
 4. **Rate Limiting** - Auth endpoints protected
-5. **Request Logging** - `demo-app/middleware/request-logger.js`
-6. **Structured Logging** - Winston logger in `demo-app/utils/logger.js`
+5. **Request Logging** - `src/middleware/request-logger.js`
+6. **Structured Logging** - Winston logger in `src/utils/logger.js`
 
 ---
 
@@ -133,8 +133,8 @@ Successfully transformed MediConnect Pro from an MVP to a production-ready enter
 
 ### 1. Cache Middleware Applied to API Routes
 **Files Modified**:
-- `demo-app/routes/appointments.js`
-- `demo-app/routes/prescriptions.js`
+- `src/routes/appointments.js`
+- `src/routes/prescriptions.js`
 
 **Implementation**:
 - Appointments: 20s TTL for list, 30s for single
@@ -143,7 +143,7 @@ Successfully transformed MediConnect Pro from an MVP to a production-ready enter
 - API responses 100x faster for cached endpoints
 
 ### 2. Database Query Optimization
-**File Modified**: `demo-app/database/init.js`
+**File Modified**: `src/database/init.js`
 
 **Indexes Created**:
 ```javascript
@@ -200,7 +200,7 @@ Successfully transformed MediConnect Pro from an MVP to a production-ready enter
 
 ### Files Created (3 files)
 
-#### 1. `demo-app/utils/api-response.js`
+#### 1. `src/utils/api-response.js`
 **Purpose**: Standardized API response format
 
 **Functions**:
@@ -241,7 +241,7 @@ Successfully transformed MediConnect Pro from an MVP to a production-ready enter
 }
 ```
 
-#### 2. `demo-app/utils/audit-log.js`
+#### 2. `src/utils/audit-log.js`
 **Purpose**: Comprehensive audit logging system
 
 **Event Types** (30+ events):
@@ -281,7 +281,7 @@ Successfully transformed MediConnect Pro from an MVP to a production-ready enter
 - Queryable by user, event type, date range
 - Compliance-ready audit trail
 
-#### 3. `demo-app/middleware/rate-limiter.js`
+#### 3. `src/middleware/rate-limiter.js`
 **Purpose**: Global rate limiting protection
 
 **Rate Limit Presets**:
@@ -324,7 +324,7 @@ anonymous: 100 req / 15 min
 ```
 
 ### 4. JSDoc Documentation
-**File Modified**: `demo-app/database/init.js`
+**File Modified**: `src/database/init.js`
 
 **Documentation Added**:
 - Module-level @module tag

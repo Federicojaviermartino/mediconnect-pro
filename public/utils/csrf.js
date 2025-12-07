@@ -23,7 +23,7 @@ async function fetchCsrfToken() {
 
         const data = await response.json();
         csrfToken = data.csrfToken;
-        console.log('CSRF token fetched successfully');
+
         return csrfToken;
     } catch (error) {
         console.error('Error fetching CSRF token:', error);
@@ -135,7 +135,7 @@ async function csrfDelete(url) {
 async function initCsrfProtection() {
     try {
         await fetchCsrfToken();
-        console.log('CSRF protection initialized');
+
     } catch (error) {
         console.error('Failed to initialize CSRF protection:', error);
     }

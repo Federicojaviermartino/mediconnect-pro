@@ -16,7 +16,7 @@ async function checkAIStatus() {
         const data = await response.json();
 
         if (data.success) {
-            console.log('AI Services Status:', data);
+
             return data;
         }
     } catch (error) {
@@ -585,12 +585,11 @@ function showNotification(message, type = 'success') {
 
 // Initialize AI Assistant on page load
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🤖 AI Assistant module loaded');
 
     // Check AI service status
     const status = await checkAIStatus();
     if (status) {
-        console.log('AI Services available:', status.services);
-        console.log('Mode:', status.mode);
+
+
     }
 });

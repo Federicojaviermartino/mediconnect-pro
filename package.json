@@ -13,9 +13,9 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:postgres": "docker-compose --profile postgres up -d",
-    "db:migrate": "node demo-app/database/migrate.js run",
-    "db:migrate:status": "node demo-app/database/migrate.js status",
-    "db:migrate:rollback": "NODE_ENV=development node demo-app/database/migrate.js rollback",
+    "db:migrate": "node src/database/migrate.js run",
+    "db:migrate:status": "node src/database/migrate.js status",
+    "db:migrate:rollback": "NODE_ENV=development node src/database/migrate.js rollback",
     "db:setup": "npm run docker:postgres && npm run db:migrate"
   },
   "dependencies": {

@@ -10,10 +10,10 @@ module.exports = {
 
   // Coverage configuration
   collectCoverageFrom: [
-    'demo-app/**/*.js',
+    'src/**/*.js',
     'server.js',
-    '!demo-app/tests/**',
-    '!demo-app/__tests__/**',
+    '!src/tests/**',
+    '!src/__tests__/**',
     '!**/node_modules/**',
     '!**/dist/**'
   ],
