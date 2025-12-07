@@ -1,0 +1,312 @@
+/**
+ * Form Validation Styles
+ * Accessible form validation UI
+ */
+
+/* ============================================
+   FORM GROUPS
+   ============================================ */
+.form-group {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s;
+  background-color: white;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ============================================
+   VALIDATION STATES
+   ============================================ */
+.form-group input.invalid,
+.form-group select.invalid,
+.form-group textarea.invalid {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.form-group input.invalid:focus,
+.form-group select.invalid:focus,
+.form-group textarea.invalid:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-group input.valid,
+.form-group select.valid,
+.form-group textarea.valid {
+  border-color: #10b981;
+}
+
+.form-group input.valid:focus,
+.form-group select.valid:focus,
+.form-group textarea.valid:focus {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* ============================================
+   ERROR MESSAGES
+   ============================================ */
+.field-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  color: #dc2626;
+  font-size: 13px;
+  animation: slideDown 0.2s ease;
+}
+
+.field-error::before {
+  content: '⚠';
+  font-size: 14px;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   PASSWORD STRENGTH INDICATOR
+   ============================================ */
+.password-strength {
+  margin-top: 8px;
+}
+
+.password-strength-bar {
+  height: 4px;
+  background-color: #e5e7eb;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.password-strength-fill {
+  height: 100%;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  border-radius: 2px;
+}
+
+.password-strength.weak .password-strength-fill {
+  background-color: #ef4444;
+}
+
+.password-strength.fair .password-strength-fill {
+  background-color: #f59e0b;
+}
+
+.password-strength.good .password-strength-fill {
+  background-color: #3b82f6;
+}
+
+.password-strength.strong .password-strength-fill {
+  background-color: #10b981;
+}
+
+.password-strength.very-strong .password-strength-fill {
+  background-color: #059669;
+}
+
+.password-strength-label {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.password-strength.weak .password-strength-label {
+  color: #dc2626;
+}
+
+.password-strength.fair .password-strength-label {
+  color: #d97706;
+}
+
+.password-strength.good .password-strength-label {
+  color: #2563eb;
+}
+
+.password-strength.strong .password-strength-label {
+  color: #059669;
+}
+
+.password-strength.very-strong .password-strength-label {
+  color: #047857;
+}
+
+/* ============================================
+   HELPER TEXT
+   ============================================ */
+.form-helper {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #6b7280;
+  display: block;
+}
+
+/* ============================================
+   REQUIRED FIELD INDICATOR
+   ============================================ */
+.form-group label .required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+/* ============================================
+   FORM ACTIONS
+   ============================================ */
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.form-actions button {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.form-actions button[type="submit"] {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.form-actions button[type="submit"]:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.form-actions button[type="submit"]:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.form-actions button[type="button"],
+.form-actions button[type="reset"] {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.form-actions button[type="button"]:hover,
+.form-actions button[type="reset"]:hover {
+  background-color: #e5e7eb;
+}
+
+/* ============================================
+   CHECKBOX AND RADIO VALIDATION
+   ============================================ */
+.form-group input[type="checkbox"].invalid,
+.form-group input[type="radio"].invalid {
+  outline: 2px solid #ef4444;
+  outline-offset: 2px;
+}
+
+/* ============================================
+   INLINE VALIDATION ICONS
+   ============================================ */
+.form-group.has-icon input {
+  padding-right: 40px;
+}
+
+.form-group .validation-icon {
+  position: absolute;
+  right: 12px;
+  top: 38px;
+  width: 20px;
+  height: 20px;
+  display: none;
+}
+
+.form-group input.valid ~ .validation-icon.success {
+  display: block;
+  color: #10b981;
+}
+
+.form-group input.invalid ~ .validation-icon.error {
+  display: block;
+  color: #ef4444;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 768px) {
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .field-error,
+  .password-strength-fill {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .form-group input.invalid,
+  .form-group select.invalid,
+  .form-group textarea.invalid {
+    border-width: 2px;
+  }
+
+  .field-error {
+    font-weight: 600;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+.form-group input:focus-visible,
+.form-group select:focus-visible,
+.form-group textarea:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.form-actions button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
