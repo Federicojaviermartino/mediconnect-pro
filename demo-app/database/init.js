@@ -20,6 +20,66 @@ let db = {
   passwordResetTokens: []
 };
 
+// Performance optimization: In-memory indexes for fast lookups
+let indexes = {
+  usersByEmail: new Map(),
+  usersById: new Map(),
+  patientsByUserId: new Map(),
+  appointmentsByPatient: new Map(),
+  appointmentsByDoctor: new Map(),
+  prescriptionsByPatient: new Map(),
+  prescriptionsByDoctor: new Map()
+};
+
+// Rebuild indexes for performance optimization
+function rebuildIndexes() {
+  // Clear existing indexes
+  indexes.usersByEmail.clear();
+  indexes.usersById.clear();
+  indexes.patientsByUserId.clear();
+  indexes.appointmentsByPatient.clear();
+  indexes.appointmentsByDoctor.clear();
+  indexes.prescriptionsByPatient.clear();
+  indexes.prescriptionsByDoctor.clear();
+
+  // Index users
+  db.users.forEach(user => {
+    indexes.usersByEmail.set(user.email, user);
+    indexes.usersById.set(user.id, user);
+  });
+
+  // Index patients
+  db.patients.forEach(patient => {
+    indexes.patientsByUserId.set(patient.user_id, patient);
+  });
+
+  // Index appointments
+  db.appointments.forEach(appointment => {
+    if (!indexes.appointmentsByPatient.has(appointment.patient_id)) {
+      indexes.appointmentsByPatient.set(appointment.patient_id, []);
+    }
+    indexes.appointmentsByPatient.get(appointment.patient_id).push(appointment);
+
+    if (!indexes.appointmentsByDoctor.has(appointment.doctor_id)) {
+      indexes.appointmentsByDoctor.set(appointment.doctor_id, []);
+    }
+    indexes.appointmentsByDoctor.get(appointment.doctor_id).push(appointment);
+  });
+
+  // Index prescriptions
+  db.prescriptions.forEach(prescription => {
+    if (!indexes.prescriptionsByPatient.has(prescription.patient_id)) {
+      indexes.prescriptionsByPatient.set(prescription.patient_id, []);
+    }
+    indexes.prescriptionsByPatient.get(prescription.patient_id).push(prescription);
+
+    if (!indexes.prescriptionsByDoctor.has(prescription.doctor_id)) {
+      indexes.prescriptionsByDoctor.set(prescription.doctor_id, []);
+    }
+    indexes.prescriptionsByDoctor.get(prescription.doctor_id).push(prescription);
+  });
+}
+
 function loadDatabase() {
   try {
     if (fs.existsSync(DB_FILE)) {
@@ -36,6 +96,9 @@ function loadDatabase() {
         messages: loadedDb.messages || [],
         passwordResetTokens: loadedDb.passwordResetTokens || []
       };
+
+      // Rebuild indexes for performance
+      rebuildIndexes();
 
       console.log('✅ Database loaded from file');
     } else {
@@ -169,6 +232,7 @@ function seedDatabase() {
   db.messages = [];
 
   saveDatabase();
+  rebuildIndexes(); // Rebuild indexes after seeding
   console.log('✅ Demo users seeded successfully!');
 }
 
@@ -197,11 +261,13 @@ async function initDatabase() {
     database: db,
 
     getUserByEmail: (email) => {
-      return db.users.find(u => u.email === email);
+      // O(1) lookup using index instead of O(n) array scan
+      return indexes.usersByEmail.get(email) || null;
     },
 
     getUserById: (userId) => {
-      return db.users.find(u => u.id === parseInt(userId));
+      // O(1) lookup using index instead of O(n) array scan
+      return indexes.usersById.get(parseInt(userId)) || null;
     },
 
     getAllUsers: () => {
@@ -209,7 +275,8 @@ async function initDatabase() {
     },
 
     getPatientByUserId: (userId) => {
-      return db.patients.find(p => p.user_id === userId);
+      // O(1) lookup using index instead of O(n) array scan
+      return indexes.patientsByUserId.get(userId) || null;
     },
 
     getVitalsByPatientId: (patientId) => {
@@ -291,10 +358,11 @@ async function initDatabase() {
         console.error('Appointments array is not initialized');
         return [];
       }
+      // O(1) lookup using indexes instead of O(n) array scan
       if (role === 'patient') {
-        return db.appointments.filter(a => a.patient_id === userId);
+        return indexes.appointmentsByPatient.get(userId) || [];
       } else if (role === 'doctor') {
-        return db.appointments.filter(a => a.doctor_id === userId);
+        return indexes.appointmentsByDoctor.get(userId) || [];
       }
       return db.appointments;
     },
@@ -312,6 +380,18 @@ async function initDatabase() {
         created_at: new Date().toISOString()
       };
       db.appointments.push(appointment);
+
+      // Update indexes
+      if (!indexes.appointmentsByPatient.has(appointment.patient_id)) {
+        indexes.appointmentsByPatient.set(appointment.patient_id, []);
+      }
+      indexes.appointmentsByPatient.get(appointment.patient_id).push(appointment);
+
+      if (!indexes.appointmentsByDoctor.has(appointment.doctor_id)) {
+        indexes.appointmentsByDoctor.set(appointment.doctor_id, []);
+      }
+      indexes.appointmentsByDoctor.get(appointment.doctor_id).push(appointment);
+
       saveDatabase();
       return appointment;
     },
@@ -331,10 +411,11 @@ async function initDatabase() {
         console.error('Prescriptions array is not initialized');
         return [];
       }
+      // O(1) lookup using indexes instead of O(n) array scan
       if (role === 'patient') {
-        return db.prescriptions.filter(p => p.patient_id === userId);
+        return indexes.prescriptionsByPatient.get(userId) || [];
       } else if (role === 'doctor') {
-        return db.prescriptions.filter(p => p.doctor_id === userId);
+        return indexes.prescriptionsByDoctor.get(userId) || [];
       }
       return db.prescriptions;
     },
@@ -348,6 +429,18 @@ async function initDatabase() {
         created_at: new Date().toISOString()
       };
       db.prescriptions.push(prescription);
+
+      // Update indexes
+      if (!indexes.prescriptionsByPatient.has(prescription.patient_id)) {
+        indexes.prescriptionsByPatient.set(prescription.patient_id, []);
+      }
+      indexes.prescriptionsByPatient.get(prescription.patient_id).push(prescription);
+
+      if (!indexes.prescriptionsByDoctor.has(prescription.doctor_id)) {
+        indexes.prescriptionsByDoctor.set(prescription.doctor_id, []);
+      }
+      indexes.prescriptionsByDoctor.get(prescription.doctor_id).push(prescription);
+
       saveDatabase();
       return prescription;
     },
@@ -413,6 +506,11 @@ async function initDatabase() {
         created_at: new Date().toISOString()
       };
       db.users.push(user);
+
+      // Update indexes
+      indexes.usersByEmail.set(user.email, user);
+      indexes.usersById.set(user.id, user);
+
       saveDatabase();
       return user;
     },
@@ -469,6 +567,10 @@ async function initDatabase() {
         ...patientData
       };
       db.patients.push(patient);
+
+      // Update indexes
+      indexes.patientsByUserId.set(userId, patient);
+
       saveDatabase();
       return patient;
     }

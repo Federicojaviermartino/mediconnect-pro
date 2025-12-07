@@ -1,11 +1,16 @@
 // Appointment routes
 const { requireAuth, requireRole } = require('../middleware/auth');
 const { validate, validateParams, appointmentSchemas, paramSchemas } = require('../middleware/validators');
+const { cacheMiddleware } = require('../utils/cache');
 const logger = require('../utils/logger');
 
+// Cache configurations
+const appointmentsCache = cacheMiddleware({ ttl: 20000 }); // 20 seconds for appointment list
+const appointmentCache = cacheMiddleware({ ttl: 30000 }); // 30 seconds for single appointment
+
 function setupAppointmentRoutes(app, db) {
-  // Get all appointments
-  app.get('/api/appointments', requireAuth, (req, res) => {
+  // Get all appointments (cached for 20 seconds)
+  app.get('/api/appointments', requireAuth, appointmentsCache, (req, res) => {
     try {
       if (!req.session || !req.session.user || !req.session.user.id) {
         logger.warn('Invalid session in appointments GET');
@@ -62,8 +67,8 @@ function setupAppointmentRoutes(app, db) {
     }
   });
 
-  // Get single appointment
-  app.get('/api/appointments/:id', requireAuth, validateParams(paramSchemas.id), (req, res) => {
+  // Get single appointment (cached for 30 seconds)
+  app.get('/api/appointments/:id', requireAuth, appointmentCache, validateParams(paramSchemas.id), (req, res) => {
     try {
       const appointmentId = parseInt(req.params.id);
       const userId = req.session.user.id;

@@ -1,11 +1,16 @@
 // Prescription routes
 const { requireAuth, requireRole } = require('../middleware/auth');
 const { validate, validateParams, prescriptionSchemas, paramSchemas } = require('../middleware/validators');
+const { cacheMiddleware } = require('../utils/cache');
 const logger = require('../utils/logger');
 
+// Cache configurations
+const prescriptionsCache = cacheMiddleware({ ttl: 20000 }); // 20 seconds for prescription list
+const prescriptionCache = cacheMiddleware({ ttl: 30000 }); // 30 seconds for single prescription
+
 function setupPrescriptionRoutes(app, db) {
-  // Get all prescriptions
-  app.get('/api/prescriptions', requireAuth, (req, res) => {
+  // Get all prescriptions (cached for 20 seconds)
+  app.get('/api/prescriptions', requireAuth, prescriptionsCache, (req, res) => {
     try {
       if (!req.session || !req.session.user || !req.session.user.id) {
         logger.warn('Invalid session in prescriptions GET');
@@ -62,8 +67,8 @@ function setupPrescriptionRoutes(app, db) {
     }
   });
 
-  // Get single prescription
-  app.get('/api/prescriptions/:id', requireAuth, validateParams(paramSchemas.id), (req, res) => {
+  // Get single prescription (cached for 30 seconds)
+  app.get('/api/prescriptions/:id', requireAuth, prescriptionCache, validateParams(paramSchemas.id), (req, res) => {
     try {
       const prescriptionId = parseInt(req.params.id);
       const userId = req.session.user.id;
@@ -100,8 +105,8 @@ function setupPrescriptionRoutes(app, db) {
     }
   });
 
-  // Get prescription status
-  app.get('/api/prescriptions/:id/status', requireAuth, validateParams(paramSchemas.id), (req, res) => {
+  // Get prescription status (cached for 30 seconds)
+  app.get('/api/prescriptions/:id/status', requireAuth, prescriptionCache, validateParams(paramSchemas.id), (req, res) => {
     try {
       const prescriptionId = parseInt(req.params.id);
       const userId = req.session.user.id;
