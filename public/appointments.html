@@ -174,6 +174,171 @@
         .appointments-actions {
             margin-bottom: 2rem;
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #1a1a2e;
+            font-size: 1.5rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .btn-cancel {
+            padding: 0.75rem 1.5rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        .btn-submit {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -245,6 +410,52 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- New Appointment Modal -->
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📅 Schedule New Appointment</h2>
+                <button class="close-modal" onclick="closeAppointmentModal()">&times;</button>
+            </div>
+            <form id="appointmentForm" onsubmit="submitAppointment(event)">
+                <div class="form-group">
+                    <label for="apt-date">Date *</label>
+                    <input type="date" id="apt-date" name="date" required>
+                    <span class="error-message" id="date-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="apt-time">Time *</label>
+                    <input type="time" id="apt-time" name="time" required>
+                    <span class="error-message" id="time-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="apt-type">Type *</label>
+                    <select id="apt-type" name="type" required>
+                        <option value="">Select type...</option>
+                        <option value="consultation">General Consultation</option>
+                        <option value="follow-up">Follow-up</option>
+                        <option value="emergency">Emergency</option>
+                        <option value="teleconsultation">Teleconsultation</option>
+                    </select>
+                    <span class="error-message" id="type-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="apt-reason">Reason / Symptoms *</label>
+                    <textarea id="apt-reason" name="reason" placeholder="Brief description of symptoms or reason for visit..." required></textarea>
+                    <span class="error-message" id="reason-error"></span>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeAppointmentModal()">Cancel</button>
+                    <button type="submit" class="btn-submit" id="submitBtn">Schedule Appointment</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script src="utils/csrf.js"></script>
@@ -350,8 +561,108 @@
         }
 
         function scheduleAppointment() {
-            alert('Schedule appointment feature coming soon!');
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('apt-date').setAttribute('min', today);
+
+            // Open modal
+            document.getElementById('appointmentModal').classList.add('show');
         }
+
+        function closeAppointmentModal() {
+            document.getElementById('appointmentModal').classList.remove('show');
+            document.getElementById('appointmentForm').reset();
+            clearErrors();
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+        }
+
+        function showError(fieldId, message) {
+            const errorEl = document.getElementById(`${fieldId}-error`);
+            if (errorEl) {
+                errorEl.textContent = message;
+            }
+        }
+
+        async function submitAppointment(event) {
+            event.preventDefault();
+            clearErrors();
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Scheduling...';
+
+            const formData = {
+                date: document.getElementById('apt-date').value,
+                time: document.getElementById('apt-time').value,
+                type: document.getElementById('apt-type').value,
+                reason: document.getElementById('apt-reason').value
+            };
+
+            try {
+                const csrfToken = window.csrfToken || '';
+
+                const response = await fetch('/api/appointments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'CSRF-Token': csrfToken
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Handle validation errors
+                    if (data.details) {
+                        data.details.forEach(detail => {
+                            const fieldName = detail.path[0];
+                            showError(fieldName, detail.message);
+                        });
+                    } else {
+                        throw new Error(data.error || 'Failed to create appointment');
+                    }
+                    return;
+                }
+
+                // Success
+                closeAppointmentModal();
+                await loadAppointments();
+
+                // Show success message
+                if (typeof showNotification === 'function') {
+                    showNotification('Appointment scheduled successfully!', 'success');
+                } else {
+                    alert('Appointment scheduled successfully!');
+                }
+
+            } catch (error) {
+                console.error('Error creating appointment:', error);
+                alert('Error: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Schedule Appointment';
+            }
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', (event) => {
+            const modal = document.getElementById('appointmentModal');
+            if (event.target === modal) {
+                closeAppointmentModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeAppointmentModal();
+            }
+        });
 
         // Initialize CSRF and load appointments
         (async () => {

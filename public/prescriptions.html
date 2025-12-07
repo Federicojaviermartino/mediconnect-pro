@@ -174,6 +174,177 @@
         .prescriptions-actions {
             margin-bottom: 2rem;
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #1a1a2e;
+            font-size: 1.5rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #f5576c;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .btn-cancel {
+            padding: 0.75rem 1.5rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        .btn-submit {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -242,6 +413,78 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- New Prescription Modal -->
+    <div id="prescriptionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💊 New Prescription</h2>
+                <button class="close-modal" onclick="closePrescriptionModal()">&times;</button>
+            </div>
+            <form id="prescriptionForm" onsubmit="submitPrescription(event)">
+                <div class="form-group">
+                    <label for="presc-medication">Medication *</label>
+                    <input type="text" id="presc-medication" name="medication" placeholder="Enter medication name" required>
+                    <span class="error-message" id="medication-error"></span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="presc-dosage">Dosage *</label>
+                        <input type="text" id="presc-dosage" name="dosage" placeholder="e.g., 500mg" required>
+                        <span class="error-message" id="dosage-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="presc-frequency">Frequency *</label>
+                        <select id="presc-frequency" name="frequency" required>
+                            <option value="">Select frequency...</option>
+                            <option value="Once daily">Once daily</option>
+                            <option value="Twice daily">Twice daily</option>
+                            <option value="Three times daily">Three times daily</option>
+                            <option value="Every 4 hours">Every 4 hours</option>
+                            <option value="Every 6 hours">Every 6 hours</option>
+                            <option value="Every 8 hours">Every 8 hours</option>
+                            <option value="Every 12 hours">Every 12 hours</option>
+                            <option value="As needed">As needed</option>
+                        </select>
+                        <span class="error-message" id="frequency-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="presc-duration">Duration (days) *</label>
+                        <input type="number" id="presc-duration" name="duration" min="1" max="365" placeholder="e.g., 7" required>
+                        <span class="error-message" id="duration-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="presc-quantity">Quantity *</label>
+                        <input type="number" id="presc-quantity" name="quantity" min="1" placeholder="e.g., 30" required>
+                        <span class="error-message" id="quantity-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="presc-pharmacy">Pharmacy</label>
+                    <input type="text" id="presc-pharmacy" name="pharmacy" placeholder="Pharmacy name (optional)">
+                    <span class="error-message" id="pharmacy-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="presc-notes">Instructions / Notes</label>
+                    <textarea id="presc-notes" name="notes" placeholder="Any special instructions (e.g., take with food, avoid alcohol, etc.)"></textarea>
+                    <span class="error-message" id="notes-error"></span>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closePrescriptionModal()">Cancel</button>
+                    <button type="submit" class="btn-submit" id="submitPrescBtn">Create Prescription</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script src="utils/csrf.js"></script>
@@ -341,8 +584,107 @@
         }
 
         function createPrescription() {
-            alert('Create prescription feature coming soon!');
+            // Open modal
+            document.getElementById('prescriptionModal').classList.add('show');
         }
+
+        function closePrescriptionModal() {
+            document.getElementById('prescriptionModal').classList.remove('show');
+            document.getElementById('prescriptionForm').reset();
+            clearErrors();
+        }
+
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+        }
+
+        function showError(fieldId, message) {
+            const errorEl = document.getElementById(`${fieldId}-error`);
+            if (errorEl) {
+                errorEl.textContent = message;
+            }
+        }
+
+        async function submitPrescription(event) {
+            event.preventDefault();
+            clearErrors();
+
+            const submitBtn = document.getElementById('submitPrescBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating...';
+
+            const formData = {
+                medication: document.getElementById('presc-medication').value,
+                dosage: document.getElementById('presc-dosage').value,
+                frequency: document.getElementById('presc-frequency').value,
+                duration: parseInt(document.getElementById('presc-duration').value),
+                quantity: parseInt(document.getElementById('presc-quantity').value),
+                pharmacy: document.getElementById('presc-pharmacy').value || undefined,
+                notes: document.getElementById('presc-notes').value || undefined
+            };
+
+            try {
+                const csrfToken = window.csrfToken || '';
+
+                const response = await fetch('/api/prescriptions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'CSRF-Token': csrfToken
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Handle validation errors
+                    if (data.details) {
+                        data.details.forEach(detail => {
+                            const fieldName = detail.path[0];
+                            showError(fieldName, detail.message);
+                        });
+                    } else {
+                        throw new Error(data.error || 'Failed to create prescription');
+                    }
+                    return;
+                }
+
+                // Success
+                closePrescriptionModal();
+                await loadPrescriptions();
+
+                // Show success message
+                if (typeof showNotification === 'function') {
+                    showNotification('Prescription created successfully!', 'success');
+                } else {
+                    alert('Prescription created successfully!');
+                }
+
+            } catch (error) {
+                console.error('Error creating prescription:', error);
+                alert('Error: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create Prescription';
+            }
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', (event) => {
+            const modal = document.getElementById('prescriptionModal');
+            if (event.target === modal) {
+                closePrescriptionModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closePrescriptionModal();
+            }
+        });
 
         // Initialize CSRF and load prescriptions
         (async () => {
