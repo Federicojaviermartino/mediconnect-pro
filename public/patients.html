@@ -6,25 +6,6 @@
     <title>Patients - MediConnect Pro</title>
     <link rel="stylesheet" href="dashboard-styles.css">
     <style>
-        .patients-container {
-            padding: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .patients-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .patients-header h1 {
-            font-size: 2rem;
-            color: #1a1a2e;
-            margin: 0;
-        }
-
         .search-box {
             display: flex;
             gap: 1rem;
@@ -45,6 +26,16 @@
             border-radius: 8px;
             font-size: 1rem;
             background: white;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .content h1 {
+            font-size: 2rem;
+            color: #1a1a2e;
+            margin-bottom: 2rem;
         }
 
         .patients-table {
@@ -105,22 +96,6 @@
             background: #5568d3;
         }
 
-        .back-btn {
-            padding: 0.75rem 1.5rem;
-            background: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .back-btn:hover {
-            background: #5a6268;
-        }
-
         .loading {
             text-align: center;
             padding: 3rem;
@@ -141,13 +116,47 @@
     </style>
 </head>
 <body>
-    <div class="patients-container">
-        <div class="patients-header">
-            <h1>👥 All Patients</h1>
-            <a href="javascript:history.back()" class="back-btn">← Back to Dashboard</a>
-        </div>
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu">
+        <span>☰</span>
+    </button>
+    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
 
-        <div class="search-box">
+    <div class="dashboard">
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🏥</span>
+                <span class="logo-text">MediConnect Pro</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard-doctor.html" class="nav-item">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="#" class="nav-item" onclick="event.preventDefault(); alert('AI Assistant coming soon!')">
+                    <span>🤖</span> AI Assistant
+                </a>
+                <a href="patients.html" class="nav-item active">
+                    <span>👥</span> Patients
+                </a>
+                <a href="appointments.html" class="nav-item">
+                    <span>📅</span> Appointments
+                </a>
+                <a href="prescriptions.html" class="nav-item">
+                    <span>💊</span> Prescriptions
+                </a>
+                <a href="analytics.html" class="nav-item">
+                    <span>📈</span> Analytics
+                </a>
+            </nav>
+            <button onclick="logout()" class="logout-btn">
+                <span>🚪</span> Logout
+            </button>
+        </aside>
+
+        <main class="main-content">
+            <div class="content">
+                <h1>👥 All Patients</h1>
+
+                <div class="search-box">
             <input type="text" class="search-input" id="searchInput" placeholder="Search by name or email...">
             <select class="filter-select" id="filterBloodType">
                 <option value="">All Blood Types</option>
@@ -162,12 +171,15 @@
             </select>
         </div>
 
-        <div class="patients-table" id="patientsTable">
-            <div class="loading">Loading patients...</div>
-        </div>
+                <div class="patients-table" id="patientsTable">
+                    <div class="loading">Loading patients...</div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script src="utils/csrf.js"></script>
+    <script src="dashboard-interactive.js"></script>
     <script>
         let allPatients = [];
         let filteredPatients = [];

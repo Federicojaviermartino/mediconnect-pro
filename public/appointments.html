@@ -161,21 +161,68 @@
             font-size: 4rem;
             margin-bottom: 1rem;
         }
+        .content {
+            padding: 2rem;
+        }
+
+        .content h1 {
+            font-size: 2rem;
+            color: #1a1a2e;
+            margin-bottom: 1rem;
+        }
+
+        .appointments-actions {
+            margin-bottom: 2rem;
+        }
     </style>
 </head>
 <body>
-    <div class="appointments-container">
-        <div class="appointments-header">
-            <h1>📅 My Appointments</h1>
-            <div class="appointments-actions">
-                <button class="new-appointment-btn" onclick="scheduleAppointment()">
-                    + New Appointment
-                </button>
-                <a href="javascript:history.back()" class="back-btn">← Back</a>
-            </div>
-        </div>
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu">
+        <span>☰</span>
+    </button>
+    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
 
-        <div class="filter-tabs">
+    <div class="dashboard">
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🏥</span>
+                <span class="logo-text">MediConnect Pro</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard-patient.html" class="nav-item">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="#" class="nav-item" onclick="event.preventDefault(); alert('AI Assistant coming soon!')">
+                    <span>🤖</span> AI Assistant
+                </a>
+                <a href="patients.html" class="nav-item">
+                    <span>👥</span> Patients
+                </a>
+                <a href="appointments.html" class="nav-item active">
+                    <span>📅</span> Appointments
+                </a>
+                <a href="prescriptions.html" class="nav-item">
+                    <span>💊</span> Prescriptions
+                </a>
+                <a href="analytics.html" class="nav-item">
+                    <span>📈</span> Analytics
+                </a>
+            </nav>
+            <button onclick="logout()" class="logout-btn">
+                <span>🚪</span> Logout
+            </button>
+        </aside>
+
+        <main class="main-content">
+            <div class="content">
+                <h1>📅 My Appointments</h1>
+                <div class="appointments-actions">
+                    <button class="new-appointment-btn" onclick="scheduleAppointment()">
+                        + New Appointment
+                    </button>
+                </div>
+
+                <div class="filter-tabs">
             <button class="filter-tab active" data-status="all" onclick="filterByStatus('all')">
                 All
             </button>
@@ -193,12 +240,15 @@
             </button>
         </div>
 
-        <div class="appointments-table" id="appointmentsTable">
-            <div class="loading">Loading appointments...</div>
-        </div>
+                <div class="appointments-table" id="appointmentsTable">
+                    <div class="loading">Loading appointments...</div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script src="utils/csrf.js"></script>
+    <script src="dashboard-interactive.js"></script>
     <script>
         let allAppointments = [];
         let currentFilter = 'all';
