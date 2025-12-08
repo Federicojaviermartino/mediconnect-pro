@@ -23,3 +23,5 @@ services:
         value: true
       - key: ENABLE_VIDEO_CONSULTATIONS
         value: false
+      - key: SENTRY_DSN
+        sync: false

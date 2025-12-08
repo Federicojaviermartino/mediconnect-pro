@@ -149,6 +149,9 @@ function seedDatabase() {
       role: 'admin',
       name: 'Admin User',
       specialization: null,
+      twoFactorEnabled: false,
+      twoFactorSecret: null,
+      twoFactorBackupCodes: [],
       created_at: new Date().toISOString()
     },
     {
@@ -158,6 +161,9 @@ function seedDatabase() {
       role: 'doctor',
       name: 'Dr. Sarah Smith',
       specialization: 'General Practitioner',
+      twoFactorEnabled: false,
+      twoFactorSecret: null,
+      twoFactorBackupCodes: [],
       created_at: new Date().toISOString()
     },
     {
@@ -167,6 +173,9 @@ function seedDatabase() {
       role: 'patient',
       name: 'John Doe',
       specialization: null,
+      twoFactorEnabled: false,
+      twoFactorSecret: null,
+      twoFactorBackupCodes: [],
       created_at: new Date().toISOString()
     }
   ];
