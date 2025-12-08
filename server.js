@@ -14,6 +14,7 @@ const { performHealthCheck, livenessProbe, readinessProbe } = require('./src/uti
 const { initDatabase } = require('./src/database/init');
 const { apiCache } = require('./src/utils/cache');
 const { setupAuthRoutes } = require('./src/routes/auth');
+const { setup2FARoutes } = require('./src/routes/two-factor');
 const { setupApiRoutes } = require('./src/routes/api');
 const { setupAppointmentRoutes } = require('./src/routes/appointments');
 const { setupPrescriptionRoutes } = require('./src/routes/prescriptions');
@@ -27,9 +28,13 @@ const { setupVitalsRoutes } = require('./src/routes/vitals');
 const { setupInsuranceRoutes } = require('./src/routes/insurance');
 const { setupPharmacyRoutes } = require('./src/routes/pharmacy');
 const { setupCsrfEndpoint, csrfProtection } = require('./src/middleware/csrf');
+const { initSentry, requestHandler, tracingHandler, errorHandler } = require('./src/utils/sentry');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Initialize Sentry FIRST (before any other middleware)
+initSentry(app);
 
 // Disable X-Powered-By header for security
 app.disable('x-powered-by');
@@ -39,6 +44,12 @@ let db = null;
 
 // Trust proxy (required for Render)
 app.set('trust proxy', 1);
+
+// Sentry request handler - MUST be the first middleware
+app.use(requestHandler());
+
+// Sentry tracing handler - MUST be after request handler but before routes
+app.use(tracingHandler());
 
 // Security headers with Helmet
 app.use(helmet({
@@ -291,6 +302,16 @@ const messageLimiter = rateLimit({
   legacyHeaders: false
 });
 
+// Rate limiter for 2FA endpoints (stricter than auth)
+const twoFactorLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // 10 attempts per 15 minutes (stricter than regular auth)
+  message: 'Too many 2FA attempts, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: false
+});
+
 // CSRF protection middleware (excludes only truly safe routes)
 const csrfExcludedPaths = [
   '/api/csrf-token',      // Used to get the token (must be accessible before login)
@@ -403,12 +424,15 @@ app.get('/api/cache/stats', (req, res) => {
   });
 });
 
+// Sentry error handler - MUST be before other error handlers
+app.use(errorHandler());
+
 // Error logging middleware (logs errors before handling them)
 app.use(errorLogger);
 
 // Global error handling middleware (must be last)
 app.use((err, req, res, next) => {
-  // Error already logged by errorLogger middleware
+  // Error already logged by errorLogger middleware and sent to Sentry
   // Just handle the response
 
   // Determine status code
@@ -435,6 +459,7 @@ async function startServer() {
 
     // Setup routes (after database is ready)
     setupAuthRoutes(app, db, authLimiter);
+    setup2FARoutes(app, db, twoFactorLimiter);
     setupApiRoutes(app, db);
     setupAppointmentRoutes(app, db);
     setupPrescriptionRoutes(app, db);
@@ -475,6 +500,7 @@ async function initApp() {
 
     // Setup routes (after database is ready)
     setupAuthRoutes(app, db, authLimiter);
+    setup2FARoutes(app, db, twoFactorLimiter);
     setupApiRoutes(app, db);
     setupAppointmentRoutes(app, db);
     setupPrescriptionRoutes(app, db);
