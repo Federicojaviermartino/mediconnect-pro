@@ -5,7 +5,7 @@ services:
     env: node
     region: frankfurt
     plan: free
-    buildCommand: npm ci --production --verbose
+    buildCommand: npm ci --production --verbose && npm run db:migrate
     startCommand: node server.js
     healthCheckPath: /health
     envVars:
@@ -16,7 +16,7 @@ services:
       - key: SESSION_SECRET
         generateValue: true
       - key: USE_POSTGRES
-        value: false
+        value: true
       - key: LOG_LEVEL
         value: info
       - key: ENABLE_AI_FEATURES

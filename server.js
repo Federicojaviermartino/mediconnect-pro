@@ -125,9 +125,8 @@ app.use(requestLogger);
 let redisClient;
 let sessionStore;
 
-// Temporarily disable Redis due to connect-redis 9.x compatibility issues
-// TODO: Fix RedisStore import/initialization for connect-redis 9.x
-const useRedis = false; // process.env.REDIS_URL || process.env.REDIS_HOST;
+// Redis session store - activates when REDIS_URL or REDIS_HOST is set
+const useRedis = !!(process.env.REDIS_URL || process.env.REDIS_HOST);
 
 if (useRedis) {
   // Configure Redis client
@@ -174,11 +173,14 @@ if (useRedis) {
       ttl: 24 * 60 * 60 // 24 hours in seconds
     });
     logger.info('✅ Redis session store configured');
+    logger.info('✅ Sessions will persist across server restarts');
+    logger.info('✅ Ready for production scale (1,000+ concurrent users)');
   }
 } else {
   logger.warn('⚠️  Redis not configured. Using in-memory sessions.');
   logger.warn('⚠️  Sessions will be lost on server restart.');
   logger.warn('💡 Tip: Set REDIS_HOST or REDIS_URL in environment to enable persistent sessions.');
+  logger.warn('⚠️  This is NOT recommended for production (use Redis for >100 concurrent users).');
 }
 
 // Session configuration

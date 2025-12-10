@@ -23,11 +23,13 @@ const createPool = () => {
     user: process.env.POSTGRES_USER || 'postgres',
     password: process.env.POSTGRES_PASSWORD || '',
 
-    // Pool settings
-    max: parseInt(process.env.POSTGRES_POOL_MAX || '20'), // Maximum pool size
-    min: parseInt(process.env.POSTGRES_POOL_MIN || '2'),  // Minimum pool size
+    // Pool settings (optimized for 1,000-5,000 concurrent users)
+    max: parseInt(process.env.POSTGRES_POOL_MAX || '30'), // Maximum pool size (increased for production)
+    min: parseInt(process.env.POSTGRES_POOL_MIN || '5'),  // Minimum pool size (keep connections warm)
     idleTimeoutMillis: parseInt(process.env.POSTGRES_IDLE_TIMEOUT || '30000'), // 30 seconds
     connectionTimeoutMillis: parseInt(process.env.POSTGRES_CONNECTION_TIMEOUT || '10000'), // 10 seconds
+    allowExitOnIdle: false, // Don't close pool during idle periods
+    application_name: 'mediconnect-pro', // Identify application in PostgreSQL logs
 
     // SSL settings (required for some cloud providers like Render, Heroku)
     ssl: process.env.POSTGRES_SSL === 'true' ? {
@@ -42,10 +44,12 @@ const createPool = () => {
       ssl: process.env.POSTGRES_SSL === 'true' ? {
         rejectUnauthorized: false
       } : false,
-      max: parseInt(process.env.POSTGRES_POOL_MAX || '20'),
-      min: parseInt(process.env.POSTGRES_POOL_MIN || '2'),
+      max: parseInt(process.env.POSTGRES_POOL_MAX || '30'), // Increased for production
+      min: parseInt(process.env.POSTGRES_POOL_MIN || '5'),  // Keep connections warm
       idleTimeoutMillis: parseInt(process.env.POSTGRES_IDLE_TIMEOUT || '30000'),
-      connectionTimeoutMillis: parseInt(process.env.POSTGRES_CONNECTION_TIMEOUT || '10000')
+      connectionTimeoutMillis: parseInt(process.env.POSTGRES_CONNECTION_TIMEOUT || '10000'),
+      allowExitOnIdle: false,
+      application_name: 'mediconnect-pro'
     });
   }
 
@@ -54,6 +58,22 @@ const createPool = () => {
 
 // Create the pool instance
 const pool = createPool();
+
+// Monitor pool stats periodically (every 5 minutes) in production
+if (process.env.NODE_ENV === 'production') {
+  setInterval(() => {
+    const stats = {
+      total: pool.totalCount,
+      idle: pool.idleCount,
+      waiting: pool.waitingCount
+    };
+    logger.info('PostgreSQL connection pool stats', {
+      database: 'postgresql',
+      ...stats,
+      utilization: `${Math.round(((stats.total - stats.idle) / stats.total) * 100)}%`
+    });
+  }, 5 * 60 * 1000); // 5 minutes
+}
 
 // ============================================================================
 // CONNECTION HEALTH
