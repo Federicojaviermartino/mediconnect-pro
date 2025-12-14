@@ -148,6 +148,64 @@ function setupAIRoutes(app, db) {
     }
   });
 
+  // POST /api/ai/transcribe-diagnose - Transcribe audio and generate diagnosis
+  // Main workflow: Doctor records patient → AI transcribes → AI generates diagnosis
+  app.post('/api/ai/transcribe-diagnose', requireAuth, requireRole('doctor'), async (req, res) => {
+    try {
+      const { audioData, patientId } = req.body;
+
+      if (!audioData) {
+        return res.status(400).json({ error: 'Audio data is required' });
+      }
+
+      // Get patient context for better diagnosis
+      let patientContext = {};
+      if (patientId) {
+        const patient = db.getPatientById(patientId);
+        const patientRecord = db.getPatientByUserId(patientId);
+
+        if (patient) {
+          patientContext = {
+            name: patient.name,
+            age: calculateAge(patient.birthDate),
+            sex: patient.sex || 'No especificado',
+            conditions: patientRecord?.conditions || 'Ninguna conocida',
+            allergies: patientRecord?.allergies || 'Ninguna conocida'
+          };
+        }
+      }
+
+      logger.info('Starting transcribe-diagnose workflow', {
+        patientId: patientId || 'anonymous',
+        doctorId: req.session.user.id
+      });
+
+      const result = await aiService.transcribeAndDiagnose(audioData, patientContext);
+
+      if (!result.success) {
+        return res.status(500).json({
+          error: result.error || 'Transcription and diagnosis failed',
+          transcript: result.transcript // Return transcript if available
+        });
+      }
+
+      res.json({
+        success: true,
+        transcript: result.transcript,
+        transcriptionDuration: result.transcriptionDuration,
+        language: result.language,
+        confidence: result.confidence,
+        diagnosis: result.diagnosis,
+        disclaimer: result.disclaimer
+      });
+    } catch (error) {
+      logger.logApiError(error, req, { context: 'AI Transcribe-Diagnose' });
+      res.status(500).json({
+        error: 'Failed to transcribe and diagnose'
+      });
+    }
+  });
+
   // POST /api/ai/triage - Triage patient symptoms
   app.post('/api/ai/triage', requireAuth, async (req, res) => {
     try {
@@ -194,9 +252,16 @@ function setupAIRoutes(app, db) {
       success: true,
       services: {
         transcription: aiService.hasOpenAI,
+        transcribeDiagnose: aiService.hasOpenAI && (aiService.hasAnthropic || aiService.hasOpenAI),
         noteGeneration: aiService.hasAnthropic || aiService.hasOpenAI,
         reportGeneration: aiService.hasAnthropic || aiService.hasOpenAI,
         triage: aiService.hasAnthropic || aiService.hasOpenAI
+      },
+      models: {
+        transcription: 'OpenAI Whisper',
+        diagnosis: aiService.hasAnthropic ? 'Claude Opus 4.5' : 'GPT-5.2',
+        notes: aiService.hasAnthropic ? 'Claude Opus 4.5' : 'GPT-5.2',
+        triage: aiService.hasAnthropic ? 'Claude Opus 4.5' : 'GPT-5.2'
       },
       mode: aiService.hasOpenAI || aiService.hasAnthropic ? 'production' : 'demo'
     });

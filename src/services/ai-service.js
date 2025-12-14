@@ -202,12 +202,12 @@ Responde SOLO con el JSON, sin texto adicional.`;
 
       const body = this.hasAnthropic
         ? {
-            model: 'claude-3-5-sonnet-20241022',
+            model: 'claude-opus-4-5-20250514',
             max_tokens: 2000,
             messages: [{ role: 'user', content: prompt }]
           }
         : {
-            model: 'gpt-4-turbo-preview',
+            model: 'gpt-5.2',
             messages: [{ role: 'user', content: prompt }],
             temperature: 0.3
           };
@@ -376,12 +376,12 @@ Dr./Dra. ${doctor.name}`
 
       const body = this.hasAnthropic
         ? {
-            model: 'claude-3-5-sonnet-20241022',
+            model: 'claude-opus-4-5-20250514',
             max_tokens: 3000,
             messages: [{ role: 'user', content: prompt }]
           }
         : {
-            model: 'gpt-4-turbo-preview',
+            model: 'gpt-5.2',
             messages: [{ role: 'user', content: prompt }],
             temperature: 0.3
           };
@@ -464,12 +464,12 @@ El tono debe ser profesional pero cercano.`;
 
       const body = this.hasAnthropic
         ? {
-            model: 'claude-3-5-sonnet-20241022',
+            model: 'claude-opus-4-5-20250514',
             max_tokens: 1500,
             messages: [{ role: 'user', content: prompt }]
           }
         : {
-            model: 'gpt-4-turbo-preview',
+            model: 'gpt-5.2',
             messages: [{ role: 'user', content: prompt }],
             temperature: 0.5
           };
@@ -606,12 +606,12 @@ Responde SOLO con el JSON.`;
 
       const body = this.hasAnthropic
         ? {
-            model: 'claude-3-5-sonnet-20241022',
+            model: 'claude-opus-4-5-20250514',
             max_tokens: 1500,
             messages: [{ role: 'user', content: prompt }]
           }
         : {
-            model: 'gpt-4-turbo-preview',
+            model: 'gpt-5.2',
             messages: [{ role: 'user', content: prompt }],
             temperature: 0.3
           };
@@ -643,6 +643,237 @@ Responde SOLO con el JSON.`;
       return {
         success: false,
         error: 'Failed to perform triage',
+        details: error.message
+      };
+    }
+  }
+
+  /**
+   * Transcribe audio and automatically generate diagnosis
+   * This is the main workflow for doctors: record patient → transcribe → diagnose
+   * @param {Buffer|string} audioData - Audio file or base64 data
+   * @param {Object} patientContext - Patient information for context
+   * @returns {Promise<Object>} Transcription with diagnosis
+   */
+  async transcribeAndDiagnose(audioData, patientContext = {}) {
+    logger.info('Starting transcribe-and-diagnose workflow', {
+      service: 'ai',
+      operation: 'transcribe-diagnose',
+      patientName: patientContext.name
+    });
+
+    // Step 1: Transcribe the audio
+    const transcriptionResult = await this.transcribeConsultation(audioData);
+
+    if (!transcriptionResult.success) {
+      return {
+        success: false,
+        error: 'Transcription failed',
+        details: transcriptionResult.error
+      };
+    }
+
+    const transcript = transcriptionResult.transcript;
+
+    // Step 2: Generate diagnosis from transcript
+    const diagnosisPrompt = `Eres un médico experto analizando la descripción de síntomas de un paciente.
+
+DATOS DEL PACIENTE:
+- Nombre: ${patientContext.name || 'No especificado'}
+- Edad: ${patientContext.age || 'No especificada'}
+- Sexo: ${patientContext.sex || 'No especificado'}
+- Condiciones previas: ${patientContext.conditions || 'Ninguna conocida'}
+- Alergias: ${patientContext.allergies || 'Ninguna conocida'}
+
+TRANSCRIPCIÓN DE LA CONSULTA:
+${transcript}
+
+Analiza la transcripción y proporciona un diagnóstico estructurado en formato JSON:
+
+{
+  "mainSymptoms": ["síntoma principal 1", "síntoma 2"],
+  "symptomDuration": "duración de los síntomas",
+  "urgencyLevel": "low|medium|high|emergency",
+  "differentialDiagnosis": [
+    {
+      "condition": "diagnóstico más probable",
+      "probability": "alta|media|baja",
+      "reasoning": "justificación clínica"
+    },
+    {
+      "condition": "segundo diagnóstico posible",
+      "probability": "alta|media|baja",
+      "reasoning": "justificación clínica"
+    }
+  ],
+  "recommendedTests": ["estudio 1", "estudio 2"],
+  "suggestedTreatment": {
+    "immediate": "tratamiento inmediato sugerido",
+    "medications": [
+      {
+        "name": "medicamento",
+        "dosage": "dosis",
+        "frequency": "frecuencia",
+        "duration": "duración"
+      }
+    ],
+    "lifestyle": ["recomendación de estilo de vida 1", "recomendación 2"]
+  },
+  "redFlags": ["señal de alarma 1", "señal de alarma 2"],
+  "followUp": "recomendación de seguimiento",
+  "specialistReferral": "especialista si se requiere o null",
+  "clinicalNotes": "notas adicionales para el médico"
+}
+
+IMPORTANTE:
+- Este es un apoyo para el médico, NO un diagnóstico final
+- Incluir siempre diagnósticos diferenciales
+- Señalar cualquier señal de alarma
+- El médico debe verificar y ajustar según su criterio clínico
+
+Responde SOLO con el JSON.`;
+
+    if (!this.hasAnthropic && !this.hasOpenAI) {
+      // Mock diagnosis for demo
+      return {
+        success: true,
+        transcript: transcript,
+        transcriptionDuration: transcriptionResult.duration,
+        language: transcriptionResult.language,
+        confidence: transcriptionResult.confidence,
+        diagnosis: {
+          mainSymptoms: ["Cefalea persistente", "Náuseas matutinas", "Fotofobia"],
+          symptomDuration: "3 días",
+          urgencyLevel: "medium",
+          differentialDiagnosis: [
+            {
+              condition: "Migraña sin aura",
+              probability: "alta",
+              reasoning: "Cefalea unilateral pulsátil con fotofobia y náuseas, sin aura previa. Primera presentación en adulto."
+            },
+            {
+              condition: "Cefalea tensional",
+              probability: "media",
+              reasoning: "Patrón de dolor matutino que mejora durante el día, posible componente muscular."
+            },
+            {
+              condition: "Sinusitis aguda",
+              probability: "baja",
+              reasoning: "El patrón matutino podría sugerir congestión, aunque faltan síntomas nasales típicos."
+            }
+          ],
+          recommendedTests: [
+            "Toma de presión arterial",
+            "Examen neurológico básico",
+            "Fundoscopia si disponible",
+            "Considerar hemograma si persiste"
+          ],
+          suggestedTreatment: {
+            immediate: "Analgesia y ambiente oscuro/tranquilo",
+            medications: [
+              {
+                name: "Ibuprofeno",
+                dosage: "400mg",
+                frequency: "Cada 8 horas con alimentos",
+                duration: "5 días máximo"
+              },
+              {
+                name: "Metoclopramida",
+                dosage: "10mg",
+                frequency: "30 min antes de analgésico si náuseas",
+                duration: "Según necesidad"
+              }
+            ],
+            lifestyle: [
+              "Hidratación adecuada (2L agua/día)",
+              "Evitar pantallas brillantes",
+              "Descanso en habitación oscura durante episodios",
+              "Registro de diario de cefalea"
+            ]
+          },
+          redFlags: [
+            "Cefalea súbita 'en trueno'",
+            "Rigidez de nuca",
+            "Fiebre alta",
+            "Alteración de conciencia",
+            "Déficit neurológico focal",
+            "Vómitos persistentes"
+          ],
+          followUp: "Control en 48-72 horas. Si persiste >2 semanas o cambia patrón, neurología.",
+          specialistReferral: "Neurología si no responde a tratamiento en 2 semanas",
+          clinicalNotes: "Primera cefalea de este tipo en el paciente. Considerar factores desencadenantes (estrés, sueño, alimentación). Educar sobre señales de alarma. Si migraña confirmada, considerar profilaxis si >4 episodios/mes."
+        },
+        disclaimer: "Este diagnóstico es generado por IA como apoyo al médico. No sustituye el juicio clínico profesional. El médico tratante debe verificar y ajustar según su evaluación."
+      };
+    }
+
+    try {
+      const apiUrl = this.hasAnthropic
+        ? 'https://api.anthropic.com/v1/messages'
+        : 'https://api.openai.com/v1/chat/completions';
+
+      const headers = this.hasAnthropic
+        ? {
+            'x-api-key': ANTHROPIC_API_KEY,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json'
+          }
+        : {
+            'Authorization': `Bearer ${OPENAI_API_KEY}`,
+            'Content-Type': 'application/json'
+          };
+
+      const body = this.hasAnthropic
+        ? {
+            model: 'claude-opus-4-5-20250514',
+            max_tokens: 3000,
+            messages: [{ role: 'user', content: diagnosisPrompt }]
+          }
+        : {
+            model: 'gpt-5.2',
+            messages: [{ role: 'user', content: diagnosisPrompt }],
+            temperature: 0.2
+          };
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body)
+      });
+
+      const data = await response.json();
+      const content = this.hasAnthropic ? data.content[0].text : data.choices[0].message.content;
+
+      // Extract JSON from response
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      const diagnosis = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+
+      logger.info('Transcribe-and-diagnose completed', {
+        service: 'ai',
+        operation: 'transcribe-diagnose',
+        urgencyLevel: diagnosis?.urgencyLevel
+      });
+
+      return {
+        success: true,
+        transcript: transcript,
+        transcriptionDuration: transcriptionResult.duration,
+        language: transcriptionResult.language,
+        confidence: transcriptionResult.confidence,
+        diagnosis: diagnosis,
+        disclaimer: "Este diagnóstico es generado por IA como apoyo al médico. No sustituye el juicio clínico profesional. El médico tratante debe verificar y ajustar según su evaluación."
+      };
+    } catch (error) {
+      logger.error('Transcribe-and-diagnose error', {
+        service: 'ai',
+        operation: 'transcribe-diagnose',
+        error: error.message,
+        stack: error.stack
+      });
+      return {
+        success: false,
+        transcript: transcript, // Return transcript even if diagnosis fails
+        error: 'Diagnosis generation failed',
         details: error.message
       };
     }

@@ -583,6 +583,806 @@ function showNotification(message, type = 'success') {
     }, 4000);
 }
 
+// ============================================
+// AUDIO TRANSCRIPTION & DIAGNOSIS (Doctor Feature)
+// ============================================
+
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+let recordingStartTime = null;
+
+// Show Audio Diagnosis Form (Doctor only)
+window.showAudioDiagnosisForm = function showAudioDiagnosisForm() {
+    const mainContent = document.getElementById('main-content');
+    if (!mainContent) {
+        showNotification('Unable to load Audio Diagnosis. Please refresh the page.', 'error');
+        return;
+    }
+
+    mainContent.innerHTML = `
+        <div class="ai-audio-diagnosis-form">
+            <div class="form-header">
+                <h2>🎙️ AI Audio Diagnosis Assistant</h2>
+                <p>Record patient symptoms and get AI-powered diagnosis suggestions</p>
+                <div class="ai-models-badge">
+                    <span>Powered by: <strong>OpenAI GPT-5.2</strong> & <strong>Claude Opus 4.5</strong></span>
+                </div>
+            </div>
+
+            <div class="medical-disclaimer-banner">
+                <div class="disclaimer-icon">⚕️</div>
+                <div class="disclaimer-content">
+                    <h3>CLINICAL SUPPORT TOOL</h3>
+                    <p><strong>This AI provides diagnosis suggestions as a clinical support tool.</strong></p>
+                    <ul>
+                        <li>Suggestions are for reference only - NOT final diagnoses</li>
+                        <li>Always verify with your clinical judgment and examination</li>
+                        <li>Review differential diagnoses carefully</li>
+                        <li>Consider patient history and context not captured in audio</li>
+                    </ul>
+                    <p class="consent-text">
+                        AI-generated suggestions should be validated by the treating physician.
+                    </p>
+                </div>
+            </div>
+
+            <div class="form-content">
+                <div class="form-group">
+                    <label for="patient-select">Select Patient (Optional):</label>
+                    <select id="patient-select" class="form-select">
+                        <option value="">-- Anonymous Patient --</option>
+                    </select>
+                    <small>Selecting a patient provides better context for diagnosis</small>
+                </div>
+
+                <div class="audio-recorder-section">
+                    <h3>Record Patient Description</h3>
+                    <p>Press the button and let the patient describe their symptoms</p>
+
+                    <div class="recorder-controls">
+                        <button id="record-btn" onclick="toggleRecording()" class="btn-record">
+                            <span id="record-icon">🎤</span>
+                            <span id="record-text">Start Recording</span>
+                        </button>
+                        <div id="recording-indicator" class="recording-indicator hidden">
+                            <div class="recording-pulse"></div>
+                            <span id="recording-time">00:00</span>
+                        </div>
+                    </div>
+
+                    <div id="audio-preview" class="audio-preview hidden">
+                        <audio id="recorded-audio" controls></audio>
+                        <button onclick="clearRecording()" class="btn-secondary btn-small">
+                            Clear Recording
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button id="diagnose-btn" onclick="submitAudioDiagnosis()" class="btn-primary" disabled>
+                        🧠 Generate AI Diagnosis
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Load patients for selection
+    loadPatientsForDiagnosis();
+
+    // Add CSS for audio diagnosis form
+    addAudioDiagnosisStyles();
+};
+
+// Load patients for the select dropdown
+async function loadPatientsForDiagnosis() {
+    try {
+        const response = await fetch('/api/patients', { credentials: 'include' });
+        const data = await response.json();
+
+        const select = document.getElementById('patient-select');
+        if (select && data.patients) {
+            data.patients.forEach(patient => {
+                const option = document.createElement('option');
+                option.value = patient.id;
+                option.textContent = `${patient.name} (${patient.email || 'No email'})`;
+                select.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Failed to load patients:', error);
+    }
+}
+
+// Toggle audio recording
+window.toggleRecording = async function toggleRecording() {
+    if (isRecording) {
+        stopRecording();
+    } else {
+        await startRecording();
+    }
+};
+
+// Start audio recording
+async function startRecording() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+
+            const audioElement = document.getElementById('recorded-audio');
+            if (audioElement) {
+                audioElement.src = audioUrl;
+            }
+
+            const audioPreview = document.getElementById('audio-preview');
+            if (audioPreview) {
+                audioPreview.classList.remove('hidden');
+            }
+
+            const diagnoseBtn = document.getElementById('diagnose-btn');
+            if (diagnoseBtn) {
+                diagnoseBtn.disabled = false;
+            }
+
+            // Stop all tracks
+            stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorder.start();
+        isRecording = true;
+        recordingStartTime = Date.now();
+
+        // Update UI
+        const recordBtn = document.getElementById('record-btn');
+        const recordIcon = document.getElementById('record-icon');
+        const recordText = document.getElementById('record-text');
+        const indicator = document.getElementById('recording-indicator');
+
+        if (recordBtn) recordBtn.classList.add('recording');
+        if (recordIcon) recordIcon.textContent = '⏹️';
+        if (recordText) recordText.textContent = 'Stop Recording';
+        if (indicator) indicator.classList.remove('hidden');
+
+        // Start timer
+        updateRecordingTime();
+    } catch (error) {
+        console.error('Error starting recording:', error);
+        showNotification('Could not access microphone. Please check permissions.', 'error');
+    }
+}
+
+// Stop audio recording
+function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+    }
+    isRecording = false;
+
+    // Update UI
+    const recordBtn = document.getElementById('record-btn');
+    const recordIcon = document.getElementById('record-icon');
+    const recordText = document.getElementById('record-text');
+    const indicator = document.getElementById('recording-indicator');
+
+    if (recordBtn) recordBtn.classList.remove('recording');
+    if (recordIcon) recordIcon.textContent = '🎤';
+    if (recordText) recordText.textContent = 'Start Recording';
+    if (indicator) indicator.classList.add('hidden');
+}
+
+// Update recording time display
+function updateRecordingTime() {
+    if (!isRecording) return;
+
+    const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+    const seconds = (elapsed % 60).toString().padStart(2, '0');
+
+    const timeDisplay = document.getElementById('recording-time');
+    if (timeDisplay) {
+        timeDisplay.textContent = `${minutes}:${seconds}`;
+    }
+
+    requestAnimationFrame(() => setTimeout(updateRecordingTime, 100));
+}
+
+// Clear recording
+window.clearRecording = function clearRecording() {
+    audioChunks = [];
+
+    const audioElement = document.getElementById('recorded-audio');
+    const audioPreview = document.getElementById('audio-preview');
+    const diagnoseBtn = document.getElementById('diagnose-btn');
+
+    if (audioElement) audioElement.src = '';
+    if (audioPreview) audioPreview.classList.add('hidden');
+    if (diagnoseBtn) diagnoseBtn.disabled = true;
+};
+
+// Submit audio for diagnosis
+window.submitAudioDiagnosis = async function submitAudioDiagnosis() {
+    if (audioChunks.length === 0) {
+        showNotification('Please record audio first', 'warning');
+        return;
+    }
+
+    const patientId = document.getElementById('patient-select')?.value || null;
+    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+
+    // Convert to base64
+    const reader = new FileReader();
+    reader.readAsDataURL(audioBlob);
+
+    reader.onloadend = async function() {
+        const base64Audio = reader.result;
+
+        // Show loading state
+        const mainContent = document.getElementById('main-content');
+        mainContent.innerHTML = `
+            <div style="text-align: center; padding: 60px 20px;">
+                <div class="loader"></div>
+                <h3>Processing Audio...</h3>
+                <p>Step 1: Transcribing audio with OpenAI Whisper</p>
+                <p>Step 2: Generating diagnosis with AI</p>
+                <small>This may take a few seconds...</small>
+            </div>
+        `;
+
+        try {
+            const response = await csrfFetch('/api/ai/transcribe-diagnose', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    audioData: base64Audio,
+                    patientId: patientId
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                displayDiagnosisResults(data);
+            } else {
+                showNotification('Diagnosis failed: ' + (data.error || 'Unknown error'), 'error');
+                showAudioDiagnosisForm();
+            }
+        } catch (error) {
+            console.error('Diagnosis error:', error);
+            showNotification('Error connecting to diagnosis service', 'error');
+            showAudioDiagnosisForm();
+        }
+    };
+};
+
+// Display diagnosis results
+function displayDiagnosisResults(data) {
+    const mainContent = document.getElementById('main-content');
+    if (!mainContent) return;
+
+    const diagnosis = data.diagnosis;
+    const urgencyColors = {
+        low: '#4CAF50',
+        medium: '#FF9800',
+        high: '#FF5722',
+        emergency: '#F44336'
+    };
+
+    const urgencyLabels = {
+        low: 'Low Urgency',
+        medium: 'Medium Urgency',
+        high: 'High Urgency',
+        emergency: 'EMERGENCY'
+    };
+
+    const safeUrgencyLevel = ['low', 'medium', 'high', 'emergency'].includes(diagnosis.urgencyLevel)
+        ? diagnosis.urgencyLevel
+        : 'medium';
+
+    mainContent.innerHTML = `
+        <div class="ai-diagnosis-results">
+            <div class="diagnosis-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h2>🧠 AI Diagnosis Results</h2>
+                <div class="ai-models-used">
+                    <span>Transcription: OpenAI Whisper</span>
+                    <span>Diagnosis: Claude Opus 4.5 / GPT-5.2</span>
+                </div>
+            </div>
+
+            <div class="transcript-section">
+                <h3>📝 Transcription</h3>
+                <div class="transcript-box">
+                    <p>${escapeHtmlAI(data.transcript)}</p>
+                </div>
+                <div class="transcript-meta">
+                    <span>Duration: ${Math.round(data.transcriptionDuration)}s</span>
+                    <span>Language: ${escapeHtmlAI(data.language)}</span>
+                    <span>Confidence: ${Math.round(data.confidence * 100)}%</span>
+                </div>
+            </div>
+
+            <div class="urgency-banner" style="background: ${urgencyColors[safeUrgencyLevel]};">
+                <h3>${urgencyLabels[safeUrgencyLevel]}</h3>
+            </div>
+
+            <div class="diagnosis-section">
+                <h3>🔍 Main Symptoms Identified</h3>
+                <div class="symptoms-tags">
+                    ${(diagnosis.mainSymptoms || []).map(s => `<span class="symptom-tag">${escapeHtmlAI(s)}</span>`).join('')}
+                </div>
+                <p><strong>Duration:</strong> ${escapeHtmlAI(diagnosis.symptomDuration)}</p>
+            </div>
+
+            <div class="diagnosis-section">
+                <h3>📋 Differential Diagnosis</h3>
+                <div class="differential-list">
+                    ${(diagnosis.differentialDiagnosis || []).map((d, i) => `
+                        <div class="differential-item ${d.probability}">
+                            <div class="differential-header">
+                                <span class="rank">#${i + 1}</span>
+                                <span class="condition">${escapeHtmlAI(d.condition)}</span>
+                                <span class="probability-badge ${d.probability}">${escapeHtmlAI(d.probability)}</span>
+                            </div>
+                            <p class="reasoning">${escapeHtmlAI(d.reasoning)}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+            <div class="diagnosis-section">
+                <h3>🔬 Recommended Tests</h3>
+                <ul class="tests-list">
+                    ${(diagnosis.recommendedTests || []).map(t => `<li>${escapeHtmlAI(t)}</li>`).join('')}
+                </ul>
+            </div>
+
+            <div class="diagnosis-section">
+                <h3>💊 Suggested Treatment</h3>
+                <p><strong>Immediate:</strong> ${escapeHtmlAI(diagnosis.suggestedTreatment?.immediate)}</p>
+
+                ${diagnosis.suggestedTreatment?.medications?.length > 0 ? `
+                    <h4>Medications:</h4>
+                    <div class="medications-list">
+                        ${diagnosis.suggestedTreatment.medications.map(m => `
+                            <div class="medication-item">
+                                <strong>${escapeHtmlAI(m.name)}</strong>
+                                <span>${escapeHtmlAI(m.dosage)} - ${escapeHtmlAI(m.frequency)}</span>
+                                <small>Duration: ${escapeHtmlAI(m.duration)}</small>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+
+                ${diagnosis.suggestedTreatment?.lifestyle?.length > 0 ? `
+                    <h4>Lifestyle Recommendations:</h4>
+                    <ul>
+                        ${diagnosis.suggestedTreatment.lifestyle.map(l => `<li>${escapeHtmlAI(l)}</li>`).join('')}
+                    </ul>
+                ` : ''}
+            </div>
+
+            ${diagnosis.redFlags?.length > 0 ? `
+                <div class="diagnosis-section red-flags-section">
+                    <h3>⚠️ Red Flags to Watch</h3>
+                    <ul class="red-flags-list">
+                        ${diagnosis.redFlags.map(f => `<li>${escapeHtmlAI(f)}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+
+            <div class="diagnosis-section">
+                <h3>📅 Follow-up</h3>
+                <p>${escapeHtmlAI(diagnosis.followUp)}</p>
+                ${diagnosis.specialistReferral ? `
+                    <p><strong>Specialist Referral:</strong> ${escapeHtmlAI(diagnosis.specialistReferral)}</p>
+                ` : ''}
+            </div>
+
+            <div class="diagnosis-section clinical-notes">
+                <h3>📝 Clinical Notes</h3>
+                <p>${escapeHtmlAI(diagnosis.clinicalNotes)}</p>
+            </div>
+
+            <div class="disclaimer-section">
+                <p><strong>Disclaimer:</strong> ${escapeHtmlAI(data.disclaimer)}</p>
+            </div>
+
+            <div class="diagnosis-actions">
+                <button onclick="showAudioDiagnosisForm()" class="btn-primary">
+                    New Diagnosis
+                </button>
+                <button onclick="copyDiagnosisToClipboard()" class="btn-secondary">
+                    Copy to Notes
+                </button>
+            </div>
+        </div>
+    `;
+
+    // Store diagnosis for copying
+    window.lastDiagnosis = data;
+
+    addDiagnosisResultsStyles();
+}
+
+// Copy diagnosis to clipboard
+window.copyDiagnosisToClipboard = function copyDiagnosisToClipboard() {
+    if (!window.lastDiagnosis) return;
+
+    const d = window.lastDiagnosis.diagnosis;
+    const text = `
+AI DIAGNOSIS REPORT
+==================
+Transcription: ${window.lastDiagnosis.transcript}
+
+MAIN SYMPTOMS: ${(d.mainSymptoms || []).join(', ')}
+Duration: ${d.symptomDuration}
+Urgency: ${d.urgencyLevel}
+
+DIFFERENTIAL DIAGNOSIS:
+${(d.differentialDiagnosis || []).map((dx, i) => `${i+1}. ${dx.condition} (${dx.probability}) - ${dx.reasoning}`).join('\n')}
+
+RECOMMENDED TESTS:
+${(d.recommendedTests || []).map(t => `- ${t}`).join('\n')}
+
+TREATMENT:
+Immediate: ${d.suggestedTreatment?.immediate}
+${(d.suggestedTreatment?.medications || []).map(m => `- ${m.name} ${m.dosage} ${m.frequency} (${m.duration})`).join('\n')}
+
+RED FLAGS:
+${(d.redFlags || []).map(f => `! ${f}`).join('\n')}
+
+FOLLOW-UP: ${d.followUp}
+${d.specialistReferral ? `Referral: ${d.specialistReferral}` : ''}
+
+CLINICAL NOTES: ${d.clinicalNotes}
+
+---
+Generated by MediConnect Pro AI (Claude Opus 4.5 / GPT-5.2)
+    `.trim();
+
+    navigator.clipboard.writeText(text).then(() => {
+        showNotification('Diagnosis copied to clipboard', 'success');
+    }).catch(() => {
+        showNotification('Failed to copy to clipboard', 'error');
+    });
+};
+
+// Add CSS for audio diagnosis form
+function addAudioDiagnosisStyles() {
+    if (document.getElementById('audio-diagnosis-styles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'audio-diagnosis-styles';
+    style.innerHTML = `
+        .ai-audio-diagnosis-form {
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .ai-models-badge {
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .audio-recorder-section {
+            background: #f8f9fa;
+            padding: 30px;
+            margin: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .recorder-controls {
+            margin: 20px 0;
+        }
+
+        .btn-record {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-record:hover {
+            background: #357ABD;
+            transform: scale(1.05);
+        }
+
+        .btn-record.recording {
+            background: #F44336;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4); }
+            50% { box-shadow: 0 0 0 20px rgba(244, 67, 54, 0); }
+        }
+
+        .recording-indicator {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .recording-pulse {
+            width: 12px;
+            height: 12px;
+            background: #F44336;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .audio-preview {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .audio-preview audio {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Add CSS for diagnosis results
+function addDiagnosisResultsStyles() {
+    if (document.getElementById('diagnosis-results-styles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'diagnosis-results-styles';
+    style.innerHTML = `
+        .ai-diagnosis-results {
+            max-width: 900px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .diagnosis-header {
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .ai-models-used {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .transcript-section {
+            padding: 20px 30px;
+            background: #f8f9fa;
+        }
+
+        .transcript-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4A90E2;
+            font-style: italic;
+        }
+
+        .transcript-meta {
+            margin-top: 10px;
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .urgency-banner {
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .urgency-banner h3 {
+            margin: 0;
+        }
+
+        .diagnosis-section {
+            padding: 20px 30px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .symptoms-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .symptom-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .differential-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .differential-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4A90E2;
+        }
+
+        .differential-item.alta {
+            border-left-color: #4CAF50;
+        }
+
+        .differential-item.media {
+            border-left-color: #FF9800;
+        }
+
+        .differential-item.baja {
+            border-left-color: #9E9E9E;
+        }
+
+        .differential-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .rank {
+            background: #333;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .condition {
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .probability-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .probability-badge.alta {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .probability-badge.media {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .probability-badge.baja {
+            background: #f5f5f5;
+            color: #757575;
+        }
+
+        .reasoning {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .medications-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .medication-item {
+            background: #f0f7ff;
+            padding: 12px;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .red-flags-section {
+            background: #fff3e0;
+        }
+
+        .red-flags-list li {
+            color: #e65100;
+            margin: 8px 0;
+        }
+
+        .clinical-notes {
+            background: #f5f5f5;
+        }
+
+        .disclaimer-section {
+            padding: 15px 30px;
+            background: #fff8e1;
+            font-size: 13px;
+            color: #6d4c41;
+        }
+
+        .diagnosis-actions {
+            padding: 30px;
+            text-align: center;
+            background: #fafafa;
+        }
+
+        .diagnosis-actions button {
+            margin: 10px;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 // Initialize AI Assistant on page load
 document.addEventListener('DOMContentLoaded', async () => {
 
