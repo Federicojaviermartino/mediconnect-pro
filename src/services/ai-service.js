@@ -41,23 +41,23 @@ class AIService {
       // Mock response for demo
       return {
         success: true,
-        transcript: `Paciente: Buenos días doctor, he estado sintiendo dolor de cabeza constante durante los últimos 3 días.
+        transcript: `Patient: Good morning doctor, I've been experiencing constant headaches for the past 3 days.
 
-Doctor: ¿Cuándo comenzó exactamente? ¿Es un dolor continuo o intermitente?
+Doctor: When did it start exactly? Is it continuous or intermittent pain?
 
-Paciente: Comenzó el lunes por la mañana. Es más fuerte por las mañanas y mejora un poco durante el día.
+Patient: It started Monday morning. It's stronger in the mornings and improves a bit during the day.
 
-Doctor: ¿Tiene algún otro síntoma? ¿Fiebre, náuseas, problemas de visión?
+Doctor: Do you have any other symptoms? Fever, nausea, vision problems?
 
-Paciente: Sí, algunas náuseas por la mañana y un poco de sensibilidad a la luz.
+Patient: Yes, some nausea in the morning and a bit of light sensitivity.
 
-Doctor: ¿Ha tenido migrañas antes?
+Doctor: Have you had migraines before?
 
-Paciente: No, esta es la primera vez que experimento algo así.
+Patient: No, this is the first time I'm experiencing something like this.
 
-Doctor: Entiendo. Voy a recetarle un analgésico y queremos monitorear sus síntomas. Si empeora o aparecen nuevos síntomas, debe contactarme inmediatamente.`,
+Doctor: I understand. I'm going to prescribe you a pain reliever and we want to monitor your symptoms. If it gets worse or new symptoms appear, you should contact me immediately.`,
         duration: 180, // seconds
-        language: 'es',
+        language: 'en',
         confidence: 0.95
       };
     }
@@ -110,74 +110,74 @@ Doctor: Entiendo. Voy a recetarle un analgésico y queremos monitorear sus sínt
       patientName: patientContext.name
     });
 
-    const prompt = `Eres un asistente médico especializado en crear notas clínicas estructuradas.
+    const prompt = `You are a medical assistant specialized in creating structured clinical notes.
 
-Paciente: ${patientContext.name || 'Paciente'}, ${patientContext.age || 'edad desconocida'} años
-Historial: ${patientContext.conditions || 'No especificado'}
-Alergias: ${patientContext.allergies || 'Ninguna conocida'}
+Patient: ${patientContext.name || 'Patient'}, ${patientContext.age || 'unknown age'} years old
+Medical History: ${patientContext.conditions || 'Not specified'}
+Allergies: ${patientContext.allergies || 'None known'}
 
-Transcripción de la consulta:
+Consultation transcript:
 ${transcript}
 
-Por favor, genera notas médicas estructuradas en el siguiente formato JSON:
+Please generate structured medical notes in the following JSON format:
 
 {
-  "chiefComplaint": "Motivo principal de consulta",
-  "historyOfPresentIllness": "Historia de la enfermedad actual",
-  "symptoms": ["síntoma1", "síntoma2"],
-  "physicalExamination": "Hallazgos del examen físico",
-  "assessment": "Evaluación y diagnóstico provisional",
-  "plan": "Plan de tratamiento",
+  "chiefComplaint": "Main reason for consultation",
+  "historyOfPresentIllness": "History of present illness",
+  "symptoms": ["symptom1", "symptom2"],
+  "physicalExamination": "Physical examination findings",
+  "assessment": "Assessment and provisional diagnosis",
+  "plan": "Treatment plan",
   "prescriptions": [
     {
-      "medication": "nombre del medicamento",
-      "dosage": "dosis",
-      "frequency": "frecuencia",
-      "duration": "duración"
+      "medication": "medication name",
+      "dosage": "dosage",
+      "frequency": "frequency",
+      "duration": "duration"
     }
   ],
-  "followUp": "Recomendaciones de seguimiento",
-  "redFlags": ["señales de alarma si las hay"]
+  "followUp": "Follow-up recommendations",
+  "redFlags": ["warning signs if any"]
 }
 
-Responde SOLO con el JSON, sin texto adicional.`;
+Respond ONLY with the JSON, no additional text.`;
 
     if (!this.hasAnthropic && !this.hasOpenAI) {
       // Mock response for demo
       return {
         success: true,
         notes: {
-          chiefComplaint: "Cefalea persistente de 3 días de evolución",
-          historyOfPresentIllness: "Paciente masculino presenta cefalea de inicio el lunes, más intensa por las mañanas, con mejoría parcial durante el día. Asociada a náuseas matutinas y fotofobia. Niega antecedentes de migrañas.",
+          chiefComplaint: "Persistent headache for 3 days",
+          historyOfPresentIllness: "Male patient presents with headache starting Monday, more intense in the mornings, with partial improvement during the day. Associated with morning nausea and photophobia. Denies history of migraines.",
           symptoms: [
-            "Cefalea persistente",
-            "Náuseas matutinas",
-            "Fotofobia",
-            "Dolor predominante matutino"
+            "Persistent headache",
+            "Morning nausea",
+            "Photophobia",
+            "Predominantly morning pain"
           ],
-          physicalExamination: "Paciente alerta y orientado. Signos vitales estables. No se observan signos neurológicos focales.",
-          assessment: "Cefalea tensional vs. migraña sin aura de novo. A descartar causas secundarias si persiste o empeora.",
-          plan: "Manejo sintomático con analgésicos. Observación y seguimiento estrecho.",
+          physicalExamination: "Patient alert and oriented. Stable vital signs. No focal neurological signs observed.",
+          assessment: "Tension headache vs. migraine without aura de novo. Rule out secondary causes if persistent or worsening.",
+          plan: "Symptomatic management with analgesics. Close observation and follow-up.",
           prescriptions: [
             {
-              medication: "Ibuprofeno",
+              medication: "Ibuprofen",
               dosage: "400mg",
-              frequency: "Cada 8 horas según necesidad",
-              duration: "5 días"
+              frequency: "Every 8 hours as needed",
+              duration: "5 days"
             },
             {
-              medication: "Metoclopramida",
+              medication: "Metoclopramide",
               dosage: "10mg",
-              frequency: "Cada 8 horas si náuseas",
-              duration: "3 días"
+              frequency: "Every 8 hours if nausea",
+              duration: "3 days"
             }
           ],
-          followUp: "Control en 48-72 horas o antes si empeoramiento. Acudir a urgencias si aparecen: rigidez de nuca, alteración de conciencia, vómitos persistentes, o déficit neurológico.",
+          followUp: "Follow-up in 48-72 hours or sooner if worsening. Go to emergency if: neck stiffness, altered consciousness, persistent vomiting, or neurological deficit.",
           redFlags: [
-            "Rigidez de nuca",
-            "Alteración del estado de conciencia",
-            "Déficit neurológico focal",
-            "Vómitos persistentes"
+            "Neck stiffness",
+            "Altered state of consciousness",
+            "Focal neurological deficit",
+            "Persistent vomiting"
           ]
         }
       };
@@ -259,101 +259,101 @@ Responde SOLO con el JSON, sin texto adicional.`;
 
     const { patient, doctor, notes, date } = consultationData;
 
-    const prompt = `Genera un informe médico profesional en español basado en la siguiente información:
+    const prompt = `Generate a professional medical report in English based on the following information:
 
-DATOS DEL PACIENTE:
-- Nombre: ${patient.name}
-- Edad: ${patient.age} años
-- Alergias: ${patient.allergies || 'Ninguna'}
-- Condiciones previas: ${patient.conditions || 'Ninguna'}
+PATIENT DATA:
+- Name: ${patient.name}
+- Age: ${patient.age} years old
+- Allergies: ${patient.allergies || 'None'}
+- Previous conditions: ${patient.conditions || 'None'}
 
-DATOS DEL MÉDICO:
-- Dr./Dra. ${doctor.name}
-- Especialidad: ${doctor.specialization}
+PHYSICIAN DATA:
+- Dr. ${doctor.name}
+- Specialty: ${doctor.specialization}
 
-FECHA DE CONSULTA: ${date}
+CONSULTATION DATE: ${date}
 
-NOTAS CLÍNICAS:
+CLINICAL NOTES:
 ${JSON.stringify(notes, null, 2)}
 
-Genera un informe médico formal y profesional que incluya:
-1. Encabezado con datos del paciente y médico
-2. Motivo de consulta
-3. Historia clínica actual
-4. Exploración física
-5. Impresión diagnóstica
-6. Plan terapéutico
-7. Recomendaciones y seguimiento
+Generate a formal and professional medical report that includes:
+1. Header with patient and physician data
+2. Chief complaint
+3. Current medical history
+4. Physical examination
+5. Diagnostic impression
+6. Therapeutic plan
+7. Recommendations and follow-up
 
-El informe debe ser profesional, claro y adecuado para el expediente médico del paciente.`;
+The report should be professional, clear, and suitable for the patient's medical record.`;
 
     if (!this.hasAnthropic && !this.hasOpenAI) {
       // Mock response for demo
       return {
         success: true,
-        report: `INFORME MÉDICO
+        report: `MEDICAL REPORT
 
-DATOS DEL PACIENTE
-Nombre: ${patient.name}
-Edad: ${patient.age} años
-Fecha de consulta: ${date}
+PATIENT DATA
+Name: ${patient.name}
+Age: ${patient.age} years old
+Consultation date: ${date}
 
-DATOS DEL MÉDICO
-Dr./Dra. ${doctor.name}
-Especialidad: ${doctor.specialization}
+PHYSICIAN DATA
+Dr. ${doctor.name}
+Specialty: ${doctor.specialization}
 
-MOTIVO DE CONSULTA
-Cefalea persistente de 3 días de evolución.
+CHIEF COMPLAINT
+Persistent headache for 3 days.
 
-HISTORIA DE LA ENFERMEDAD ACTUAL
-Paciente refiere inicio de cefalea hace 3 días, con mayor intensidad en horas matutinas y mejoría parcial durante el día. El dolor se acompaña de náuseas matutinas y fotofobia. Niega antecedentes personales de migrañas. Primera vez que experimenta un cuadro similar.
+HISTORY OF PRESENT ILLNESS
+Patient reports headache onset 3 days ago, with greater intensity in morning hours and partial improvement during the day. Pain is accompanied by morning nausea and photophobia. Denies personal history of migraines. First time experiencing such symptoms.
 
-EXPLORACIÓN FÍSICA
-Paciente consciente, orientado y colaborador. Signos vitales dentro de parámetros normales. Examen neurológico sin hallazgos de focalización. No rigidez de nuca. Fondos de ojo normales.
+PHYSICAL EXAMINATION
+Patient conscious, oriented and cooperative. Vital signs within normal parameters. Neurological exam without focal findings. No neck stiffness. Normal fundoscopy.
 
-IMPRESIÓN DIAGNÓSTICA
-1. Cefalea tensional vs. Migraña sin aura de novo
-2. A descartar causas secundarias en evolución
+DIAGNOSTIC IMPRESSION
+1. Tension headache vs. Migraine without aura de novo
+2. Rule out secondary causes in evolution
 
-PLAN TERAPÉUTICO
-Se prescribe:
-- Ibuprofeno 400mg cada 8 horas según necesidad por 5 días
-- Metoclopramida 10mg cada 8 horas si náuseas por 3 días
+THERAPEUTIC PLAN
+Prescribed:
+- Ibuprofen 400mg every 8 hours as needed for 5 days
+- Metoclopramide 10mg every 8 hours if nausea for 3 days
 
-RECOMENDACIONES Y SEGUIMIENTO
-- Control médico en 48-72 horas
-- Acudir a urgencias inmediatamente si presenta: rigidez de nuca, alteración de conciencia, vómitos persistentes o déficit neurológico
-- Mantener adecuada hidratación
-- Evitar factores desencadenantes conocidos
+RECOMMENDATIONS AND FOLLOW-UP
+- Medical follow-up in 48-72 hours
+- Go to emergency immediately if experiencing: neck stiffness, altered consciousness, persistent vomiting or neurological deficit
+- Maintain adequate hydration
+- Avoid known triggering factors
 
-Dr./Dra. ${doctor.name}
+Dr. ${doctor.name}
 ${doctor.specialization}
-Firma digital`,
-        patientSummary: `Resumen para el Paciente:
+Digital signature`,
+        patientSummary: `Patient Summary:
 
-Hola ${patient.name},
+Hello ${patient.name},
 
-Has sido evaluado por dolor de cabeza que has tenido durante 3 días. Basado en tus síntomas, parece ser una cefalea tensional o posiblemente una migraña.
+You've been evaluated for headaches you've had for 3 days. Based on your symptoms, it appears to be a tension headache or possibly a migraine.
 
-TRATAMIENTO:
-- Toma Ibuprofeno 400mg cada 8 horas cuando tengas dolor (máximo 5 días)
-- Si tienes náuseas, toma Metoclopramida 10mg cada 8 horas (máximo 3 días)
+TREATMENT:
+- Take Ibuprofen 400mg every 8 hours when you have pain (maximum 5 days)
+- If you have nausea, take Metoclopramide 10mg every 8 hours (maximum 3 days)
 
-IMPORTANTE - Acude a urgencias si presentas:
-❗ Rigidez en el cuello
-❗ Confusión o mareos severos
-❗ Vómitos que no paran
-❗ Pérdida de fuerza o sensibilidad
+IMPORTANT - Go to emergency if you experience:
+❗ Neck stiffness
+❗ Confusion or severe dizziness
+❗ Non-stop vomiting
+❗ Loss of strength or sensation
 
-PRÓXIMOS PASOS:
-📅 Agenda control en 2-3 días
-💧 Mantente bien hidratado
-😴 Descansa lo suficiente
+NEXT STEPS:
+📅 Schedule follow-up in 2-3 days
+💧 Stay well hydrated
+😴 Get enough rest
 
-Si tienes dudas, no dudes en contactarnos.
+If you have questions, don't hesitate to contact us.
 
-Cuídate,
-Dr./Dra. ${doctor.name}`
+Take care,
+Dr. ${doctor.name}`
       };
     }
 
@@ -425,22 +425,22 @@ Dr./Dra. ${doctor.name}`
    * @returns {Promise<Object>} Patient-friendly summary
    */
   async generatePatientSummary(medicalReport, patientName) {
-    const prompt = `Convierte el siguiente informe médico técnico en un resumen amigable y fácil de entender para el paciente.
+    const prompt = `Convert the following technical medical report into a friendly and easy-to-understand summary for the patient.
 
-Nombre del paciente: ${patientName}
+Patient name: ${patientName}
 
-Informe médico:
+Medical report:
 ${medicalReport}
 
-Crea un resumen que:
-1. Use lenguaje simple y no técnico
-2. Explique el diagnóstico de forma clara
-3. Liste los medicamentos y cómo tomarlos
-4. Incluya señales de alarma claramente
-5. Sea empático y tranquilizador
-6. Use emojis apropiados (📅 ❗ 💊 etc.)
+Create a summary that:
+1. Uses simple and non-technical language
+2. Explains the diagnosis clearly
+3. Lists medications and how to take them
+4. Includes warning signs clearly
+5. Is empathetic and reassuring
+6. Uses appropriate emojis (📅 ❗ 💊 etc.)
 
-El tono debe ser profesional pero cercano.`;
+The tone should be professional but approachable.`;
 
     if (!this.hasAnthropic && !this.hasOpenAI) {
       return { success: true, summary: 'Summary generated in mock mode' };
@@ -514,42 +514,42 @@ El tono debe ser profesional pero cercano.`;
       patientAge: patientData.age
     });
 
-    const prompt = `Eres un asistente médico de triaje. Evalúa los siguientes síntomas y proporciona:
+    const prompt = `You are a medical triage assistant. Evaluate the following symptoms and provide:
 
-PACIENTE:
-- Edad: ${patientData.age || 'No especificada'}
-- Sexo: ${patientData.sex || 'No especificado'}
-- Condiciones previas: ${patientData.conditions || 'Ninguna'}
+PATIENT:
+- Age: ${patientData.age || 'Not specified'}
+- Sex: ${patientData.sex || 'Not specified'}
+- Previous conditions: ${patientData.conditions || 'None'}
 
-SÍNTOMAS REPORTADOS:
+REPORTED SYMPTOMS:
 ${symptoms}
 
-Proporciona tu evaluación en el siguiente formato JSON:
+Provide your evaluation in the following JSON format:
 
 {
   "urgencyLevel": "low|medium|high|emergency",
-  "urgencyReason": "Explicación del nivel de urgencia",
-  "possibleConditions": ["condición1", "condición2", "condición3"],
-  "recommendedSpecialty": "especialidad médica recomendada",
-  "redFlags": ["señal de alarma 1", "señal de alarma 2"],
-  "immediateAction": "¿Requiere atención inmediata? true/false",
+  "urgencyReason": "Explanation of urgency level",
+  "possibleConditions": ["condition1", "condition2", "condition3"],
+  "recommendedSpecialty": "recommended medical specialty",
+  "redFlags": ["warning sign 1", "warning sign 2"],
+  "immediateAction": "Requires immediate attention? true/false",
   "recommendations": [
-    "recomendación 1",
-    "recomendación 2"
+    "recommendation 1",
+    "recommendation 2"
   ],
   "questions": [
-    "pregunta aclaratoria 1",
-    "pregunta aclaratoria 2"
+    "clarifying question 1",
+    "clarifying question 2"
   ]
 }
 
-Niveles de urgencia:
-- emergency: Requiere atención de emergencia inmediata (911)
-- high: Requiere atención médica el mismo día
-- medium: Requiere consulta en 24-48 horas
-- low: Puede esperar consulta programada
+Urgency levels:
+- emergency: Requires immediate emergency care (911)
+- high: Requires medical attention same day
+- medium: Requires consultation within 24-48 hours
+- low: Can wait for scheduled appointment
 
-Responde SOLO con el JSON.`;
+Respond ONLY with JSON.`;
 
     if (!this.hasAnthropic && !this.hasOpenAI) {
       // Mock response for demo
@@ -557,32 +557,32 @@ Responde SOLO con el JSON.`;
         success: true,
         triage: {
           urgencyLevel: "medium",
-          urgencyReason: "Cefalea persistente con síntomas asociados que requiere evaluación médica para descartar causas secundarias.",
+          urgencyReason: "Persistent headache with associated symptoms that requires medical evaluation to rule out secondary causes.",
           possibleConditions: [
-            "Cefalea tensional",
-            "Migraña",
+            "Tension headache",
+            "Migraine",
             "Sinusitis",
-            "Hipertensión arterial"
+            "Arterial hypertension"
           ],
-          recommendedSpecialty: "Medicina General",
+          recommendedSpecialty: "General Medicine",
           redFlags: [
-            "Cefalea de inicio súbito y severo",
-            "Asociada a fiebre alta",
-            "Con alteración de conciencia"
+            "Sudden onset severe headache",
+            "Associated with high fever",
+            "With altered consciousness"
           ],
           immediateAction: false,
           recommendations: [
-            "Agendar consulta médica en las próximas 24-48 horas",
-            "Mantener hidratación adecuada",
-            "Registrar características del dolor (intensidad, duración, factores que lo mejoran/empeoran)",
-            "Puede tomar analgésicos de venta libre siguiendo indicaciones del envase"
+            "Schedule medical consultation within the next 24-48 hours",
+            "Maintain adequate hydration",
+            "Record pain characteristics (intensity, duration, factors that improve/worsen it)",
+            "May take over-the-counter pain relievers following package instructions"
           ],
           questions: [
-            "¿El dolor es pulsátil o constante?",
-            "¿Se acompaña de náuseas o vómitos?",
-            "¿Tiene sensibilidad a la luz o al ruido?",
-            "¿Ha tenido fiebre?",
-            "¿El dolor empeora con la actividad física?"
+            "Is the pain pulsating or constant?",
+            "Is it accompanied by nausea or vomiting?",
+            "Do you have sensitivity to light or noise?",
+            "Have you had a fever?",
+            "Does the pain worsen with physical activity?"
           ]
         }
       };
@@ -676,62 +676,62 @@ Responde SOLO con el JSON.`;
     const transcript = transcriptionResult.transcript;
 
     // Step 2: Generate diagnosis from transcript
-    const diagnosisPrompt = `Eres un médico experto analizando la descripción de síntomas de un paciente.
+    const diagnosisPrompt = `You are an expert physician analyzing a patient's symptom description.
 
-DATOS DEL PACIENTE:
-- Nombre: ${patientContext.name || 'No especificado'}
-- Edad: ${patientContext.age || 'No especificada'}
-- Sexo: ${patientContext.sex || 'No especificado'}
-- Condiciones previas: ${patientContext.conditions || 'Ninguna conocida'}
-- Alergias: ${patientContext.allergies || 'Ninguna conocida'}
+PATIENT DATA:
+- Name: ${patientContext.name || 'Not specified'}
+- Age: ${patientContext.age || 'Not specified'}
+- Sex: ${patientContext.sex || 'Not specified'}
+- Previous conditions: ${patientContext.conditions || 'None known'}
+- Allergies: ${patientContext.allergies || 'None known'}
 
-TRANSCRIPCIÓN DE LA CONSULTA:
+CONSULTATION TRANSCRIPT:
 ${transcript}
 
-Analiza la transcripción y proporciona un diagnóstico estructurado en formato JSON:
+Analyze the transcript and provide a structured diagnosis in JSON format:
 
 {
-  "mainSymptoms": ["síntoma principal 1", "síntoma 2"],
-  "symptomDuration": "duración de los síntomas",
+  "mainSymptoms": ["main symptom 1", "symptom 2"],
+  "symptomDuration": "duration of symptoms",
   "urgencyLevel": "low|medium|high|emergency",
   "differentialDiagnosis": [
     {
-      "condition": "diagnóstico más probable",
-      "probability": "alta|media|baja",
-      "reasoning": "justificación clínica"
+      "condition": "most likely diagnosis",
+      "probability": "high|medium|low",
+      "reasoning": "clinical justification"
     },
     {
-      "condition": "segundo diagnóstico posible",
-      "probability": "alta|media|baja",
-      "reasoning": "justificación clínica"
+      "condition": "second possible diagnosis",
+      "probability": "high|medium|low",
+      "reasoning": "clinical justification"
     }
   ],
-  "recommendedTests": ["estudio 1", "estudio 2"],
+  "recommendedTests": ["test 1", "test 2"],
   "suggestedTreatment": {
-    "immediate": "tratamiento inmediato sugerido",
+    "immediate": "suggested immediate treatment",
     "medications": [
       {
-        "name": "medicamento",
-        "dosage": "dosis",
-        "frequency": "frecuencia",
-        "duration": "duración"
+        "name": "medication",
+        "dosage": "dose",
+        "frequency": "frequency",
+        "duration": "duration"
       }
     ],
-    "lifestyle": ["recomendación de estilo de vida 1", "recomendación 2"]
+    "lifestyle": ["lifestyle recommendation 1", "recommendation 2"]
   },
-  "redFlags": ["señal de alarma 1", "señal de alarma 2"],
-  "followUp": "recomendación de seguimiento",
-  "specialistReferral": "especialista si se requiere o null",
-  "clinicalNotes": "notas adicionales para el médico"
+  "redFlags": ["warning sign 1", "warning sign 2"],
+  "followUp": "follow-up recommendation",
+  "specialistReferral": "specialist if required or null",
+  "clinicalNotes": "additional notes for the physician"
 }
 
-IMPORTANTE:
-- Este es un apoyo para el médico, NO un diagnóstico final
-- Incluir siempre diagnósticos diferenciales
-- Señalar cualquier señal de alarma
-- El médico debe verificar y ajustar según su criterio clínico
+IMPORTANT:
+- This is a support tool for the physician, NOT a final diagnosis
+- Always include differential diagnoses
+- Highlight any warning signs
+- The physician must verify and adjust according to their clinical judgment
 
-Responde SOLO con el JSON.`;
+Respond ONLY with JSON.`;
 
     if (!this.hasAnthropic && !this.hasOpenAI) {
       // Mock diagnosis for demo
@@ -742,68 +742,68 @@ Responde SOLO con el JSON.`;
         language: transcriptionResult.language,
         confidence: transcriptionResult.confidence,
         diagnosis: {
-          mainSymptoms: ["Cefalea persistente", "Náuseas matutinas", "Fotofobia"],
-          symptomDuration: "3 días",
+          mainSymptoms: ["Persistent headache", "Morning nausea", "Photophobia"],
+          symptomDuration: "3 days",
           urgencyLevel: "medium",
           differentialDiagnosis: [
             {
-              condition: "Migraña sin aura",
-              probability: "alta",
-              reasoning: "Cefalea unilateral pulsátil con fotofobia y náuseas, sin aura previa. Primera presentación en adulto."
+              condition: "Migraine without aura",
+              probability: "high",
+              reasoning: "Unilateral pulsating headache with photophobia and nausea, without prior aura. First presentation in adult."
             },
             {
-              condition: "Cefalea tensional",
-              probability: "media",
-              reasoning: "Patrón de dolor matutino que mejora durante el día, posible componente muscular."
+              condition: "Tension headache",
+              probability: "medium",
+              reasoning: "Morning pain pattern that improves during the day, possible muscular component."
             },
             {
-              condition: "Sinusitis aguda",
-              probability: "baja",
-              reasoning: "El patrón matutino podría sugerir congestión, aunque faltan síntomas nasales típicos."
+              condition: "Acute sinusitis",
+              probability: "low",
+              reasoning: "Morning pattern could suggest congestion, although typical nasal symptoms are absent."
             }
           ],
           recommendedTests: [
-            "Toma de presión arterial",
-            "Examen neurológico básico",
-            "Fundoscopia si disponible",
-            "Considerar hemograma si persiste"
+            "Blood pressure measurement",
+            "Basic neurological examination",
+            "Fundoscopy if available",
+            "Consider CBC if persists"
           ],
           suggestedTreatment: {
-            immediate: "Analgesia y ambiente oscuro/tranquilo",
+            immediate: "Analgesia and dark/quiet environment",
             medications: [
               {
-                name: "Ibuprofeno",
+                name: "Ibuprofen",
                 dosage: "400mg",
-                frequency: "Cada 8 horas con alimentos",
-                duration: "5 días máximo"
+                frequency: "Every 8 hours with food",
+                duration: "5 days maximum"
               },
               {
-                name: "Metoclopramida",
+                name: "Metoclopramide",
                 dosage: "10mg",
-                frequency: "30 min antes de analgésico si náuseas",
-                duration: "Según necesidad"
+                frequency: "30 min before analgesic if nausea",
+                duration: "As needed"
               }
             ],
             lifestyle: [
-              "Hidratación adecuada (2L agua/día)",
-              "Evitar pantallas brillantes",
-              "Descanso en habitación oscura durante episodios",
-              "Registro de diario de cefalea"
+              "Adequate hydration (2L water/day)",
+              "Avoid bright screens",
+              "Rest in dark room during episodes",
+              "Keep headache diary"
             ]
           },
           redFlags: [
-            "Cefalea súbita 'en trueno'",
-            "Rigidez de nuca",
-            "Fiebre alta",
-            "Alteración de conciencia",
-            "Déficit neurológico focal",
-            "Vómitos persistentes"
+            "Sudden 'thunderclap' headache",
+            "Neck stiffness",
+            "High fever",
+            "Altered consciousness",
+            "Focal neurological deficit",
+            "Persistent vomiting"
           ],
-          followUp: "Control en 48-72 horas. Si persiste >2 semanas o cambia patrón, neurología.",
-          specialistReferral: "Neurología si no responde a tratamiento en 2 semanas",
-          clinicalNotes: "Primera cefalea de este tipo en el paciente. Considerar factores desencadenantes (estrés, sueño, alimentación). Educar sobre señales de alarma. Si migraña confirmada, considerar profilaxis si >4 episodios/mes."
+          followUp: "Follow-up in 48-72 hours. If persists >2 weeks or pattern changes, neurology referral.",
+          specialistReferral: "Neurology if no response to treatment in 2 weeks",
+          clinicalNotes: "First headache of this type for the patient. Consider triggering factors (stress, sleep, diet). Educate about warning signs. If migraine confirmed, consider prophylaxis if >4 episodes/month."
         },
-        disclaimer: "Este diagnóstico es generado por IA como apoyo al médico. No sustituye el juicio clínico profesional. El médico tratante debe verificar y ajustar según su evaluación."
+        disclaimer: "This diagnosis is AI-generated as support for the physician. It does not replace professional clinical judgment. The treating physician must verify and adjust according to their assessment."
       };
     }
 
@@ -861,7 +861,7 @@ Responde SOLO con el JSON.`;
         language: transcriptionResult.language,
         confidence: transcriptionResult.confidence,
         diagnosis: diagnosis,
-        disclaimer: "Este diagnóstico es generado por IA como apoyo al médico. No sustituye el juicio clínico profesional. El médico tratante debe verificar y ajustar según su evaluación."
+        disclaimer: "This diagnosis is AI-generated as support for the physician. It does not replace professional clinical judgment. The treating physician must verify and adjust according to their assessment."
       };
     } catch (error) {
       logger.error('Transcribe-and-diagnose error', {
@@ -910,7 +910,7 @@ Responde SOLO con el JSON.`;
     return {
       success: true,
       diagnosis: diagnosis,
-      disclaimer: "Este diagnóstico es generado por IA en modo DEMO como apoyo al médico. No sustituye el juicio clínico profesional. El médico tratante debe verificar y ajustar según su evaluación."
+      disclaimer: "This diagnosis is AI-generated in DEMO mode as support for the physician. It does not replace professional clinical judgment. The treating physician must verify and adjust according to their assessment."
     };
   }
 
@@ -968,363 +968,363 @@ Responde SOLO con el JSON.`;
   generateContextualDiagnosis(conditionType, symptomsText, patientContext) {
     const diagnoses = {
       headache: {
-        mainSymptoms: ["Cefalea", "Dolor de cabeza persistente", "Sensibilidad a la luz"],
-        symptomDuration: "Variable según descripción",
+        mainSymptoms: ["Headache", "Persistent head pain", "Light sensitivity"],
+        symptomDuration: "Variable according to description",
         urgencyLevel: "medium",
         differentialDiagnosis: [
           {
-            condition: "Cefalea tensional",
-            probability: "alta",
-            reasoning: "Patrón de dolor compatible con tensión muscular y estrés. Muy común en población general."
+            condition: "Tension headache",
+            probability: "high",
+            reasoning: "Pain pattern compatible with muscle tension and stress. Very common in general population."
           },
           {
-            condition: "Migraña sin aura",
-            probability: "media",
-            reasoning: "Si presenta fotofobia, náuseas o carácter pulsátil, considerar migraña como diagnóstico primario."
+            condition: "Migraine without aura",
+            probability: "medium",
+            reasoning: "If photophobia, nausea or pulsating character present, consider migraine as primary diagnosis."
           },
           {
-            condition: "Cefalea por abuso de analgésicos",
-            probability: "baja",
-            reasoning: "Evaluar uso frecuente de analgésicos (>15 días/mes)."
+            condition: "Medication overuse headache",
+            probability: "low",
+            reasoning: "Evaluate frequent analgesic use (>15 days/month)."
           }
         ],
         recommendedTests: [
-          "Toma de presión arterial",
-          "Examen neurológico básico",
-          "Fundoscopia si hay signos de alarma",
-          "Considerar hemograma si hay síntomas sistémicos"
+          "Blood pressure measurement",
+          "Basic neurological examination",
+          "Fundoscopy if warning signs present",
+          "Consider CBC if systemic symptoms"
         ],
         suggestedTreatment: {
-          immediate: "Analgesia y ambiente oscuro/tranquilo",
+          immediate: "Analgesia and dark/quiet environment",
           medications: [
             {
-              name: "Paracetamol",
+              name: "Acetaminophen",
               dosage: "500-1000mg",
-              frequency: "Cada 6-8 horas",
-              duration: "Según necesidad, máximo 5 días"
+              frequency: "Every 6-8 hours",
+              duration: "As needed, maximum 5 days"
             },
             {
-              name: "Ibuprofeno",
+              name: "Ibuprofen",
               dosage: "400mg",
-              frequency: "Cada 8 horas con alimentos",
-              duration: "3-5 días máximo"
+              frequency: "Every 8 hours with food",
+              duration: "3-5 days maximum"
             }
           ],
           lifestyle: [
-            "Hidratación adecuada (2L agua/día)",
-            "Descanso en ambiente oscuro",
-            "Evitar pantallas brillantes durante episodios",
-            "Técnicas de relajación y manejo del estrés"
+            "Adequate hydration (2L water/day)",
+            "Rest in dark environment",
+            "Avoid bright screens during episodes",
+            "Relaxation techniques and stress management"
           ]
         },
         redFlags: [
-          "Cefalea súbita e intensa ('en trueno')",
-          "Rigidez de nuca o fiebre alta",
-          "Alteración del estado de conciencia",
-          "Déficit neurológico focal",
-          "Cambio en patrón habitual de cefalea"
+          "Sudden severe headache ('thunderclap')",
+          "Neck stiffness or high fever",
+          "Altered state of consciousness",
+          "Focal neurological deficit",
+          "Change in usual headache pattern"
         ],
-        followUp: "Control en 72 horas si no mejora. Si persiste >2 semanas, derivar a neurología.",
-        specialistReferral: "Neurología si cefalea refractaria o cambio en patrón habitual",
-        clinicalNotes: "Evaluar factores desencadenantes: estrés, sueño, alimentación, cambios hormonales. Considerar diario de cefalea para identificar patrones."
+        followUp: "Follow-up in 72 hours if no improvement. If persists >2 weeks, refer to neurology.",
+        specialistReferral: "Neurology if refractory headache or change in usual pattern",
+        clinicalNotes: "Evaluate triggering factors: stress, sleep, diet, hormonal changes. Consider headache diary to identify patterns."
       },
 
       respiratory: {
-        mainSymptoms: ["Tos", "Congestión nasal", "Dificultad respiratoria"],
-        symptomDuration: "Según evolución clínica",
+        mainSymptoms: ["Cough", "Nasal congestion", "Respiratory difficulty"],
+        symptomDuration: "According to clinical evolution",
         urgencyLevel: "medium",
         differentialDiagnosis: [
           {
-            condition: "Infección respiratoria alta viral",
-            probability: "alta",
-            reasoning: "Cuadro compatible con rinofaringitis viral. Alta prevalencia estacional."
+            condition: "Viral upper respiratory infection",
+            probability: "high",
+            reasoning: "Clinical picture compatible with viral rhinopharyngitis. High seasonal prevalence."
           },
           {
-            condition: "Bronquitis aguda",
-            probability: "media",
-            reasoning: "Si la tos es productiva y persistente >5 días, considerar bronquitis."
+            condition: "Acute bronchitis",
+            probability: "medium",
+            reasoning: "If cough is productive and persistent >5 days, consider bronchitis."
           },
           {
-            condition: "Sinusitis aguda",
-            probability: "baja",
-            reasoning: "Evaluar si hay dolor facial, rinorrea purulenta y síntomas >10 días."
+            condition: "Acute sinusitis",
+            probability: "low",
+            reasoning: "Evaluate if facial pain, purulent rhinorrhea and symptoms >10 days present."
           }
         ],
         recommendedTests: [
-          "Auscultación pulmonar completa",
-          "Oximetría de pulso",
-          "Temperatura corporal",
-          "Radiografía de tórax si hay sospecha de neumonía"
+          "Complete pulmonary auscultation",
+          "Pulse oximetry",
+          "Body temperature",
+          "Chest X-ray if pneumonia suspected"
         ],
         suggestedTreatment: {
-          immediate: "Reposo e hidratación abundante",
+          immediate: "Rest and abundant hydration",
           medications: [
             {
-              name: "Paracetamol",
+              name: "Acetaminophen",
               dosage: "500-1000mg",
-              frequency: "Cada 6-8 horas si fiebre",
-              duration: "Según necesidad"
+              frequency: "Every 6-8 hours if fever",
+              duration: "As needed"
             },
             {
-              name: "Suero fisiológico nasal",
-              dosage: "2-3 aplicaciones",
-              frequency: "3-4 veces al día",
-              duration: "Hasta mejoría"
+              name: "Nasal saline solution",
+              dosage: "2-3 applications",
+              frequency: "3-4 times daily",
+              duration: "Until improvement"
             }
           ],
           lifestyle: [
-            "Reposo relativo",
-            "Hidratación abundante (líquidos calientes)",
-            "Evitar cambios bruscos de temperatura",
-            "Elevar cabecera al dormir"
+            "Relative rest",
+            "Abundant hydration (warm liquids)",
+            "Avoid sudden temperature changes",
+            "Elevate head of bed when sleeping"
           ]
         },
         redFlags: [
-          "Dificultad respiratoria severa",
-          "Fiebre >38.5°C persistente >72 horas",
-          "Hemoptisis (sangre en esputo)",
-          "Dolor torácico pleurítico",
-          "Saturación de oxígeno <94%"
+          "Severe respiratory difficulty",
+          "Fever >38.5°C persistent >72 hours",
+          "Hemoptysis (blood in sputum)",
+          "Pleuritic chest pain",
+          "Oxygen saturation <94%"
         ],
-        followUp: "Control en 48-72 horas. Si empeora, consulta urgente.",
-        specialistReferral: "Neumología si no hay mejoría en 2 semanas o hay signos de alarma",
-        clinicalNotes: "Descartar COVID-19 si clínica compatible. Evaluar vacunación antigripal e historia de tabaquismo."
+        followUp: "Follow-up in 48-72 hours. If worsens, urgent consultation.",
+        specialistReferral: "Pulmonology if no improvement in 2 weeks or warning signs present",
+        clinicalNotes: "Rule out COVID-19 if clinical picture compatible. Evaluate flu vaccination and smoking history."
       },
 
       digestive: {
-        mainSymptoms: ["Dolor abdominal", "Náuseas", "Alteración del tránsito intestinal"],
-        symptomDuration: "Según evolución clínica",
+        mainSymptoms: ["Abdominal pain", "Nausea", "Altered bowel movements"],
+        symptomDuration: "According to clinical evolution",
         urgencyLevel: "medium",
         differentialDiagnosis: [
           {
-            condition: "Gastroenteritis aguda",
-            probability: "alta",
-            reasoning: "Cuadro compatible con infección gastrointestinal viral o bacteriana."
+            condition: "Acute gastroenteritis",
+            probability: "high",
+            reasoning: "Clinical picture compatible with viral or bacterial gastrointestinal infection."
           },
           {
-            condition: "Dispepsia funcional",
-            probability: "media",
-            reasoning: "Si síntomas posprandiales recurrentes sin signos de alarma."
+            condition: "Functional dyspepsia",
+            probability: "medium",
+            reasoning: "If recurrent postprandial symptoms without warning signs."
           },
           {
             condition: "Gastritis",
-            probability: "media",
-            reasoning: "Considerar si hay dolor epigástrico, pirosis o relación con alimentos."
+            probability: "medium",
+            reasoning: "Consider if epigastric pain, heartburn or food relationship present."
           }
         ],
         recommendedTests: [
-          "Palpación abdominal completa",
-          "Signos vitales (TA, FC, Temperatura)",
-          "Hidratación y estado general",
-          "Hemograma y electrolitos si hay deshidratación"
+          "Complete abdominal palpation",
+          "Vital signs (BP, HR, Temperature)",
+          "Hydration and general condition",
+          "CBC and electrolytes if dehydration"
         ],
         suggestedTreatment: {
-          immediate: "Dieta blanda, hidratación oral",
+          immediate: "Bland diet, oral hydration",
           medications: [
             {
-              name: "Sales de rehidratación oral",
-              dosage: "1 sobre en 1L de agua",
-              frequency: "Según tolerancia",
-              duration: "Hasta mejoría de síntomas"
+              name: "Oral rehydration salts",
+              dosage: "1 sachet in 1L water",
+              frequency: "According to tolerance",
+              duration: "Until symptom improvement"
             },
             {
-              name: "Omeprazol",
+              name: "Omeprazole",
               dosage: "20mg",
-              frequency: "Una vez al día en ayunas",
-              duration: "7-14 días"
+              frequency: "Once daily on empty stomach",
+              duration: "7-14 days"
             }
           ],
           lifestyle: [
-            "Dieta blanda progresiva",
-            "Evitar alimentos irritantes",
-            "Comidas pequeñas y frecuentes",
-            "Evitar acostarse inmediatamente después de comer"
+            "Progressive bland diet",
+            "Avoid irritating foods",
+            "Small frequent meals",
+            "Avoid lying down immediately after eating"
           ]
         },
         redFlags: [
-          "Sangrado digestivo (hematemesis/melena)",
-          "Dolor abdominal intenso y localizado",
-          "Fiebre alta con dolor abdominal",
-          "Vómitos persistentes con deshidratación",
-          "Pérdida de peso involuntaria"
+          "Gastrointestinal bleeding (hematemesis/melena)",
+          "Severe localized abdominal pain",
+          "High fever with abdominal pain",
+          "Persistent vomiting with dehydration",
+          "Involuntary weight loss"
         ],
-        followUp: "Control en 48-72 horas. Si no mejora, considerar estudios complementarios.",
-        specialistReferral: "Gastroenterología si síntomas >2 semanas o signos de alarma",
-        clinicalNotes: "Evaluar ingesta reciente de alimentos sospechosos, viajes, contacto con enfermos. Considerar coprocultivo si hay fiebre."
+        followUp: "Follow-up in 48-72 hours. If no improvement, consider additional studies.",
+        specialistReferral: "Gastroenterology if symptoms >2 weeks or warning signs",
+        clinicalNotes: "Evaluate recent suspicious food intake, travel, contact with sick people. Consider stool culture if fever present."
       },
 
       musculoskeletal: {
-        mainSymptoms: ["Dolor localizado", "Limitación de movimiento", "Rigidez"],
-        symptomDuration: "Según evolución",
+        mainSymptoms: ["Localized pain", "Limited movement", "Stiffness"],
+        symptomDuration: "According to evolution",
         urgencyLevel: "low",
         differentialDiagnosis: [
           {
-            condition: "Contractura muscular",
-            probability: "alta",
-            reasoning: "Dolor muscular por sobreesfuerzo o mala postura. Muy frecuente."
+            condition: "Muscle contracture",
+            probability: "high",
+            reasoning: "Muscle pain from overexertion or poor posture. Very common."
           },
           {
-            condition: "Síndrome miofascial",
-            probability: "media",
-            reasoning: "Puntos gatillo y dolor referido característico."
+            condition: "Myofascial syndrome",
+            probability: "medium",
+            reasoning: "Trigger points and characteristic referred pain."
           },
           {
-            condition: "Tendinopatía",
-            probability: "baja",
-            reasoning: "Si hay dolor en inserción tendinosa con movimientos específicos."
+            condition: "Tendinopathy",
+            probability: "low",
+            reasoning: "If pain at tendon insertion with specific movements."
           }
         ],
         recommendedTests: [
-          "Exploración músculo-esquelética",
-          "Rango de movimiento",
-          "Puntos dolorosos a la palpación",
-          "Radiografía si sospecha de lesión ósea"
+          "Musculoskeletal examination",
+          "Range of motion",
+          "Tender points on palpation",
+          "X-ray if bone injury suspected"
         ],
         suggestedTreatment: {
-          immediate: "Reposo relativo y aplicación de calor local",
+          immediate: "Relative rest and local heat application",
           medications: [
             {
-              name: "Ibuprofeno",
+              name: "Ibuprofen",
               dosage: "400-600mg",
-              frequency: "Cada 8 horas con alimentos",
-              duration: "5-7 días"
+              frequency: "Every 8 hours with food",
+              duration: "5-7 days"
             },
             {
-              name: "Relajante muscular (ej: ciclobenzaprina)",
+              name: "Muscle relaxant (e.g., cyclobenzaprine)",
               dosage: "5-10mg",
-              frequency: "Por la noche",
-              duration: "5-7 días"
+              frequency: "At night",
+              duration: "5-7 days"
             }
           ],
           lifestyle: [
-            "Ergonomía postural",
-            "Estiramientos suaves",
-            "Evitar movimientos que agraven el dolor",
-            "Calor local 15-20 minutos varias veces al día"
+            "Postural ergonomics",
+            "Gentle stretching",
+            "Avoid movements that aggravate pain",
+            "Local heat 15-20 minutes several times daily"
           ]
         },
         redFlags: [
-          "Dolor nocturno que despierta",
-          "Fiebre asociada",
-          "Pérdida de fuerza o sensibilidad",
-          "Traumatismo previo significativo",
-          "Antecedente de cáncer"
+          "Night pain that awakens",
+          "Associated fever",
+          "Loss of strength or sensation",
+          "Significant prior trauma",
+          "History of cancer"
         ],
-        followUp: "Control en 1-2 semanas si no mejora.",
-        specialistReferral: "Traumatología/Fisioterapia si persiste >2-3 semanas",
-        clinicalNotes: "Evaluar ergonomía laboral y hábitos posturales. Considerar fisioterapia preventiva."
+        followUp: "Follow-up in 1-2 weeks if no improvement.",
+        specialistReferral: "Orthopedics/Physical therapy if persists >2-3 weeks",
+        clinicalNotes: "Evaluate work ergonomics and postural habits. Consider preventive physical therapy."
       },
 
       infection: {
-        mainSymptoms: ["Fiebre", "Malestar general", "Escalofríos"],
-        symptomDuration: "Según evolución",
+        mainSymptoms: ["Fever", "General malaise", "Chills"],
+        symptomDuration: "According to evolution",
         urgencyLevel: "medium",
         differentialDiagnosis: [
           {
-            condition: "Síndrome febril viral",
-            probability: "alta",
-            reasoning: "Cuadro compatible con infección viral sistémica. Alta prevalencia."
+            condition: "Viral febrile syndrome",
+            probability: "high",
+            reasoning: "Clinical picture compatible with systemic viral infection. High prevalence."
           },
           {
-            condition: "Infección bacteriana localizada",
-            probability: "media",
-            reasoning: "Evaluar foco infeccioso: respiratorio, urinario, cutáneo."
+            condition: "Localized bacterial infection",
+            probability: "medium",
+            reasoning: "Evaluate infectious focus: respiratory, urinary, cutaneous."
           },
           {
-            condition: "Proceso inflamatorio no infeccioso",
-            probability: "baja",
-            reasoning: "Considerar si no hay foco claro y persiste."
+            condition: "Non-infectious inflammatory process",
+            probability: "low",
+            reasoning: "Consider if no clear focus and persists."
           }
         ],
         recommendedTests: [
-          "Temperatura y signos vitales",
-          "Examen físico completo buscando foco",
-          "Hemograma con leucocitos",
-          "PCR y/o procalcitonina si disponible"
+          "Temperature and vital signs",
+          "Complete physical exam searching for focus",
+          "CBC with white blood cells",
+          "CRP and/or procalcitonin if available"
         ],
         suggestedTreatment: {
-          immediate: "Antipiréticos y vigilancia",
+          immediate: "Antipyretics and monitoring",
           medications: [
             {
-              name: "Paracetamol",
+              name: "Acetaminophen",
               dosage: "500-1000mg",
-              frequency: "Cada 6-8 horas si fiebre >38°C",
-              duration: "Según necesidad"
+              frequency: "Every 6-8 hours if fever >38°C",
+              duration: "As needed"
             }
           ],
           lifestyle: [
-            "Reposo",
-            "Hidratación abundante",
-            "Control de temperatura cada 6 horas",
-            "Ropa ligera y ambiente fresco"
+            "Rest",
+            "Abundant hydration",
+            "Temperature monitoring every 6 hours",
+            "Light clothing and cool environment"
           ]
         },
         redFlags: [
-          "Fiebre >40°C",
-          "Signos meníngeos",
-          "Alteración del estado de conciencia",
-          "Petequias o exantema purpúrico",
-          "Compromiso hemodinámico"
+          "Fever >40°C",
+          "Meningeal signs",
+          "Altered state of consciousness",
+          "Petechiae or purpuric rash",
+          "Hemodynamic compromise"
         ],
-        followUp: "Control en 24-48 horas. Si fiebre >72 horas, reevaluar con estudios.",
-        specialistReferral: "Infectología si fiebre prolongada sin foco identificado",
-        clinicalNotes: "Descartar focos infecciosos comunes. Considerar hemocultivos si fiebre alta persistente."
+        followUp: "Follow-up in 24-48 hours. If fever >72 hours, reassess with studies.",
+        specialistReferral: "Infectious disease if prolonged fever without identified focus",
+        clinicalNotes: "Rule out common infectious foci. Consider blood cultures if high persistent fever."
       },
 
       general: {
-        mainSymptoms: ["Síntomas generales descritos", "Malestar", "Fatiga"],
-        symptomDuration: "Según descripción del paciente",
+        mainSymptoms: ["General symptoms described", "Malaise", "Fatigue"],
+        symptomDuration: "According to patient description",
         urgencyLevel: "low",
         differentialDiagnosis: [
           {
-            condition: "Síndrome general inespecífico",
-            probability: "alta",
-            reasoning: "Cuadro que requiere mayor evaluación para determinar etiología específica."
+            condition: "Nonspecific general syndrome",
+            probability: "high",
+            reasoning: "Clinical picture requires further evaluation to determine specific etiology."
           },
           {
-            condition: "Estrés/Ansiedad",
-            probability: "media",
-            reasoning: "Somatización frecuente. Evaluar contexto psicosocial."
+            condition: "Stress/Anxiety",
+            probability: "medium",
+            reasoning: "Common somatization. Evaluate psychosocial context."
           },
           {
-            condition: "Condición médica subyacente",
-            probability: "baja",
-            reasoning: "Considerar estudios complementarios si síntomas persisten."
+            condition: "Underlying medical condition",
+            probability: "low",
+            reasoning: "Consider additional studies if symptoms persist."
           }
         ],
         recommendedTests: [
-          "Examen físico completo",
-          "Signos vitales",
-          "Hemograma básico",
-          "Glucemia, función renal y hepática si pertinente"
+          "Complete physical examination",
+          "Vital signs",
+          "Basic CBC",
+          "Blood glucose, renal and hepatic function if relevant"
         ],
         suggestedTreatment: {
-          immediate: "Tratamiento sintomático según predominio de síntomas",
+          immediate: "Symptomatic treatment according to predominant symptoms",
           medications: [
             {
-              name: "Tratamiento sintomático",
-              dosage: "Según síntomas específicos",
+              name: "Symptomatic treatment",
+              dosage: "According to specific symptoms",
               frequency: "Variable",
-              duration: "Según evolución"
+              duration: "According to evolution"
             }
           ],
           lifestyle: [
-            "Descanso adecuado",
-            "Alimentación balanceada",
-            "Hidratación",
-            "Manejo del estrés"
+            "Adequate rest",
+            "Balanced diet",
+            "Hydration",
+            "Stress management"
           ]
         },
         redFlags: [
-          "Pérdida de peso inexplicable",
-          "Fiebre prolongada",
-          "Síntomas neurológicos",
-          "Sangrados anormales",
-          "Dolor intenso persistente"
+          "Unexplained weight loss",
+          "Prolonged fever",
+          "Neurological symptoms",
+          "Abnormal bleeding",
+          "Persistent severe pain"
         ],
-        followUp: "Control en 1 semana si síntomas persisten.",
-        specialistReferral: "Según hallazgos y evolución clínica",
-        clinicalNotes: "Anamnesis detallada para identificar síntomas predominantes. Considerar estudios complementarios según clínica."
+        followUp: "Follow-up in 1 week if symptoms persist.",
+        specialistReferral: "According to findings and clinical evolution",
+        clinicalNotes: "Detailed history to identify predominant symptoms. Consider additional studies according to clinical picture."
       }
     };
 
