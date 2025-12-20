@@ -620,15 +620,21 @@ window.showAudioDiagnosisForm = function showAudioDiagnosisForm() {
     }
 
     mainContent.innerHTML = `
-        <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="margin: 0;">🧠 AI Diagnosis Assistant</h2>
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <div class="header-title-group">
+                <h2 style="margin: 0; font-size: 28px; color: #1a1a2e;">🧠 AI Diagnosis Assistant</h2>
+                <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Clinical decision support powered by AI</p>
+            </div>
             <button onclick="returnToDashboard()" class="btn-secondary">← Back to Dashboard</button>
         </div>
         <div class="ai-audio-diagnosis-form">
             <div class="form-header">
-                <p>Describe patient symptoms and get AI-powered diagnosis suggestions</p>
                 <div class="ai-models-badge">
-                    <span>Mode: <strong>Demo (Free)</strong> - Simulated AI responses</span>
+                    <span class="badge-icon">🤖</span>
+                    <div class="badge-content">
+                        <strong>Demo Mode (Free)</strong>
+                        <small>Simulated AI responses for demonstration</small>
+                    </div>
                 </div>
             </div>
 
@@ -651,46 +657,78 @@ window.showAudioDiagnosisForm = function showAudioDiagnosisForm() {
 
             <div class="form-content">
                 <div class="form-group">
-                    <label for="patient-select">Select Patient (Optional):</label>
+                    <label for="patient-select">
+                        <span class="label-icon">👤</span>
+                        Select Patient (Optional)
+                    </label>
                     <select id="patient-select" class="form-select">
                         <option value="">-- Anonymous Patient --</option>
                     </select>
-                    <small>Selecting a patient provides better context for diagnosis</small>
+                    <small class="help-text">💡 Selecting a patient provides better context for diagnosis</small>
                 </div>
 
                 <!-- Input Mode Tabs -->
                 <div class="input-mode-tabs">
                     <button id="tab-text" class="tab-btn active" onclick="switchInputMode('text')">
-                        📝 Text Input (Free)
+                        <span class="tab-icon">📝</span>
+                        <span class="tab-label">
+                            <strong>Text Input</strong>
+                            <small>Free - No API required</small>
+                        </span>
                     </button>
                     <button id="tab-audio" class="tab-btn" onclick="switchInputMode('audio')">
-                        🎤 Audio Recording (Requires API)
+                        <span class="tab-icon">🎤</span>
+                        <span class="tab-label">
+                            <strong>Audio Recording</strong>
+                            <small>Requires OpenAI API</small>
+                        </span>
                     </button>
                 </div>
 
                 <!-- Text Input Section -->
                 <div id="text-input-section" class="text-input-section">
-                    <h3>Describe Patient Symptoms</h3>
-                    <p>Enter the patient's symptoms, duration, and relevant details</p>
+                    <div class="section-header">
+                        <h3>📋 Describe Patient Symptoms</h3>
+                        <p>Enter the patient's symptoms, duration, and relevant clinical details</p>
+                    </div>
 
                     <div class="form-group">
                         <label for="symptoms-text">Symptom Description:</label>
-                        <textarea
-                            id="symptoms-text"
-                            class="symptoms-textarea"
-                            placeholder="Example: Patient reports persistent headache for 3 days, located in the frontal region, intensity 7/10. Associated with nausea in the morning and sensitivity to light. No fever. The pain worsens with physical activity..."
-                            rows="6"
-                            oninput="updateDiagnoseButton()"
-                        ></textarea>
-                        <small>Minimum 20 characters. Be as detailed as possible.</small>
+                        <div class="textarea-wrapper">
+                            <textarea
+                                id="symptoms-text"
+                                class="symptoms-textarea"
+                                placeholder="Example: Patient reports persistent headache for 3 days, located in the frontal region, intensity 7/10. Associated with nausea in the morning and sensitivity to light. No fever. The pain worsens with physical activity..."
+                                rows="8"
+                                oninput="updateDiagnoseButton()"
+                            ></textarea>
+                            <div class="character-counter">
+                                <span id="char-count">0</span> / 20 characters minimum
+                            </div>
+                        </div>
+                        <small class="help-text">💡 Be as detailed as possible - include onset, duration, severity, and associated symptoms</small>
                     </div>
 
                     <div class="symptom-templates">
-                        <p><strong>Quick templates:</strong></p>
-                        <button class="template-btn" onclick="insertTemplate('headache')">Headache</button>
-                        <button class="template-btn" onclick="insertTemplate('respiratory')">Respiratory</button>
-                        <button class="template-btn" onclick="insertTemplate('digestive')">Digestive</button>
-                        <button class="template-btn" onclick="insertTemplate('pain')">General Pain</button>
+                        <p class="templates-title"><strong>🚀 Quick Templates:</strong></p>
+                        <div class="templates-grid">
+                            <button class="template-btn" onclick="insertTemplate('headache')">
+                                <span class="template-icon">🤕</span>
+                                Headache
+                            </button>
+                            <button class="template-btn" onclick="insertTemplate('respiratory')">
+                                <span class="template-icon">🫁</span>
+                                Respiratory
+                            </button>
+                            <button class="template-btn" onclick="insertTemplate('digestive')">
+                                <span class="template-icon">🫃</span>
+                                Digestive
+                            </button>
+                            <button class="template-btn" onclick="insertTemplate('pain')">
+                                <span class="template-icon">⚡</span>
+                                General Pain
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -772,7 +810,22 @@ window.updateDiagnoseButton = function updateDiagnoseButton() {
 
     if (currentInputMode === 'text') {
         const symptomsText = document.getElementById('symptoms-text')?.value || '';
+        const charCount = document.getElementById('char-count');
+
+        // Update character counter
+        if (charCount) {
+            charCount.textContent = symptomsText.length;
+            charCount.style.color = symptomsText.length >= 20 ? '#4CAF50' : '#666';
+        }
+
         diagnoseBtn.disabled = symptomsText.length < 20;
+
+        // Update button text based on state
+        if (symptomsText.length < 20) {
+            diagnoseBtn.textContent = `🧠 Generate AI Diagnosis (${symptomsText.length}/20 chars)`;
+        } else {
+            diagnoseBtn.textContent = '🧠 Generate AI Diagnosis';
+        }
     } else {
         diagnoseBtn.disabled = audioChunks.length === 0;
     }
@@ -1269,20 +1322,59 @@ function addAudioDiagnosisStyles() {
     style.id = 'audio-diagnosis-styles';
     style.innerHTML = `
         .ai-audio-diagnosis-form {
-            max-width: 800px;
+            max-width: 900px;
             margin: 20px auto;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
             overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .ai-audio-diagnosis-form:hover {
+            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+        }
+
+        .header-title-group {
+            flex: 1;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px 30px;
+            text-align: center;
         }
 
         .ai-models-badge {
-            margin-top: 15px;
-            padding: 8px 16px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 24px;
             font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .badge-icon {
+            font-size: 24px;
+        }
+
+        .badge-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+        }
+
+        .badge-content strong {
+            color: #667eea;
+            font-size: 15px;
+        }
+
+        .badge-content small {
+            color: #666;
+            font-size: 12px;
         }
 
         .audio-recorder-section {
@@ -1368,98 +1460,228 @@ function addAudioDiagnosisStyles() {
             font-size: 14px;
         }
 
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .label-icon {
+            font-size: 18px;
+        }
+
+        .help-text {
+            display: block;
+            margin-top: 8px;
+            color: #666;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
         .form-select {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:hover {
+            border-color: #4A90E2;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         /* Input Mode Tabs */
         .input-mode-tabs {
             display: flex;
-            margin: 20px;
-            border-radius: 8px;
+            margin: 25px 0;
+            border-radius: 12px;
             overflow: hidden;
-            border: 2px solid #4A90E2;
+            background: #f5f7fa;
+            padding: 6px;
+            gap: 6px;
         }
 
         .tab-btn {
             flex: 1;
-            padding: 15px 20px;
+            padding: 16px 20px;
             border: none;
-            background: white;
+            background: transparent;
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
-        .tab-btn:first-child {
-            border-right: 1px solid #4A90E2;
+        .tab-icon {
+            font-size: 20px;
+        }
+
+        .tab-label {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+        }
+
+        .tab-label strong {
+            font-size: 14px;
+        }
+
+        .tab-label small {
+            font-size: 12px;
+            opacity: 0.8;
         }
 
         .tab-btn.active {
-            background: #4A90E2;
-            color: white;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            color: #667eea;
         }
 
         .tab-btn:hover:not(.active) {
-            background: #f0f7ff;
+            background: rgba(255,255,255,0.5);
         }
 
         /* Text Input Section */
         .text-input-section {
-            padding: 30px;
-            margin: 0 20px 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
+            padding: 35px;
+            margin: 0;
+            background: #fafbfc;
         }
 
-        .text-input-section h3 {
-            margin-top: 0;
-            color: #333;
+        .section-header {
+            margin-bottom: 25px;
+        }
+
+        .section-header h3 {
+            margin: 0 0 8px 0;
+            color: #1a1a2e;
+            font-size: 20px;
+        }
+
+        .section-header p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .textarea-wrapper {
+            position: relative;
         }
 
         .symptoms-textarea {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
             font-family: inherit;
             resize: vertical;
-            min-height: 150px;
-            transition: border-color 0.3s;
+            min-height: 180px;
+            line-height: 1.6;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .symptoms-textarea:hover {
+            border-color: #4A90E2;
         }
 
         .symptoms-textarea:focus {
             outline: none;
-            border-color: #4A90E2;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .character-counter {
+            position: absolute;
+            bottom: 12px;
+            right: 16px;
+            font-size: 13px;
+            color: #999;
+            background: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .character-counter span {
+            color: #666;
+            font-weight: 600;
         }
 
         .symptom-templates {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #ddd;
+            margin-top: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e8e8e8;
+        }
+
+        .templates-title {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
         }
 
         .template-btn {
-            padding: 8px 16px;
-            margin: 5px;
-            border: 1px solid #4A90E2;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 18px;
+            border: 2px solid #e0e0e0;
             background: white;
-            color: #4A90E2;
-            border-radius: 20px;
+            color: #333;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .template-icon {
+            font-size: 20px;
         }
 
         .template-btn:hover {
-            background: #4A90E2;
+            background: #667eea;
+            border-color: #667eea;
             color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .template-btn:active {
+            transform: translateY(0);
         }
 
         /* API Warning */
@@ -1484,155 +1706,285 @@ function addDiagnosisResultsStyles() {
     style.id = 'diagnosis-results-styles';
     style.innerHTML = `
         .ai-diagnosis-results {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 20px auto;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
             overflow: hidden;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .diagnosis-header {
             color: white;
-            padding: 30px;
+            padding: 35px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .diagnosis-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            pointer-events: none;
+        }
+
+        .diagnosis-header h2 {
+            margin: 0 0 15px 0;
+            font-size: 32px;
+            font-weight: 700;
+            position: relative;
         }
 
         .ai-models-used {
             margin-top: 15px;
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 25px;
             font-size: 13px;
-            opacity: 0.9;
+            opacity: 0.95;
+            position: relative;
+        }
+
+        .ai-models-used span {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
         }
 
         .transcript-section {
-            padding: 20px 30px;
-            background: #f8f9fa;
+            padding: 30px 35px;
+            background: #f8fbff;
+        }
+
+        .transcript-section h3 {
+            margin: 0 0 16px 0;
+            color: #1a1a2e;
+            font-size: 18px;
+            font-weight: 600;
         }
 
         .transcript-box {
             background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #4A90E2;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid #4A90E2;
             font-style: italic;
+            color: #444;
+            line-height: 1.8;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .transcript-meta {
-            margin-top: 10px;
+            margin-top: 16px;
             display: flex;
-            gap: 20px;
+            gap: 24px;
             font-size: 13px;
             color: #666;
         }
 
+        .transcript-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
         .urgency-banner {
             color: white;
-            padding: 15px;
+            padding: 20px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .urgency-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            pointer-events: none;
         }
 
         .urgency-banner h3 {
             margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .diagnosis-section {
-            padding: 20px 30px;
-            border-bottom: 1px solid #eee;
+            padding: 30px 35px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .diagnosis-section h3 {
+            margin: 0 0 18px 0;
+            color: #1a1a2e;
+            font-size: 19px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .symptoms-tags {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin: 10px 0;
+            gap: 12px;
+            margin: 16px 0;
         }
 
         .symptom-tag {
-            background: #e3f2fd;
-            color: #1976d2;
-            padding: 6px 12px;
-            border-radius: 20px;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
+            padding: 8px 16px;
+            border-radius: 24px;
             font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 2px 6px rgba(21, 101, 192, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .symptom-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(21, 101, 192, 0.25);
         }
 
         .differential-list {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 18px;
         }
 
         .differential-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #4A90E2;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 6px solid #4A90E2;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
         }
 
+        .differential-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        .differential-item.high {
+            border-left-color: #4CAF50;
+            background: linear-gradient(to right, rgba(76, 175, 80, 0.03) 0%, white 100%);
+        }
+
+        .differential-item.medium {
+            border-left-color: #FF9800;
+            background: linear-gradient(to right, rgba(255, 152, 0, 0.03) 0%, white 100%);
+        }
+
+        .differential-item.low {
+            border-left-color: #9E9E9E;
+            background: linear-gradient(to right, rgba(158, 158, 158, 0.03) 0%, white 100%);
+        }
+
+        /* Support for Spanish probability labels */
         .differential-item.alta {
             border-left-color: #4CAF50;
+            background: linear-gradient(to right, rgba(76, 175, 80, 0.03) 0%, white 100%);
         }
 
         .differential-item.media {
             border-left-color: #FF9800;
+            background: linear-gradient(to right, rgba(255, 152, 0, 0.03) 0%, white 100%);
         }
 
         .differential-item.baja {
             border-left-color: #9E9E9E;
+            background: linear-gradient(to right, rgba(158, 158, 158, 0.03) 0%, white 100%);
         }
 
         .differential-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 12px;
+            margin-bottom: 14px;
         }
 
         .rank {
-            background: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            width: 25px;
-            height: 25px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
 
         .condition {
-            font-weight: bold;
+            font-weight: 700;
             flex: 1;
+            color: #1a1a2e;
+            font-size: 16px;
         }
 
         .probability-badge {
-            padding: 4px 10px;
-            border-radius: 12px;
+            padding: 6px 14px;
+            border-radius: 16px;
             font-size: 12px;
+            font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
+        .probability-badge.high,
         .probability-badge.alta {
-            background: #e8f5e9;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
             color: #2e7d32;
         }
 
+        .probability-badge.medium,
         .probability-badge.media {
-            background: #fff3e0;
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
             color: #ef6c00;
         }
 
+        .probability-badge.low,
         .probability-badge.baja {
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
             color: #757575;
         }
 
         .reasoning {
             margin: 0;
-            color: #666;
+            color: #555;
             font-size: 14px;
+            line-height: 1.7;
         }
 
         .medications-list {
@@ -1678,6 +2030,176 @@ function addDiagnosisResultsStyles() {
 
         .diagnosis-actions button {
             margin: 10px;
+        }
+
+        /* Responsive Design - Tablets */
+        @media (max-width: 1024px) {
+            .ai-audio-diagnosis-form,
+            .ai-diagnosis-results {
+                max-width: 95%;
+                margin: 15px auto;
+            }
+
+            .diagnosis-section {
+                padding: 25px 25px;
+            }
+
+            .differential-header {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Responsive Design - Mobile */
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 15px;
+                margin-bottom: 20px !important;
+            }
+
+            .header-title-group h2 {
+                font-size: 24px !important;
+            }
+
+            .ai-audio-diagnosis-form,
+            .ai-diagnosis-results {
+                border-radius: 12px;
+                margin: 10px;
+            }
+
+            .form-header,
+            .diagnosis-header {
+                padding: 20px;
+            }
+
+            .ai-models-badge {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .text-input-section {
+                padding: 20px;
+            }
+
+            .input-mode-tabs {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .tab-btn {
+                padding: 14px 16px;
+            }
+
+            .tab-label {
+                align-items: center;
+            }
+
+            .templates-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .template-btn {
+                padding: 10px 14px;
+                font-size: 13px;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .diagnosis-section {
+                padding: 20px 18px;
+            }
+
+            .diagnosis-section h3 {
+                font-size: 17px;
+            }
+
+            .differential-item {
+                padding: 16px;
+            }
+
+            .differential-header {
+                gap: 8px;
+            }
+
+            .rank {
+                width: 28px;
+                height: 28px;
+                font-size: 13px;
+            }
+
+            .condition {
+                font-size: 15px;
+            }
+
+            .symptoms-tags {
+                gap: 8px;
+            }
+
+            .symptom-tag {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+
+            .transcript-meta {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .urgency-banner h3 {
+                font-size: 18px;
+            }
+
+            .diagnosis-actions {
+                padding: 20px;
+            }
+
+            .diagnosis-actions button {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+
+        /* Accessibility Improvements */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* High Contrast Mode Support */
+        @media (prefers-contrast: high) {
+            .differential-item,
+            .symptoms-textarea,
+            .form-select {
+                border-width: 3px;
+            }
+
+            .probability-badge,
+            .symptom-tag {
+                border: 2px solid currentColor;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .page-header,
+            .diagnosis-actions,
+            .form-content {
+                display: none;
+            }
+
+            .ai-diagnosis-results {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+
+            .diagnosis-section {
+                page-break-inside: avoid;
+            }
         }
     `;
     document.head.appendChild(style);
