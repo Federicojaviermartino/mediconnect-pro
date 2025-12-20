@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Records - MediConnect Pro</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f7fa;
+        }
+
+        .dashboard-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header-left h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-secondary, .btn-danger {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .content {
+            flex: 1;
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            margin-top: 0;
+            color: #1a1a2e;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .records-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .record-item {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+
+        .record-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .record-title {
+            font-weight: 600;
+            color: #1a1a2e;
+            font-size: 16px;
+        }
+
+        .record-date {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .record-details {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+
+            .header-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .content {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1>📝 Medical Records</h1>
+            </div>
+            <div class="header-right">
+                <span id="userWelcome"></span>
+                <button onclick="window.location.href='/dashboard-patient.html'" class="btn-secondary">Back to Dashboard</button>
+                <button onclick="logout()" class="btn-danger">Logout</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="content">
+            <section class="section">
+                <h2>📋 Your Medical History</h2>
+                <div id="recordsList" class="records-list">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📄</div>
+                        <h3>No Medical Records Available</h3>
+                        <p>Your medical records will appear here as your doctor adds them.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>💉 Vaccinations & Immunizations</h2>
+                <div id="vaccinationsList" class="records-list">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💉</div>
+                        <p>No vaccination records found.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🧪 Lab Results</h2>
+                <div id="labResultsList" class="records-list">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🧪</div>
+                        <p>No lab results available.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="/dashboard-scripts.js"></script>
+    <script src="/utils/csrf.js"></script>
+    <script>
+        // Load user info
+        async function loadUserInfo() {
+            try {
+                const response = await fetch('/api/user/profile', { credentials: 'include' });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.user) {
+                        const welcomeSpan = document.getElementById('userWelcome');
+                        if (welcomeSpan) {
+                            welcomeSpan.textContent = `Welcome, ${data.user.name}`;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading user info:', error);
+            }
+        }
+
+        // Load medical records (placeholder for future implementation)
+        async function loadRecords() {
+            // This would connect to your API endpoint
+            // For now, showing empty state
+            console.log('Medical records feature coming soon');
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/api/auth/logout';
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            loadUserInfo();
+            loadRecords();
+        });
+    </script>
+</body>
+</html>
