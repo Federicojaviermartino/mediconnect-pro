@@ -206,6 +206,64 @@ function setupAIRoutes(app, db) {
     }
   });
 
+  // POST /api/ai/text-diagnose - Generate diagnosis from text symptoms (Free mode)
+  // Main workflow for demo: Doctor types symptoms → AI generates diagnosis
+  app.post('/api/ai/text-diagnose', requireAuth, requireRole('doctor'), async (req, res) => {
+    try {
+      const { symptoms, patientId } = req.body;
+
+      if (!symptoms || symptoms.length < 20) {
+        return res.status(400).json({ error: 'Symptoms description is required (minimum 20 characters)' });
+      }
+
+      // Get patient context for better diagnosis
+      let patientContext = {};
+      if (patientId) {
+        const patient = db.getPatientById(patientId);
+        const patientRecord = db.getPatientByUserId(patientId);
+
+        if (patient) {
+          patientContext = {
+            name: patient.name,
+            age: calculateAge(patient.birthDate),
+            sex: patient.sex || 'No especificado',
+            conditions: patientRecord?.conditions || 'Ninguna conocida',
+            allergies: patientRecord?.allergies || 'Ninguna conocida'
+          };
+        }
+      }
+
+      logger.info('Starting text-diagnose workflow', {
+        patientId: patientId || 'anonymous',
+        doctorId: req.session.user.id,
+        symptomsLength: symptoms.length
+      });
+
+      const result = await aiService.diagnoseFromText(symptoms, patientContext);
+
+      if (!result.success) {
+        return res.status(500).json({
+          error: result.error || 'Diagnosis generation failed'
+        });
+      }
+
+      res.json({
+        success: true,
+        transcript: symptoms, // Use the symptoms text as "transcript"
+        transcriptionDuration: 0,
+        language: 'es',
+        confidence: 1.0,
+        diagnosis: result.diagnosis,
+        disclaimer: result.disclaimer
+      });
+    } catch (error) {
+      logger.logApiError(error, req, { context: 'AI Text-Diagnose' });
+      res.status(500).json({
+        error: 'Failed to generate diagnosis'
+      });
+    }
+  });
+
   // POST /api/ai/triage - Triage patient symptoms
   app.post('/api/ai/triage', requireAuth, async (req, res) => {
     try {

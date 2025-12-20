@@ -9,6 +9,74 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// ============================================
+// NAVIGATION STATE MANAGEMENT
+// ============================================
+
+// Store original dashboard content for returning
+let originalDashboardContent = null;
+let currentPage = 'Dashboard';
+
+// Set active menu item
+function setActiveMenuItem(pageName) {
+    currentPage = pageName;
+
+    // Remove active class from all nav items
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.classList.remove('active');
+        item.removeAttribute('aria-current');
+    });
+
+    // Find and activate the correct menu item
+    const menuMappings = {
+        'Dashboard': 'Dashboard',
+        'AI Triage': 'AI Triage',
+        'AI Assistant': 'AI Triage',
+        'AI Diagnosis': 'AI Diagnosis',
+        'Patients': 'Patients',
+        'Appointments': 'Appointments',
+        'Prescriptions': 'Prescriptions',
+        'Analytics': 'Analytics'
+    };
+
+    const targetText = menuMappings[pageName] || pageName;
+
+    navItems.forEach(item => {
+        const itemText = item.textContent.trim();
+        if (itemText.includes(targetText)) {
+            item.classList.add('active');
+            item.setAttribute('aria-current', 'page');
+        }
+    });
+}
+
+// Store original dashboard content
+function storeDashboardContent() {
+    if (!originalDashboardContent) {
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            originalDashboardContent = mainContent.innerHTML;
+        }
+    }
+}
+
+// Return to dashboard
+window.returnToDashboard = function returnToDashboard() {
+    const mainContent = document.getElementById('main-content');
+    if (mainContent && originalDashboardContent) {
+        mainContent.innerHTML = originalDashboardContent;
+        setActiveMenuItem('Dashboard');
+        // Reload dashboard data
+        if (typeof loadDashboardData === 'function') {
+            loadDashboardData();
+        }
+    } else {
+        // Fallback: reload the page
+        window.location.reload();
+    }
+};
+
 // Global function stubs for AI Assistant (will be implemented by ai-assistant.js)
 // These are defined here to avoid "not defined" errors when onclick fires before script loads
 window.showTriageForm = window.showTriageForm || function() {
@@ -51,7 +119,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Navigation between pages
 function navigateTo(page) {
-    // Debug log removed
+    // Store dashboard content before navigating
+    storeDashboardContent();
+
+    // Set active menu item
+    setActiveMenuItem(page);
 
     // Close mobile menu if open
     if (window.innerWidth <= 768) {
@@ -65,14 +137,17 @@ function navigateTo(page) {
 
     // Route to specific functions based on page
     switch(page) {
+        case 'Dashboard':
+            returnToDashboard();
+            break;
         case 'Patients':
-            window.location.href = 'patients.html';
+            loadPatientsPage();
             break;
         case 'My Vitals':
             viewMyVitals();
             break;
         case 'Appointments':
-            window.location.href = 'appointments.html';
+            loadAppointmentsPage();
             break;
         case 'Medications':
             viewMedications();
@@ -81,13 +156,13 @@ function navigateTo(page) {
             viewMedicalRecords();
             break;
         case 'Prescriptions':
-            window.location.href = 'prescriptions.html';
+            loadPrescriptionsPage();
             break;
         case 'AI Assistant':
             showTriageForm();
             break;
         case 'Analytics':
-            window.location.href = 'analytics.html';
+            loadAnalyticsPage();
             break;
         case 'Users':
             manageUsers();
@@ -101,6 +176,275 @@ function navigateTo(page) {
         default:
             showNotification(`${page} feature is being developed`, 'info');
     }
+}
+
+// ============================================
+// PAGE LOADERS (Stay in same page, update content)
+// ============================================
+
+function loadPatientsPage() {
+    const mainContent = document.getElementById('main-content');
+    mainContent.innerHTML = `
+        <div class="page-header">
+            <h2>👥 My Patients</h2>
+            <button onclick="returnToDashboard()" class="btn-secondary">← Back to Dashboard</button>
+        </div>
+        <div class="loading-state">
+            <div class="loader"></div>
+            <p>Loading patients...</p>
+        </div>
+    `;
+
+    // Load patients data
+    fetch('/api/patients', { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.patients && data.patients.length > 0) {
+                let patientsHtml = `
+                    <div class="page-header">
+                        <h2>👥 My Patients</h2>
+                        <button onclick="returnToDashboard()" class="btn-secondary">← Back to Dashboard</button>
+                    </div>
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Patient Name</th>
+                                    <th>Email</th>
+                                    <th>Blood Type</th>
+                                    <th>Conditions</th>
+                                    <th>Allergies</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                data.patients.forEach(p => {
+                    patientsHtml += `
+                        <tr>
+                            <td>${escapeHtml(p.name)}</td>
+                            <td>${escapeHtml(p.email || 'N/A')}</td>
+                            <td><span class="badge">${escapeHtml(p.bloodType || 'N/A')}</span></td>
+                            <td>${escapeHtml(p.conditions || 'None')}</td>
+                            <td>${escapeHtml(p.allergies || 'None')}</td>
+                            <td>
+                                <button class="btn-primary btn-small" onclick="viewPatientDetails('${p.id}', '${escapeHtml(p.name)}')">
+                                    View Details
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                patientsHtml += '</tbody></table></div>';
+                mainContent.innerHTML = patientsHtml;
+            } else {
+                mainContent.innerHTML = `
+                    <div class="page-header">
+                        <h2>👥 My Patients</h2>
+                        <button onclick="returnToDashboard()" class="btn-secondary">← Back to Dashboard</button>
+                    </div>
+                    <div class="empty-state">
+                        <p>No patients found.</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(err => {
+            mainContent.innerHTML = `
+                <div class="page-header">
+                    <h2>👥 My Patients</h2>
+                    <button onclick="returnToDashboard()" class="btn-secondary">← Back to Dashboard</button>
+                </div>
+                <div class="error-state">
+                    <p>Error loading patients. Please try again.</p>
+                </div>
+            `;
+        });
+}
+
+function loadAppointmentsPage() {
+    const mainContent = document.getElementById('main-content');
+    mainContent.innerHTML = `
+        <div class="page-header">
+            <h2>📅 Appointments</h2>
+            <button onclick="returnToDashboard()" class="btn-secondary">← Back to Dashboard</button>
+        </div>
+        <div class="loading-state">
+            <div class="loader"></div>
+            <p>Loading appointments...</p>
+        </div>
+    `;
+
+    fetch('/api/appointments', { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+            const appointments = data.appointments || [];
+            let html = `
+                <div class="page-header">
+                    <h2>📅 Appointments</h2>
+                    <button onclick="returnToDashboard()" class="btn-secondary">← Back to Dashboard</button>
+                </div>
+            `;
+
+            if (appointments.length > 0) {
+                html += `
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                appointments.forEach(apt => {
+                    const statusClass = apt.status === 'confirmed' ? 'success' : (apt.status === 'pending' ? 'warning' : 'info');
+                    html += `
+                        <tr>
+                            <td>${escapeHtml(apt.patientName || 'Unknown')}</td>
+                            <td>${escapeHtml(apt.date)}</td>
+                            <td>${escapeHtml(apt.time)}</td>
+                            <td>${escapeHtml(apt.type || 'General')}</td>
+                            <td><span class="badge badge-${statusClass}">${escapeHtml(apt.status)}</span></td>
+                            <td>
+                                <button class="btn-small btn-primary" onclick="showNotification('View appointment details', 'info')">View</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                html += '</tbody></table></div>';
+            } else {
+                html += `<div class="empty-state"><p>No appointments scheduled.</p></div>`;
+            }
+
+            mainContent.innerHTML = html;
+        })
+        .catch(err => {
+            mainContent.innerHTML = `
+                <div class="page-header">
+                    <h2>📅 Appointments</h2>
+                    <button onclick="returnToDashboard()" class="btn-secondary">← Back to Dashboard</button>
+                </div>
+                <div class="error-state"><p>Error loading appointments.</p></div>
+            `;
+        });
+}
+
+function loadPrescriptionsPage() {
+    const mainContent = document.getElementById('main-content');
+    mainContent.innerHTML = `
+        <div class="page-header">
+            <h2>💊 Prescriptions</h2>
+            <button onclick="returnToDashboard()" class="btn-secondary">← Back to Dashboard</button>
+        </div>
+        <div class="loading-state">
+            <div class="loader"></div>
+            <p>Loading prescriptions...</p>
+        </div>
+    `;
+
+    fetch('/api/prescriptions', { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+            const prescriptions = data.prescriptions || [];
+            let html = `
+                <div class="page-header">
+                    <h2>💊 Prescriptions</h2>
+                    <button onclick="returnToDashboard()" class="btn-secondary">← Back to Dashboard</button>
+                </div>
+            `;
+
+            if (prescriptions.length > 0) {
+                html += `
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Patient</th>
+                                    <th>Medication</th>
+                                    <th>Dosage</th>
+                                    <th>Frequency</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                prescriptions.forEach(rx => {
+                    const statusClass = rx.status === 'active' ? 'success' : 'secondary';
+                    html += `
+                        <tr>
+                            <td>${escapeHtml(rx.patientName || 'Unknown')}</td>
+                            <td>${escapeHtml(rx.medication)}</td>
+                            <td>${escapeHtml(rx.dosage)}</td>
+                            <td>${escapeHtml(rx.frequency)}</td>
+                            <td><span class="badge badge-${statusClass}">${escapeHtml(rx.status)}</span></td>
+                        </tr>
+                    `;
+                });
+                html += '</tbody></table></div>';
+            } else {
+                html += `<div class="empty-state"><p>No prescriptions found.</p></div>`;
+            }
+
+            mainContent.innerHTML = html;
+        })
+        .catch(err => {
+            mainContent.innerHTML = `
+                <div class="page-header">
+                    <h2>💊 Prescriptions</h2>
+                    <button onclick="returnToDashboard()" class="btn-secondary">← Back to Dashboard</button>
+                </div>
+                <div class="error-state"><p>Error loading prescriptions.</p></div>
+            `;
+        });
+}
+
+function loadAnalyticsPage() {
+    const mainContent = document.getElementById('main-content');
+    mainContent.innerHTML = `
+        <div class="page-header">
+            <h2>📈 Analytics</h2>
+            <button onclick="returnToDashboard()" class="btn-secondary">← Back to Dashboard</button>
+        </div>
+        <div class="stats-grid">
+            <article class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-info">
+                    <div class="stat-label">Total Consultations</div>
+                    <div class="stat-value">--</div>
+                </div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-icon">⏱️</div>
+                <div class="stat-info">
+                    <div class="stat-label">Avg. Consultation Time</div>
+                    <div class="stat-value">15 min</div>
+                </div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-info">
+                    <div class="stat-label">Patient Satisfaction</div>
+                    <div class="stat-value">4.8/5</div>
+                </div>
+            </article>
+            <article class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-info">
+                    <div class="stat-label">This Month</div>
+                    <div class="stat-value">Coming Soon</div>
+                </div>
+            </article>
+        </div>
+        <div class="info-banner" style="margin-top: 20px; padding: 20px; background: #f0f7ff; border-radius: 8px;">
+            <p><strong>Analytics Dashboard</strong> - Detailed analytics and reporting features are coming soon!</p>
+        </div>
+    `;
 }
 
 // Show notifications

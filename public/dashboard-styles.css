@@ -1132,3 +1132,208 @@ body {
 .log-user {
     color: #667eea;
 }
+
+/* =====================================================
+   Page Navigation & Content Styles
+   ===================================================== */
+
+/* Page Header with Back Button */
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.page-header h2 {
+    margin: 0;
+    font-size: 1.75rem;
+    color: #1e293b;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #f1f5f9;
+    color: #475569;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-back:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+
+.btn-back:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+/* Active Navigation Item */
+.nav-item.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white !important;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.nav-item.active span {
+    filter: brightness(1.2);
+}
+
+/* Data Table Container */
+.data-table-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.data-table-container .data-table {
+    margin: 0;
+    border-radius: 0;
+}
+
+/* Page Content States */
+.loading-state,
+.empty-state,
+.error-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+    margin: 20px 0;
+}
+
+.loading-state .loading-icon,
+.empty-state .empty-icon,
+.error-state .error-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+.loading-state p,
+.empty-state p,
+.error-state p {
+    color: #64748b;
+    font-size: 1.1em;
+    margin: 0;
+}
+
+.error-state {
+    background: #fef2f2;
+}
+
+.error-state p {
+    color: #dc2626;
+}
+
+/* Badge Variations for Tables */
+.badge-warning {
+    background: #fef3c7;
+    color: #92400e;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.badge-info {
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.badge-primary {
+    background: #e0e7ff;
+    color: #3730a3;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.badge-danger {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+/* Action Buttons in Tables */
+.btn-small {
+    padding: 6px 14px;
+    font-size: 0.85em;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-small-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-small-primary:hover {
+    background: #5568d3;
+}
+
+.btn-small-secondary {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-small-secondary:hover {
+    background: #e2e8f0;
+}
+
+.btn-small-danger {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-small-danger:hover {
+    background: #fecaca;
+}
+
+/* Responsive adjustments for page content */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .page-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .btn-back {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .loading-state,
+    .empty-state,
+    .error-state {
+        padding: 40px 16px;
+    }
+}

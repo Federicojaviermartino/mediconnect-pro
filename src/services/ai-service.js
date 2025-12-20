@@ -878,6 +878,458 @@ Responde SOLO con el JSON.`;
       };
     }
   }
+
+  /**
+   * Generate diagnosis from text symptoms (Free demo mode)
+   * Analyzes symptom keywords to generate contextual diagnosis
+   * @param {string} symptomsText - Text description of symptoms
+   * @param {Object} patientContext - Patient information for context
+   * @returns {Promise<Object>} Diagnosis result
+   */
+  async diagnoseFromText(symptomsText, patientContext = {}) {
+    logger.info('Starting text-based diagnosis', {
+      service: 'ai',
+      operation: 'text-diagnose',
+      patientName: patientContext.name,
+      symptomsLength: symptomsText.length
+    });
+
+    const symptomsLower = symptomsText.toLowerCase();
+
+    // Analyze symptoms to determine condition type
+    const conditionType = this.detectConditionType(symptomsLower);
+    const diagnosis = this.generateContextualDiagnosis(conditionType, symptomsText, patientContext);
+
+    logger.info('Text-based diagnosis completed', {
+      service: 'ai',
+      operation: 'text-diagnose',
+      conditionType: conditionType,
+      urgencyLevel: diagnosis.urgencyLevel
+    });
+
+    return {
+      success: true,
+      diagnosis: diagnosis,
+      disclaimer: "Este diagnóstico es generado por IA en modo DEMO como apoyo al médico. No sustituye el juicio clínico profesional. El médico tratante debe verificar y ajustar según su evaluación."
+    };
+  }
+
+  /**
+   * Detect the type of condition based on symptom keywords
+   */
+  detectConditionType(symptomsLower) {
+    // Headache/Neurological
+    if (symptomsLower.includes('headache') || symptomsLower.includes('cefalea') ||
+        symptomsLower.includes('dolor de cabeza') || symptomsLower.includes('migraine') ||
+        symptomsLower.includes('migraña')) {
+      return 'headache';
+    }
+
+    // Respiratory
+    if (symptomsLower.includes('cough') || symptomsLower.includes('tos') ||
+        symptomsLower.includes('respiratory') || symptomsLower.includes('respirator') ||
+        symptomsLower.includes('dyspnea') || symptomsLower.includes('disnea') ||
+        symptomsLower.includes('chest') || symptomsLower.includes('pecho') ||
+        symptomsLower.includes('congestion') || symptomsLower.includes('nasal')) {
+      return 'respiratory';
+    }
+
+    // Digestive
+    if (symptomsLower.includes('abdominal') || symptomsLower.includes('stomach') ||
+        symptomsLower.includes('estómago') || symptomsLower.includes('nausea') ||
+        symptomsLower.includes('náusea') || symptomsLower.includes('vomit') ||
+        symptomsLower.includes('diarrhea') || symptomsLower.includes('diarrea') ||
+        symptomsLower.includes('digestive') || symptomsLower.includes('digestivo')) {
+      return 'digestive';
+    }
+
+    // Musculoskeletal pain
+    if (symptomsLower.includes('pain') || symptomsLower.includes('dolor') ||
+        symptomsLower.includes('back') || symptomsLower.includes('espalda') ||
+        symptomsLower.includes('knee') || symptomsLower.includes('rodilla') ||
+        symptomsLower.includes('muscle') || symptomsLower.includes('muscular')) {
+      return 'musculoskeletal';
+    }
+
+    // Fever/Infection
+    if (symptomsLower.includes('fever') || symptomsLower.includes('fiebre') ||
+        symptomsLower.includes('temperature') || symptomsLower.includes('temperatura') ||
+        symptomsLower.includes('chills') || symptomsLower.includes('escalofríos')) {
+      return 'infection';
+    }
+
+    // Default: general
+    return 'general';
+  }
+
+  /**
+   * Generate contextual diagnosis based on condition type
+   */
+  generateContextualDiagnosis(conditionType, symptomsText, patientContext) {
+    const diagnoses = {
+      headache: {
+        mainSymptoms: ["Cefalea", "Dolor de cabeza persistente", "Sensibilidad a la luz"],
+        symptomDuration: "Variable según descripción",
+        urgencyLevel: "medium",
+        differentialDiagnosis: [
+          {
+            condition: "Cefalea tensional",
+            probability: "alta",
+            reasoning: "Patrón de dolor compatible con tensión muscular y estrés. Muy común en población general."
+          },
+          {
+            condition: "Migraña sin aura",
+            probability: "media",
+            reasoning: "Si presenta fotofobia, náuseas o carácter pulsátil, considerar migraña como diagnóstico primario."
+          },
+          {
+            condition: "Cefalea por abuso de analgésicos",
+            probability: "baja",
+            reasoning: "Evaluar uso frecuente de analgésicos (>15 días/mes)."
+          }
+        ],
+        recommendedTests: [
+          "Toma de presión arterial",
+          "Examen neurológico básico",
+          "Fundoscopia si hay signos de alarma",
+          "Considerar hemograma si hay síntomas sistémicos"
+        ],
+        suggestedTreatment: {
+          immediate: "Analgesia y ambiente oscuro/tranquilo",
+          medications: [
+            {
+              name: "Paracetamol",
+              dosage: "500-1000mg",
+              frequency: "Cada 6-8 horas",
+              duration: "Según necesidad, máximo 5 días"
+            },
+            {
+              name: "Ibuprofeno",
+              dosage: "400mg",
+              frequency: "Cada 8 horas con alimentos",
+              duration: "3-5 días máximo"
+            }
+          ],
+          lifestyle: [
+            "Hidratación adecuada (2L agua/día)",
+            "Descanso en ambiente oscuro",
+            "Evitar pantallas brillantes durante episodios",
+            "Técnicas de relajación y manejo del estrés"
+          ]
+        },
+        redFlags: [
+          "Cefalea súbita e intensa ('en trueno')",
+          "Rigidez de nuca o fiebre alta",
+          "Alteración del estado de conciencia",
+          "Déficit neurológico focal",
+          "Cambio en patrón habitual de cefalea"
+        ],
+        followUp: "Control en 72 horas si no mejora. Si persiste >2 semanas, derivar a neurología.",
+        specialistReferral: "Neurología si cefalea refractaria o cambio en patrón habitual",
+        clinicalNotes: "Evaluar factores desencadenantes: estrés, sueño, alimentación, cambios hormonales. Considerar diario de cefalea para identificar patrones."
+      },
+
+      respiratory: {
+        mainSymptoms: ["Tos", "Congestión nasal", "Dificultad respiratoria"],
+        symptomDuration: "Según evolución clínica",
+        urgencyLevel: "medium",
+        differentialDiagnosis: [
+          {
+            condition: "Infección respiratoria alta viral",
+            probability: "alta",
+            reasoning: "Cuadro compatible con rinofaringitis viral. Alta prevalencia estacional."
+          },
+          {
+            condition: "Bronquitis aguda",
+            probability: "media",
+            reasoning: "Si la tos es productiva y persistente >5 días, considerar bronquitis."
+          },
+          {
+            condition: "Sinusitis aguda",
+            probability: "baja",
+            reasoning: "Evaluar si hay dolor facial, rinorrea purulenta y síntomas >10 días."
+          }
+        ],
+        recommendedTests: [
+          "Auscultación pulmonar completa",
+          "Oximetría de pulso",
+          "Temperatura corporal",
+          "Radiografía de tórax si hay sospecha de neumonía"
+        ],
+        suggestedTreatment: {
+          immediate: "Reposo e hidratación abundante",
+          medications: [
+            {
+              name: "Paracetamol",
+              dosage: "500-1000mg",
+              frequency: "Cada 6-8 horas si fiebre",
+              duration: "Según necesidad"
+            },
+            {
+              name: "Suero fisiológico nasal",
+              dosage: "2-3 aplicaciones",
+              frequency: "3-4 veces al día",
+              duration: "Hasta mejoría"
+            }
+          ],
+          lifestyle: [
+            "Reposo relativo",
+            "Hidratación abundante (líquidos calientes)",
+            "Evitar cambios bruscos de temperatura",
+            "Elevar cabecera al dormir"
+          ]
+        },
+        redFlags: [
+          "Dificultad respiratoria severa",
+          "Fiebre >38.5°C persistente >72 horas",
+          "Hemoptisis (sangre en esputo)",
+          "Dolor torácico pleurítico",
+          "Saturación de oxígeno <94%"
+        ],
+        followUp: "Control en 48-72 horas. Si empeora, consulta urgente.",
+        specialistReferral: "Neumología si no hay mejoría en 2 semanas o hay signos de alarma",
+        clinicalNotes: "Descartar COVID-19 si clínica compatible. Evaluar vacunación antigripal e historia de tabaquismo."
+      },
+
+      digestive: {
+        mainSymptoms: ["Dolor abdominal", "Náuseas", "Alteración del tránsito intestinal"],
+        symptomDuration: "Según evolución clínica",
+        urgencyLevel: "medium",
+        differentialDiagnosis: [
+          {
+            condition: "Gastroenteritis aguda",
+            probability: "alta",
+            reasoning: "Cuadro compatible con infección gastrointestinal viral o bacteriana."
+          },
+          {
+            condition: "Dispepsia funcional",
+            probability: "media",
+            reasoning: "Si síntomas posprandiales recurrentes sin signos de alarma."
+          },
+          {
+            condition: "Gastritis",
+            probability: "media",
+            reasoning: "Considerar si hay dolor epigástrico, pirosis o relación con alimentos."
+          }
+        ],
+        recommendedTests: [
+          "Palpación abdominal completa",
+          "Signos vitales (TA, FC, Temperatura)",
+          "Hidratación y estado general",
+          "Hemograma y electrolitos si hay deshidratación"
+        ],
+        suggestedTreatment: {
+          immediate: "Dieta blanda, hidratación oral",
+          medications: [
+            {
+              name: "Sales de rehidratación oral",
+              dosage: "1 sobre en 1L de agua",
+              frequency: "Según tolerancia",
+              duration: "Hasta mejoría de síntomas"
+            },
+            {
+              name: "Omeprazol",
+              dosage: "20mg",
+              frequency: "Una vez al día en ayunas",
+              duration: "7-14 días"
+            }
+          ],
+          lifestyle: [
+            "Dieta blanda progresiva",
+            "Evitar alimentos irritantes",
+            "Comidas pequeñas y frecuentes",
+            "Evitar acostarse inmediatamente después de comer"
+          ]
+        },
+        redFlags: [
+          "Sangrado digestivo (hematemesis/melena)",
+          "Dolor abdominal intenso y localizado",
+          "Fiebre alta con dolor abdominal",
+          "Vómitos persistentes con deshidratación",
+          "Pérdida de peso involuntaria"
+        ],
+        followUp: "Control en 48-72 horas. Si no mejora, considerar estudios complementarios.",
+        specialistReferral: "Gastroenterología si síntomas >2 semanas o signos de alarma",
+        clinicalNotes: "Evaluar ingesta reciente de alimentos sospechosos, viajes, contacto con enfermos. Considerar coprocultivo si hay fiebre."
+      },
+
+      musculoskeletal: {
+        mainSymptoms: ["Dolor localizado", "Limitación de movimiento", "Rigidez"],
+        symptomDuration: "Según evolución",
+        urgencyLevel: "low",
+        differentialDiagnosis: [
+          {
+            condition: "Contractura muscular",
+            probability: "alta",
+            reasoning: "Dolor muscular por sobreesfuerzo o mala postura. Muy frecuente."
+          },
+          {
+            condition: "Síndrome miofascial",
+            probability: "media",
+            reasoning: "Puntos gatillo y dolor referido característico."
+          },
+          {
+            condition: "Tendinopatía",
+            probability: "baja",
+            reasoning: "Si hay dolor en inserción tendinosa con movimientos específicos."
+          }
+        ],
+        recommendedTests: [
+          "Exploración músculo-esquelética",
+          "Rango de movimiento",
+          "Puntos dolorosos a la palpación",
+          "Radiografía si sospecha de lesión ósea"
+        ],
+        suggestedTreatment: {
+          immediate: "Reposo relativo y aplicación de calor local",
+          medications: [
+            {
+              name: "Ibuprofeno",
+              dosage: "400-600mg",
+              frequency: "Cada 8 horas con alimentos",
+              duration: "5-7 días"
+            },
+            {
+              name: "Relajante muscular (ej: ciclobenzaprina)",
+              dosage: "5-10mg",
+              frequency: "Por la noche",
+              duration: "5-7 días"
+            }
+          ],
+          lifestyle: [
+            "Ergonomía postural",
+            "Estiramientos suaves",
+            "Evitar movimientos que agraven el dolor",
+            "Calor local 15-20 minutos varias veces al día"
+          ]
+        },
+        redFlags: [
+          "Dolor nocturno que despierta",
+          "Fiebre asociada",
+          "Pérdida de fuerza o sensibilidad",
+          "Traumatismo previo significativo",
+          "Antecedente de cáncer"
+        ],
+        followUp: "Control en 1-2 semanas si no mejora.",
+        specialistReferral: "Traumatología/Fisioterapia si persiste >2-3 semanas",
+        clinicalNotes: "Evaluar ergonomía laboral y hábitos posturales. Considerar fisioterapia preventiva."
+      },
+
+      infection: {
+        mainSymptoms: ["Fiebre", "Malestar general", "Escalofríos"],
+        symptomDuration: "Según evolución",
+        urgencyLevel: "medium",
+        differentialDiagnosis: [
+          {
+            condition: "Síndrome febril viral",
+            probability: "alta",
+            reasoning: "Cuadro compatible con infección viral sistémica. Alta prevalencia."
+          },
+          {
+            condition: "Infección bacteriana localizada",
+            probability: "media",
+            reasoning: "Evaluar foco infeccioso: respiratorio, urinario, cutáneo."
+          },
+          {
+            condition: "Proceso inflamatorio no infeccioso",
+            probability: "baja",
+            reasoning: "Considerar si no hay foco claro y persiste."
+          }
+        ],
+        recommendedTests: [
+          "Temperatura y signos vitales",
+          "Examen físico completo buscando foco",
+          "Hemograma con leucocitos",
+          "PCR y/o procalcitonina si disponible"
+        ],
+        suggestedTreatment: {
+          immediate: "Antipiréticos y vigilancia",
+          medications: [
+            {
+              name: "Paracetamol",
+              dosage: "500-1000mg",
+              frequency: "Cada 6-8 horas si fiebre >38°C",
+              duration: "Según necesidad"
+            }
+          ],
+          lifestyle: [
+            "Reposo",
+            "Hidratación abundante",
+            "Control de temperatura cada 6 horas",
+            "Ropa ligera y ambiente fresco"
+          ]
+        },
+        redFlags: [
+          "Fiebre >40°C",
+          "Signos meníngeos",
+          "Alteración del estado de conciencia",
+          "Petequias o exantema purpúrico",
+          "Compromiso hemodinámico"
+        ],
+        followUp: "Control en 24-48 horas. Si fiebre >72 horas, reevaluar con estudios.",
+        specialistReferral: "Infectología si fiebre prolongada sin foco identificado",
+        clinicalNotes: "Descartar focos infecciosos comunes. Considerar hemocultivos si fiebre alta persistente."
+      },
+
+      general: {
+        mainSymptoms: ["Síntomas generales descritos", "Malestar", "Fatiga"],
+        symptomDuration: "Según descripción del paciente",
+        urgencyLevel: "low",
+        differentialDiagnosis: [
+          {
+            condition: "Síndrome general inespecífico",
+            probability: "alta",
+            reasoning: "Cuadro que requiere mayor evaluación para determinar etiología específica."
+          },
+          {
+            condition: "Estrés/Ansiedad",
+            probability: "media",
+            reasoning: "Somatización frecuente. Evaluar contexto psicosocial."
+          },
+          {
+            condition: "Condición médica subyacente",
+            probability: "baja",
+            reasoning: "Considerar estudios complementarios si síntomas persisten."
+          }
+        ],
+        recommendedTests: [
+          "Examen físico completo",
+          "Signos vitales",
+          "Hemograma básico",
+          "Glucemia, función renal y hepática si pertinente"
+        ],
+        suggestedTreatment: {
+          immediate: "Tratamiento sintomático según predominio de síntomas",
+          medications: [
+            {
+              name: "Tratamiento sintomático",
+              dosage: "Según síntomas específicos",
+              frequency: "Variable",
+              duration: "Según evolución"
+            }
+          ],
+          lifestyle: [
+            "Descanso adecuado",
+            "Alimentación balanceada",
+            "Hidratación",
+            "Manejo del estrés"
+          ]
+        },
+        redFlags: [
+          "Pérdida de peso inexplicable",
+          "Fiebre prolongada",
+          "Síntomas neurológicos",
+          "Sangrados anormales",
+          "Dolor intenso persistente"
+        ],
+        followUp: "Control en 1 semana si síntomas persisten.",
+        specialistReferral: "Según hallazgos y evolución clínica",
+        clinicalNotes: "Anamnesis detallada para identificar síntomas predominantes. Considerar estudios complementarios según clínica."
+      }
+    };
+
+    return diagnoses[conditionType] || diagnoses.general;
+  }
 }
 
 module.exports = { AIService };

@@ -290,10 +290,21 @@ window.showTriageForm = function showTriageForm() {
         return;
     }
 
+    // Store dashboard content and set active menu
+    if (typeof storeDashboardContent === 'function') {
+        storeDashboardContent();
+    }
+    if (typeof setActiveMenuItem === 'function') {
+        setActiveMenuItem('AI Triage');
+    }
+
     mainContent.innerHTML = `
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">🤖 AI Triage Assistant</h2>
+            <button onclick="returnToDashboard()" class="btn-secondary">← Back to Dashboard</button>
+        </div>
         <div class="ai-triage-form">
             <div class="form-header">
-                <h2>🤖 AI Triage Assistant</h2>
                 <p>Describe your symptoms and we'll help determine the urgency level</p>
             </div>
 
@@ -596,17 +607,28 @@ let recordingStartTime = null;
 window.showAudioDiagnosisForm = function showAudioDiagnosisForm() {
     const mainContent = document.getElementById('main-content');
     if (!mainContent) {
-        showNotification('Unable to load Audio Diagnosis. Please refresh the page.', 'error');
+        showNotification('Unable to load AI Diagnosis. Please refresh the page.', 'error');
         return;
     }
 
+    // Store dashboard content and set active menu
+    if (typeof storeDashboardContent === 'function') {
+        storeDashboardContent();
+    }
+    if (typeof setActiveMenuItem === 'function') {
+        setActiveMenuItem('AI Diagnosis');
+    }
+
     mainContent.innerHTML = `
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">🧠 AI Diagnosis Assistant</h2>
+            <button onclick="returnToDashboard()" class="btn-secondary">← Back to Dashboard</button>
+        </div>
         <div class="ai-audio-diagnosis-form">
             <div class="form-header">
-                <h2>🎙️ AI Audio Diagnosis Assistant</h2>
-                <p>Record patient symptoms and get AI-powered diagnosis suggestions</p>
+                <p>Describe patient symptoms and get AI-powered diagnosis suggestions</p>
                 <div class="ai-models-badge">
-                    <span>Powered by: <strong>OpenAI GPT-5.2</strong> & <strong>Claude Opus 4.5</strong></span>
+                    <span>Mode: <strong>Demo (Free)</strong> - Simulated AI responses</span>
                 </div>
             </div>
 
@@ -619,7 +641,7 @@ window.showAudioDiagnosisForm = function showAudioDiagnosisForm() {
                         <li>Suggestions are for reference only - NOT final diagnoses</li>
                         <li>Always verify with your clinical judgment and examination</li>
                         <li>Review differential diagnoses carefully</li>
-                        <li>Consider patient history and context not captured in audio</li>
+                        <li>Consider patient history and context not captured</li>
                     </ul>
                     <p class="consent-text">
                         AI-generated suggestions should be validated by the treating physician.
@@ -636,9 +658,50 @@ window.showAudioDiagnosisForm = function showAudioDiagnosisForm() {
                     <small>Selecting a patient provides better context for diagnosis</small>
                 </div>
 
-                <div class="audio-recorder-section">
+                <!-- Input Mode Tabs -->
+                <div class="input-mode-tabs">
+                    <button id="tab-text" class="tab-btn active" onclick="switchInputMode('text')">
+                        📝 Text Input (Free)
+                    </button>
+                    <button id="tab-audio" class="tab-btn" onclick="switchInputMode('audio')">
+                        🎤 Audio Recording (Requires API)
+                    </button>
+                </div>
+
+                <!-- Text Input Section -->
+                <div id="text-input-section" class="text-input-section">
+                    <h3>Describe Patient Symptoms</h3>
+                    <p>Enter the patient's symptoms, duration, and relevant details</p>
+
+                    <div class="form-group">
+                        <label for="symptoms-text">Symptom Description:</label>
+                        <textarea
+                            id="symptoms-text"
+                            class="symptoms-textarea"
+                            placeholder="Example: Patient reports persistent headache for 3 days, located in the frontal region, intensity 7/10. Associated with nausea in the morning and sensitivity to light. No fever. The pain worsens with physical activity..."
+                            rows="6"
+                            oninput="updateDiagnoseButton()"
+                        ></textarea>
+                        <small>Minimum 20 characters. Be as detailed as possible.</small>
+                    </div>
+
+                    <div class="symptom-templates">
+                        <p><strong>Quick templates:</strong></p>
+                        <button class="template-btn" onclick="insertTemplate('headache')">Headache</button>
+                        <button class="template-btn" onclick="insertTemplate('respiratory')">Respiratory</button>
+                        <button class="template-btn" onclick="insertTemplate('digestive')">Digestive</button>
+                        <button class="template-btn" onclick="insertTemplate('pain')">General Pain</button>
+                    </div>
+                </div>
+
+                <!-- Audio Recording Section (hidden by default) -->
+                <div id="audio-recorder-section" class="audio-recorder-section hidden">
                     <h3>Record Patient Description</h3>
                     <p>Press the button and let the patient describe their symptoms</p>
+                    <div class="api-warning">
+                        <strong>Note:</strong> Audio transcription requires OpenAI API key ($0.006/min).
+                        <br>Currently in demo mode - use Text Input for free diagnosis.
+                    </div>
 
                     <div class="recorder-controls">
                         <button id="record-btn" onclick="toggleRecording()" class="btn-record">
@@ -660,7 +723,7 @@ window.showAudioDiagnosisForm = function showAudioDiagnosisForm() {
                 </div>
 
                 <div class="form-actions">
-                    <button id="diagnose-btn" onclick="submitAudioDiagnosis()" class="btn-primary" disabled>
+                    <button id="diagnose-btn" onclick="submitDiagnosis()" class="btn-primary" disabled>
                         🧠 Generate AI Diagnosis
                     </button>
                 </div>
@@ -673,6 +736,146 @@ window.showAudioDiagnosisForm = function showAudioDiagnosisForm() {
 
     // Add CSS for audio diagnosis form
     addAudioDiagnosisStyles();
+};
+
+// Current input mode
+let currentInputMode = 'text';
+
+// Switch between text and audio input modes
+window.switchInputMode = function switchInputMode(mode) {
+    currentInputMode = mode;
+
+    const textSection = document.getElementById('text-input-section');
+    const audioSection = document.getElementById('audio-recorder-section');
+    const tabText = document.getElementById('tab-text');
+    const tabAudio = document.getElementById('tab-audio');
+
+    if (mode === 'text') {
+        textSection.classList.remove('hidden');
+        audioSection.classList.add('hidden');
+        tabText.classList.add('active');
+        tabAudio.classList.remove('active');
+    } else {
+        textSection.classList.add('hidden');
+        audioSection.classList.remove('hidden');
+        tabText.classList.remove('active');
+        tabAudio.classList.add('active');
+    }
+
+    updateDiagnoseButton();
+};
+
+// Update diagnose button state
+window.updateDiagnoseButton = function updateDiagnoseButton() {
+    const diagnoseBtn = document.getElementById('diagnose-btn');
+    if (!diagnoseBtn) return;
+
+    if (currentInputMode === 'text') {
+        const symptomsText = document.getElementById('symptoms-text')?.value || '';
+        diagnoseBtn.disabled = symptomsText.length < 20;
+    } else {
+        diagnoseBtn.disabled = audioChunks.length === 0;
+    }
+};
+
+// Insert symptom templates
+window.insertTemplate = function insertTemplate(type) {
+    const textarea = document.getElementById('symptoms-text');
+    if (!textarea) return;
+
+    const templates = {
+        headache: `Patient reports headache for [duration].
+Location: [frontal/temporal/occipital/diffuse]
+Intensity: [1-10]/10
+Character: [throbbing/pressing/sharp]
+Associated symptoms: [nausea, vomiting, photophobia, phonophobia]
+Aggravating factors: [physical activity, light, noise]
+Relieving factors: [rest, darkness, medication]
+Previous episodes: [yes/no, frequency]`,
+
+        respiratory: `Patient presents respiratory symptoms for [duration].
+Main complaint: [cough/dyspnea/chest pain/congestion]
+Cough: [dry/productive, color of sputum if any]
+Fever: [yes/no, max temperature]
+Other symptoms: [sore throat, runny nose, fatigue]
+Smoking history: [yes/no, packs/day]
+Exposure: [sick contacts, travel, occupational]`,
+
+        digestive: `Patient reports gastrointestinal symptoms for [duration].
+Main complaint: [abdominal pain/nausea/vomiting/diarrhea]
+Pain location: [epigastric/periumbilical/RLQ/LLQ/diffuse]
+Pain character: [cramping/sharp/dull/burning]
+Bowel movements: [frequency, consistency, blood/mucus]
+Diet changes: [recent foods, alcohol]
+Associated: [fever, weight loss, appetite changes]`,
+
+        pain: `Patient presents with pain for [duration].
+Location: [specific body part]
+Intensity: [1-10]/10
+Character: [sharp/dull/burning/aching/throbbing]
+Radiation: [yes/no, where]
+Onset: [sudden/gradual, after activity/trauma]
+Aggravating factors: [movement, touch, position]
+Relieving factors: [rest, ice, heat, medication]
+Associated symptoms: [swelling, redness, weakness, numbness]`
+    };
+
+    textarea.value = templates[type] || '';
+    updateDiagnoseButton();
+    textarea.focus();
+};
+
+// Submit diagnosis (handles both text and audio)
+window.submitDiagnosis = async function submitDiagnosis() {
+    if (currentInputMode === 'audio') {
+        return submitAudioDiagnosis();
+    }
+
+    // Text-based diagnosis
+    const symptomsText = document.getElementById('symptoms-text')?.value || '';
+    if (symptomsText.length < 20) {
+        showNotification('Please enter at least 20 characters describing the symptoms', 'warning');
+        return;
+    }
+
+    const patientId = document.getElementById('patient-select')?.value || null;
+
+    // Show loading state
+    const mainContent = document.getElementById('main-content');
+    mainContent.innerHTML = `
+        <div style="text-align: center; padding: 60px 20px;">
+            <div class="loader"></div>
+            <h3>Generating Diagnosis...</h3>
+            <p>Analyzing symptoms with AI...</p>
+            <small>This may take a few seconds...</small>
+        </div>
+    `;
+
+    try {
+        const response = await csrfFetch('/api/ai/text-diagnose', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                symptoms: symptomsText,
+                patientId: patientId
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            displayDiagnosisResults(data);
+        } else {
+            showNotification('Diagnosis failed: ' + (data.error || 'Unknown error'), 'error');
+            showAudioDiagnosisForm();
+        }
+    } catch (error) {
+        console.error('Diagnosis error:', error);
+        showNotification('Error connecting to diagnosis service', 'error');
+        showAudioDiagnosisForm();
+    }
 };
 
 // Load patients for the select dropdown
@@ -1171,6 +1374,103 @@ function addAudioDiagnosisStyles() {
             border: 2px solid #ddd;
             border-radius: 6px;
             font-size: 14px;
+        }
+
+        /* Input Mode Tabs */
+        .input-mode-tabs {
+            display: flex;
+            margin: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #4A90E2;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:first-child {
+            border-right: 1px solid #4A90E2;
+        }
+
+        .tab-btn.active {
+            background: #4A90E2;
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #f0f7ff;
+        }
+
+        /* Text Input Section */
+        .text-input-section {
+            padding: 30px;
+            margin: 0 20px 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .text-input-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .symptoms-textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 150px;
+            transition: border-color 0.3s;
+        }
+
+        .symptoms-textarea:focus {
+            outline: none;
+            border-color: #4A90E2;
+        }
+
+        .symptom-templates {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        .template-btn {
+            padding: 8px 16px;
+            margin: 5px;
+            border: 1px solid #4A90E2;
+            background: white;
+            color: #4A90E2;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .template-btn:hover {
+            background: #4A90E2;
+            color: white;
+        }
+
+        /* API Warning */
+        .api-warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
         }
     `;
     document.head.appendChild(style);
