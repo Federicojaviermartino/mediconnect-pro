@@ -213,6 +213,7 @@
 
     <script src="/dashboard-scripts.js"></script>
     <script src="/utils/csrf.js"></script>
+    <script src="/ai-assistant.js"></script>
     <script>
         // Load user info
         async function loadUserInfo() {
@@ -237,13 +238,6 @@
             // This would connect to your API endpoint
             // For now, showing empty state
             console.log('Medical records feature coming soon');
-        }
-
-        // Logout function
-        function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                window.location.href = '/api/auth/logout';
-            }
         }
 
         // Initialize
