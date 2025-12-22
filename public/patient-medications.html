@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Medications - MediConnect Pro</title>
+    <link rel="stylesheet" href="/dashboard-styles.css">
+    <style>
+        .medications-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .medications-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .medications-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .medications-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .medications-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .medications-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-completed {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .status-cancelled {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .status-pending {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .filter-tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .filter-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .medication-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .medication-card h3 {
+            margin: 0 0 0.5rem 0;
+            color: #1a1a2e;
+        }
+
+        .medication-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .medication-detail {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            border-radius: 8px;
+        }
+
+        .medication-detail-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .medication-detail-value {
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .medication-notes {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: #fff3cd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu">
+        <span>☰</span>
+    </button>
+    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
+
+    <div class="dashboard">
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🏥</span>
+                <span class="logo-text">MediConnect Pro</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard-patient.html" class="nav-item">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="#" class="nav-item" onclick="event.preventDefault(); showTriageForm()">
+                    <span>🤖</span> AI Assistant
+                </a>
+                <a href="vitals-monitor.html" class="nav-item">
+                    <span>❤️</span> My Vitals
+                </a>
+                <a href="patient-appointments.html" class="nav-item">
+                    <span>📅</span> Appointments
+                </a>
+                <a href="patient-medications.html" class="nav-item active">
+                    <span>💊</span> Medications
+                </a>
+                <a href="medical-records.html" class="nav-item">
+                    <span>📝</span> Medical Records
+                </a>
+            </nav>
+            <button onclick="logout()" class="logout-btn">
+                <span>🚪</span> Logout
+            </button>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h1><span>💊</span> My Medications</h1>
+                <div class="user-info">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <span class="user-role">Patient</span>
+                </div>
+            </header>
+
+            <div class="content" id="main-content">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-status="all" onclick="filterByStatus('all')">All</button>
+                    <button class="filter-tab" data-status="active" onclick="filterByStatus('active')">Active</button>
+                    <button class="filter-tab" data-status="completed" onclick="filterByStatus('completed')">Completed</button>
+                </div>
+
+                <div id="medicationsContainer">
+                    <div class="loading">Loading medications...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/dashboard-scripts.js"></script>
+    <script src="/utils/csrf.js"></script>
+    <script src="/ai-assistant.js"></script>
+    <script src="/dashboard-interactive.js"></script>
+    <script>
+        let allMedications = [];
+        let currentFilter = 'all';
+
+        async function loadMedications() {
+            try {
+                const response = await fetch('/api/prescriptions', {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load medications');
+                }
+
+                const data = await response.json();
+                allMedications = data.prescriptions || [];
+                renderMedications();
+            } catch (error) {
+                console.error('Error loading medications:', error);
+                document.getElementById('medicationsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <p>Failed to load medications. Please try again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function filterByStatus(status) {
+            currentFilter = status;
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.status === status) {
+                    tab.classList.add('active');
+                }
+            });
+            renderMedications();
+        }
+
+        function renderMedications() {
+            const container = document.getElementById('medicationsContainer');
+            const filtered = currentFilter === 'all'
+                ? allMedications
+                : allMedications.filter(med => med.status === currentFilter);
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">💊</div>
+                        <p>No medications found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const cardsHTML = filtered.map(med => `
+                <div class="medication-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3>💊 ${escapeHtml(med.medication)}</h3>
+                        <span class="status-badge status-${med.status}">${escapeHtml(med.status)}</span>
+                    </div>
+                    <div class="medication-details">
+                        <div class="medication-detail">
+                            <div class="medication-detail-label">Dosage</div>
+                            <div class="medication-detail-value">${escapeHtml(med.dosage || 'As directed')}</div>
+                        </div>
+                        <div class="medication-detail">
+                            <div class="medication-detail-label">Frequency</div>
+                            <div class="medication-detail-value">${escapeHtml(med.frequency || 'As needed')}</div>
+                        </div>
+                        <div class="medication-detail">
+                            <div class="medication-detail-label">Duration</div>
+                            <div class="medication-detail-value">${med.duration ? med.duration + ' days' : 'Ongoing'}</div>
+                        </div>
+                        <div class="medication-detail">
+                            <div class="medication-detail-label">Prescribed By</div>
+                            <div class="medication-detail-value">${escapeHtml(med.doctorName || 'Your Doctor')}</div>
+                        </div>
+                    </div>
+                    ${med.notes ? `<div class="medication-notes"><strong>Instructions:</strong> ${escapeHtml(med.notes)}</div>` : ''}
+                </div>
+            `).join('');
+
+            container.innerHTML = cardsHTML;
+        }
+
+        function escapeHtml(text) {
+            if (text === null || text === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = String(text);
+            return div.innerHTML;
+        }
+
+        (async () => {
+            if (typeof initCsrfProtection === 'function') {
+                await initCsrfProtection();
+            }
+            loadMedications();
+        })();
+    </script>
+</body>
+</html>

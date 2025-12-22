@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Appointments - MediConnect Pro</title>
-    <link rel="stylesheet" href="dashboard-styles.css">
+    <title>My Appointments - MediConnect Pro</title>
+    <link rel="stylesheet" href="/dashboard-styles.css">
     <style>
         .appointments-container {
             padding: 2rem;
@@ -25,11 +25,6 @@
             margin: 0;
         }
 
-        .appointments-actions {
-            display: flex;
-            gap: 1rem;
-        }
-
         .new-appointment-btn {
             padding: 0.75rem 1.5rem;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -42,22 +37,6 @@
 
         .new-appointment-btn:hover {
             opacity: 0.9;
-        }
-
-        .back-btn {
-            padding: 0.75rem 1.5rem;
-            background: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .back-btn:hover {
-            background: #5a6268;
         }
 
         .filter-tabs {
@@ -161,19 +140,6 @@
             font-size: 4rem;
             margin-bottom: 1rem;
         }
-        .content {
-            padding: 2rem;
-        }
-
-        .content h1 {
-            font-size: 2rem;
-            color: #1a1a2e;
-            margin-bottom: 1rem;
-        }
-
-        .appointments-actions {
-            margin-bottom: 2rem;
-        }
 
         /* Modal Styles */
         .modal {
@@ -227,19 +193,6 @@
             font-size: 1.5rem;
             cursor: pointer;
             color: #666;
-            padding: 0;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.3s;
-        }
-
-        .close-modal:hover {
-            background: #f0f0f0;
-            color: #333;
         }
 
         .form-group {
@@ -261,14 +214,6 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #667eea;
         }
 
         .form-group textarea {
@@ -281,8 +226,6 @@
             gap: 1rem;
             justify-content: flex-end;
             margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e0e0e0;
         }
 
         .btn-cancel {
@@ -292,11 +235,6 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: 500;
-        }
-
-        .btn-cancel:hover {
-            background: #5a6268;
         }
 
         .btn-submit {
@@ -306,16 +244,6 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: 500;
-        }
-
-        .btn-submit:hover {
-            opacity: 0.9;
-        }
-
-        .btn-submit:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
 
         .error-message {
@@ -330,14 +258,8 @@
         }
 
         @keyframes slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
     </style>
 </head>
@@ -354,23 +276,23 @@
                 <span class="logo-text">MediConnect Pro</span>
             </div>
             <nav class="nav-menu">
-                <a href="dashboard-doctor.html" class="nav-item">
+                <a href="dashboard-patient.html" class="nav-item">
                     <span>📊</span> Dashboard
                 </a>
-                <a href="#" class="nav-item" onclick="event.preventDefault(); showAudioDiagnosisForm()">
-                    <span>🧠</span> AI Diagnosis
+                <a href="#" class="nav-item" onclick="event.preventDefault(); showTriageForm()">
+                    <span>🤖</span> AI Assistant
                 </a>
-                <a href="patients.html" class="nav-item">
-                    <span>👥</span> Patients
+                <a href="vitals-monitor.html" class="nav-item">
+                    <span>❤️</span> My Vitals
                 </a>
-                <a href="appointments.html" class="nav-item active">
+                <a href="patient-appointments.html" class="nav-item active">
                     <span>📅</span> Appointments
                 </a>
-                <a href="prescriptions.html" class="nav-item">
-                    <span>💊</span> Prescriptions
+                <a href="patient-medications.html" class="nav-item">
+                    <span>💊</span> Medications
                 </a>
-                <a href="analytics.html" class="nav-item">
-                    <span>📈</span> Analytics
+                <a href="medical-records.html" class="nav-item">
+                    <span>📝</span> Medical Records
                 </a>
             </nav>
             <button onclick="logout()" class="logout-btn">
@@ -379,31 +301,28 @@
         </aside>
 
         <main class="main-content">
+            <header class="header">
+                <h1><span>📅</span> My Appointments</h1>
+                <div class="user-info">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <span class="user-role">Patient</span>
+                </div>
+            </header>
+
             <div class="content" id="main-content">
-                <h1>📅 My Appointments</h1>
-                <div class="appointments-actions">
+                <div class="appointments-actions" style="margin-bottom: 1.5rem;">
                     <button class="new-appointment-btn" onclick="scheduleAppointment()">
-                        + New Appointment
+                        + Request Appointment
                     </button>
                 </div>
 
                 <div class="filter-tabs">
-            <button class="filter-tab active" data-status="all" onclick="filterByStatus('all')">
-                All
-            </button>
-            <button class="filter-tab" data-status="scheduled" onclick="filterByStatus('scheduled')">
-                Scheduled
-            </button>
-            <button class="filter-tab" data-status="confirmed" onclick="filterByStatus('confirmed')">
-                Confirmed
-            </button>
-            <button class="filter-tab" data-status="completed" onclick="filterByStatus('completed')">
-                Completed
-            </button>
-            <button class="filter-tab" data-status="cancelled" onclick="filterByStatus('cancelled')">
-                Cancelled
-            </button>
-        </div>
+                    <button class="filter-tab active" data-status="all" onclick="filterByStatus('all')">All</button>
+                    <button class="filter-tab" data-status="scheduled" onclick="filterByStatus('scheduled')">Scheduled</button>
+                    <button class="filter-tab" data-status="confirmed" onclick="filterByStatus('confirmed')">Confirmed</button>
+                    <button class="filter-tab" data-status="completed" onclick="filterByStatus('completed')">Completed</button>
+                    <button class="filter-tab" data-status="cancelled" onclick="filterByStatus('cancelled')">Cancelled</button>
+                </div>
 
                 <div class="appointments-table" id="appointmentsTable">
                     <div class="loading">Loading appointments...</div>
@@ -416,43 +335,42 @@
     <div id="appointmentModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>📅 Schedule New Appointment</h2>
+                <h2>📅 Request New Appointment</h2>
                 <button class="close-modal" onclick="closeAppointmentModal()">&times;</button>
             </div>
             <form id="appointmentForm" onsubmit="submitAppointment(event)">
                 <div class="form-group">
-                    <label for="apt-date">Date *</label>
+                    <label for="apt-date">Preferred Date *</label>
                     <input type="date" id="apt-date" name="date" required>
                     <span class="error-message" id="date-error"></span>
                 </div>
 
                 <div class="form-group">
-                    <label for="apt-time">Time *</label>
+                    <label for="apt-time">Preferred Time *</label>
                     <input type="time" id="apt-time" name="time" required>
                     <span class="error-message" id="time-error"></span>
                 </div>
 
                 <div class="form-group">
-                    <label for="apt-type">Type *</label>
+                    <label for="apt-type">Appointment Type *</label>
                     <select id="apt-type" name="type" required>
                         <option value="">Select type...</option>
                         <option value="consultation">General Consultation</option>
-                        <option value="follow-up">Follow-up</option>
-                        <option value="emergency">Emergency</option>
+                        <option value="follow-up">Follow-up Visit</option>
                         <option value="teleconsultation">Teleconsultation</option>
                     </select>
                     <span class="error-message" id="type-error"></span>
                 </div>
 
                 <div class="form-group">
-                    <label for="apt-reason">Reason / Symptoms *</label>
-                    <textarea id="apt-reason" name="reason" placeholder="Brief description of symptoms or reason for visit..." required></textarea>
+                    <label for="apt-reason">Reason for Visit *</label>
+                    <textarea id="apt-reason" name="reason" placeholder="Please describe your symptoms or reason for the appointment..." required></textarea>
                     <span class="error-message" id="reason-error"></span>
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="btn-cancel" onclick="closeAppointmentModal()">Cancel</button>
-                    <button type="submit" class="btn-submit" id="submitBtn">Schedule Appointment</button>
+                    <button type="submit" class="btn-submit" id="submitBtn">Request Appointment</button>
                 </div>
             </form>
         </div>
@@ -492,21 +410,17 @@
 
         function filterByStatus(status) {
             currentFilter = status;
-
-            // Update tab styling
             document.querySelectorAll('.filter-tab').forEach(tab => {
                 tab.classList.remove('active');
                 if (tab.dataset.status === status) {
                     tab.classList.add('active');
                 }
             });
-
             renderAppointments();
         }
 
         function renderAppointments() {
             const tableContainer = document.getElementById('appointmentsTable');
-
             const filtered = currentFilter === 'all'
                 ? allAppointments
                 : allAppointments.filter(apt => apt.status === currentFilter);
@@ -527,8 +441,8 @@
                         <tr>
                             <th>Date</th>
                             <th>Time</th>
-                            <th>Patient/Doctor</th>
-                            <th>Reason</th>
+                            <th>Doctor</th>
+                            <th>Type</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -537,15 +451,14 @@
                             <tr>
                                 <td>${formatDate(apt.date)}</td>
                                 <td>${escapeHtml(apt.time || 'N/A')}</td>
-                                <td>${escapeHtml(apt.patientName || apt.doctorName || 'N/A')}</td>
-                                <td>${escapeHtml(apt.reason || apt.type || 'General consultation')}</td>
+                                <td>${escapeHtml(apt.doctorName || 'Assigned Doctor')}</td>
+                                <td>${escapeHtml(apt.type || apt.reason || 'Consultation')}</td>
                                 <td><span class="status-badge status-${apt.status}">${escapeHtml(apt.status)}</span></td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
             `;
-
             tableContainer.innerHTML = tableHTML;
         }
 
@@ -563,38 +476,22 @@
         }
 
         function scheduleAppointment() {
-            // Set minimum date to today
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('apt-date').setAttribute('min', today);
-
-            // Open modal
             document.getElementById('appointmentModal').classList.add('show');
         }
 
         function closeAppointmentModal() {
             document.getElementById('appointmentModal').classList.remove('show');
             document.getElementById('appointmentForm').reset();
-            clearErrors();
-        }
-
-        function clearErrors() {
             document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
-        }
-
-        function showError(fieldId, message) {
-            const errorEl = document.getElementById(`${fieldId}-error`);
-            if (errorEl) {
-                errorEl.textContent = message;
-            }
         }
 
         async function submitAppointment(event) {
             event.preventDefault();
-            clearErrors();
-
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Scheduling...';
+            submitBtn.textContent = 'Requesting...';
 
             const formData = {
                 date: document.getElementById('apt-date').value,
@@ -605,7 +502,6 @@
 
             try {
                 const csrfToken = window.csrfToken || '';
-
                 const response = await fetch('/api/appointments', {
                     method: 'POST',
                     headers: {
@@ -619,54 +515,43 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    // Handle validation errors
                     if (data.details) {
                         data.details.forEach(detail => {
-                            const fieldName = detail.path[0];
-                            showError(fieldName, detail.message);
+                            const errorEl = document.getElementById(`${detail.path[0]}-error`);
+                            if (errorEl) errorEl.textContent = detail.message;
                         });
                     } else {
-                        throw new Error(data.error || 'Failed to create appointment');
+                        throw new Error(data.error || 'Failed to request appointment');
                     }
                     return;
                 }
 
-                // Success
                 closeAppointmentModal();
                 await loadAppointments();
-
-                // Show success message
                 if (typeof showNotification === 'function') {
-                    showNotification('Appointment scheduled successfully!', 'success');
+                    showNotification('Appointment requested successfully!', 'success');
                 } else {
-                    alert('Appointment scheduled successfully!');
+                    alert('Appointment requested successfully!');
                 }
-
             } catch (error) {
-                console.error('Error creating appointment:', error);
+                console.error('Error:', error);
                 alert('Error: ' + error.message);
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Schedule Appointment';
+                submitBtn.textContent = 'Request Appointment';
             }
         }
 
-        // Close modal when clicking outside
         document.addEventListener('click', (event) => {
-            const modal = document.getElementById('appointmentModal');
-            if (event.target === modal) {
+            if (event.target === document.getElementById('appointmentModal')) {
                 closeAppointmentModal();
             }
         });
 
-        // Close modal with Escape key
         document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                closeAppointmentModal();
-            }
+            if (event.key === 'Escape') closeAppointmentModal();
         });
 
-        // Initialize CSRF and load appointments
         (async () => {
             if (typeof initCsrfProtection === 'function') {
                 await initCsrfProtection();

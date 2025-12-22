@@ -4,175 +4,235 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vital Signs Monitor - MediConnect Pro</title>
-    <link rel="stylesheet" href="dashboard-styles.css">
+    <link rel="stylesheet" href="/dashboard-styles.css">
     <link rel="stylesheet" href="vitals-styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .vitals-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 1.5rem;
+        }
+
+        .vitals-sidebar-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .vitals-content-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .vitals-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Header -->
-        <header class="dashboard-header">
-            <div class="header-left">
-                <h1>🫀 Vital Signs Monitor</h1>
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu">
+        <span>☰</span>
+    </button>
+    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
+
+    <div class="dashboard">
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🏥</span>
+                <span class="logo-text">MediConnect Pro</span>
             </div>
-            <div class="header-right">
-                <span id="userWelcome"></span>
-                <button onclick="window.location.href='/dashboard-patient.html'" class="btn-secondary">Back to Dashboard</button>
-                <button onclick="logout()" class="btn-danger">Logout</button>
-            </div>
-        </header>
+            <nav class="nav-menu">
+                <a href="dashboard-patient.html" class="nav-item">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="#" class="nav-item" onclick="event.preventDefault(); showTriageForm()">
+                    <span>🤖</span> AI Assistant
+                </a>
+                <a href="vitals-monitor.html" class="nav-item active">
+                    <span>❤️</span> My Vitals
+                </a>
+                <a href="patient-appointments.html" class="nav-item">
+                    <span>📅</span> Appointments
+                </a>
+                <a href="patient-medications.html" class="nav-item">
+                    <span>💊</span> Medications
+                </a>
+                <a href="medical-records.html" class="nav-item">
+                    <span>📝</span> Medical Records
+                </a>
+            </nav>
+            <button onclick="logout()" class="logout-btn">
+                <span>🚪</span> Logout
+            </button>
+        </aside>
 
-        <!-- Alert Banner -->
-        <div id="alertBanner" class="alert-banner" style="display: none;"></div>
+        <main class="main-content">
+            <header class="header">
+                <h1><span>🫀</span> Vital Signs Monitor</h1>
+                <div class="user-info">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <span class="user-role">Patient</span>
+                </div>
+            </header>
 
-        <!-- Main Content -->
-        <main class="vitals-main">
-            <!-- Left Column: Input Form & Quick Stats -->
-            <aside class="vitals-sidebar">
-                <!-- Record New Vitals -->
-                <section class="card">
-                    <h2>📝 Record Vitals</h2>
-                    <form id="vitalsForm" class="vitals-form">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="heartRate">
-                                    ❤️ Heart Rate
-                                    <span class="unit">(bpm)</span>
-                                </label>
-                                <input type="number" id="heartRate" name="heartRate"
-                                       min="30" max="200" placeholder="72">
-                            </div>
-                            <div class="form-group">
-                                <label for="systolicBP">
-                                    🩸 Systolic BP
-                                    <span class="unit">(mmHg)</span>
-                                </label>
-                                <input type="number" id="systolicBP" name="systolicBP"
-                                       min="70" max="200" placeholder="120">
-                            </div>
-                        </div>
+            <div class="content" id="main-content">
+                <!-- Alert Banner -->
+                <div id="alertBanner" class="alert-banner" style="display: none;"></div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="diastolicBP">
-                                    🩸 Diastolic BP
-                                    <span class="unit">(mmHg)</span>
-                                </label>
-                                <input type="number" id="diastolicBP" name="diastolicBP"
-                                       min="40" max="130" placeholder="80">
-                            </div>
-                            <div class="form-group">
-                                <label for="temperature">
-                                    🌡️ Temperature
-                                    <span class="unit">(°C)</span>
-                                </label>
-                                <input type="number" id="temperature" name="temperature"
-                                       min="34" max="42" step="0.1" placeholder="36.6">
-                            </div>
-                        </div>
+                <!-- Main Vitals Layout -->
+                <div class="vitals-layout">
+                    <!-- Left Column: Input Form & Quick Stats -->
+                    <div class="vitals-sidebar-inner">
+                        <!-- Record New Vitals -->
+                        <section class="card">
+                            <h2>📝 Record Vitals</h2>
+                            <form id="vitalsForm" class="vitals-form">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="heartRate">
+                                            ❤️ Heart Rate
+                                            <span class="unit">(bpm)</span>
+                                        </label>
+                                        <input type="number" id="heartRate" name="heartRate"
+                                               min="30" max="200" placeholder="72">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="systolicBP">
+                                            🩸 Systolic BP
+                                            <span class="unit">(mmHg)</span>
+                                        </label>
+                                        <input type="number" id="systolicBP" name="systolicBP"
+                                               min="70" max="200" placeholder="120">
+                                    </div>
+                                </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="oxygenSaturation">
-                                    💨 Oxygen Sat
-                                    <span class="unit">(%)</span>
-                                </label>
-                                <input type="number" id="oxygenSaturation" name="oxygenSaturation"
-                                       min="70" max="100" placeholder="98">
-                            </div>
-                            <div class="form-group">
-                                <label for="respiratoryRate">
-                                    🫁 Respiratory Rate
-                                    <span class="unit">(br/min)</span>
-                                </label>
-                                <input type="number" id="respiratoryRate" name="respiratoryRate"
-                                       min="8" max="40" placeholder="16">
-                            </div>
-                        </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="diastolicBP">
+                                            🩸 Diastolic BP
+                                            <span class="unit">(mmHg)</span>
+                                        </label>
+                                        <input type="number" id="diastolicBP" name="diastolicBP"
+                                               min="40" max="130" placeholder="80">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="temperature">
+                                            🌡️ Temperature
+                                            <span class="unit">(°C)</span>
+                                        </label>
+                                        <input type="number" id="temperature" name="temperature"
+                                               min="34" max="42" step="0.1" placeholder="36.6">
+                                    </div>
+                                </div>
 
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="bloodGlucose">
-                                    🍬 Blood Glucose
-                                    <span class="unit">(mg/dL)</span>
-                                </label>
-                                <input type="number" id="bloodGlucose" name="bloodGlucose"
-                                       min="30" max="400" placeholder="95">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="oxygenSaturation">
+                                            💨 Oxygen Sat
+                                            <span class="unit">(%)</span>
+                                        </label>
+                                        <input type="number" id="oxygenSaturation" name="oxygenSaturation"
+                                               min="70" max="100" placeholder="98">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="respiratoryRate">
+                                            🫁 Respiratory Rate
+                                            <span class="unit">(br/min)</span>
+                                        </label>
+                                        <input type="number" id="respiratoryRate" name="respiratoryRate"
+                                               min="8" max="40" placeholder="16">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="bloodGlucose">
+                                            🍬 Blood Glucose
+                                            <span class="unit">(mg/dL)</span>
+                                        </label>
+                                        <input type="number" id="bloodGlucose" name="bloodGlucose"
+                                               min="30" max="400" placeholder="95">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="weight">
+                                            ⚖️ Weight
+                                            <span class="unit">(kg)</span>
+                                        </label>
+                                        <input type="number" id="weight" name="weight"
+                                               min="20" max="300" step="0.1" placeholder="70.5">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="notes">📋 Notes (Optional)</label>
+                                    <textarea id="notes" name="notes" rows="3"
+                                            placeholder="Any symptoms, activities, or observations..."></textarea>
+                                </div>
+
+                                <button type="submit" class="btn-primary btn-block">
+                                    Record Vitals
+                                </button>
+                            </form>
+                        </section>
+
+                        <!-- Quick Stats -->
+                        <section class="card">
+                            <h2>📊 Quick Stats (7 Days)</h2>
+                            <div id="quickStats" class="quick-stats">
+                                <div class="loading">Loading statistics...</div>
                             </div>
-                            <div class="form-group">
-                                <label for="weight">
-                                    ⚖️ Weight
-                                    <span class="unit">(kg)</span>
-                                </label>
-                                <input type="number" id="weight" name="weight"
-                                       min="20" max="300" step="0.1" placeholder="70.5">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="notes">📋 Notes (Optional)</label>
-                            <textarea id="notes" name="notes" rows="3"
-                                    placeholder="Any symptoms, activities, or observations..."></textarea>
-                        </div>
-
-                        <button type="submit" class="btn-primary btn-block">
-                            Record Vitals
-                        </button>
-                    </form>
-                </section>
-
-                <!-- Quick Stats -->
-                <section class="card">
-                    <h2>📊 Quick Stats (7 Days)</h2>
-                    <div id="quickStats" class="quick-stats">
-                        <div class="loading">Loading statistics...</div>
+                        </section>
                     </div>
-                </section>
-            </aside>
 
-            <!-- Center & Right Columns: Charts & Alerts -->
-            <div class="vitals-content">
-                <!-- Active Alerts -->
-                <section class="card alerts-section">
-                    <h2>🚨 Active Alerts</h2>
-                    <div id="alertsContainer" class="alerts-container">
-                        <div class="loading">Loading alerts...</div>
-                    </div>
-                </section>
+                    <!-- Right Column: Charts & Data -->
+                    <div class="vitals-content-inner">
+                        <!-- Active Alerts -->
+                        <section class="card alerts-section">
+                            <h2>🚨 Active Alerts</h2>
+                            <div id="alertsContainer" class="alerts-container">
+                                <div class="loading">Loading alerts...</div>
+                            </div>
+                        </section>
 
-                <!-- AI Insights -->
-                <section class="card ai-insights-section">
-                    <h2>🤖 AI Health Insights</h2>
-                    <div id="aiInsights" class="ai-insights">
-                        <button onclick="analyzeVitals()" class="btn-primary" id="analyzeBtn">
-                            Analyze My Vitals
-                        </button>
-                        <div id="analysisResult" style="display: none;"></div>
-                    </div>
-                </section>
+                        <!-- AI Insights -->
+                        <section class="card ai-insights-section">
+                            <h2>🤖 AI Health Insights</h2>
+                            <div id="aiInsights" class="ai-insights">
+                                <button onclick="analyzeVitals()" class="btn-primary" id="analyzeBtn">
+                                    Analyze My Vitals
+                                </button>
+                                <div id="analysisResult" style="display: none;"></div>
+                            </div>
+                        </section>
 
-                <!-- Vitals Charts -->
-                <section class="card charts-section">
-                    <h2>📈 Vitals Trends (30 Days)</h2>
-                    <div class="chart-tabs">
-                        <button class="tab-btn active" onclick="showChart('heartRate')">Heart Rate</button>
-                        <button class="tab-btn" onclick="showChart('bloodPressure')">Blood Pressure</button>
-                        <button class="tab-btn" onclick="showChart('temperature')">Temperature</button>
-                        <button class="tab-btn" onclick="showChart('oxygenSaturation')">Oxygen Sat</button>
-                        <button class="tab-btn" onclick="showChart('bloodGlucose')">Blood Glucose</button>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="vitalsChart"></canvas>
-                    </div>
-                </section>
+                        <!-- Vitals Charts -->
+                        <section class="card charts-section">
+                            <h2>📈 Vitals Trends (30 Days)</h2>
+                            <div class="chart-tabs">
+                                <button class="tab-btn active" onclick="showChart('heartRate')">Heart Rate</button>
+                                <button class="tab-btn" onclick="showChart('bloodPressure')">Blood Pressure</button>
+                                <button class="tab-btn" onclick="showChart('temperature')">Temperature</button>
+                                <button class="tab-btn" onclick="showChart('oxygenSaturation')">Oxygen Sat</button>
+                                <button class="tab-btn" onclick="showChart('bloodGlucose')">Blood Glucose</button>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="vitalsChart"></canvas>
+                            </div>
+                        </section>
 
-                <!-- Recent Readings -->
-                <section class="card">
-                    <h2>📋 Recent Readings</h2>
-                    <div id="recentReadings" class="recent-readings">
-                        <div class="loading">Loading readings...</div>
+                        <!-- Recent Readings -->
+                        <section class="card">
+                            <h2>📋 Recent Readings</h2>
+                            <div id="recentReadings" class="recent-readings">
+                                <div class="loading">Loading readings...</div>
+                            </div>
+                        </section>
                     </div>
-                </section>
+                </div>
             </div>
         </main>
     </div>
@@ -180,6 +240,7 @@
     <script src="/dashboard-scripts.js"></script>
     <script src="/utils/csrf.js"></script>
     <script src="/ai-assistant.js"></script>
+    <script src="/dashboard-interactive.js"></script>
     <script src="vitals-monitor.js"></script>
 </body>
 </html>
