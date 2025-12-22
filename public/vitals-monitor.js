@@ -32,11 +32,19 @@ async function checkAuth() {
         const data = await response.json();
         currentUser = data.user;
 
-        // Get patient info
+        // Get patient info using patient-specific endpoint
         if (currentUser.role === 'patient') {
-            const patientsResponse = await fetch('/api/patients', { credentials: 'include' });
-            const patientsData = await patientsResponse.json();
-            currentPatient = patientsData.patients.find(p => p.userId === currentUser.id);
+            try {
+                const patientResponse = await fetch('/api/me/patient', { credentials: 'include' });
+                if (patientResponse.ok) {
+                    const patientData = await patientResponse.json();
+                    currentPatient = patientData.patient;
+                } else {
+                    console.warn('Could not load patient profile');
+                }
+            } catch (e) {
+                console.warn('Error loading patient profile:', e);
+            }
         }
         updateHeader();
     } catch (error) {
@@ -46,9 +54,10 @@ async function checkAuth() {
 }
 
 function updateHeader() {
-    const welcomeEl = document.getElementById('userWelcome');
-    if (welcomeEl && currentUser) {
-        welcomeEl.textContent = `Welcome, ${currentUser.name}`;
+    // Update userName element (in sidebar header)
+    const userNameEl = document.getElementById('userName');
+    if (userNameEl && currentUser) {
+        userNameEl.textContent = currentUser.name;
     }
 }
 
