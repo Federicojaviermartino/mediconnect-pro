@@ -7,7 +7,11 @@ async function checkAuth() {
         const data = await response.json();
 
         if (response.ok && data.user) {
-            document.getElementById('userName').textContent = data.user.name;
+            // Safely update userName element if it exists
+            const userNameEl = document.getElementById('userName');
+            if (userNameEl) {
+                userNameEl.textContent = data.user.name;
+            }
             return data.user;
         } else {
             window.location.href = '/login.html';
