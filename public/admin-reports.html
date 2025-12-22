@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - MediConnect Pro Admin</title>
+    <link rel="stylesheet" href="/dashboard-styles.css">
+    <style>
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .report-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .report-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .report-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+        }
+
+        .report-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .report-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .generate-btn {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #1a1a2e;
+        }
+
+        .recent-reports-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .recent-reports-table th,
+        .recent-reports-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .recent-reports-table th {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.875rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-pending {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .download-btn {
+            padding: 0.25rem 0.75rem;
+            background: #e3f2fd;
+            color: #1976d2;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar select,
+        .filter-bar input {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+
+        .schedule-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .schedule-info h4 {
+            margin: 0 0 0.25rem 0;
+            font-size: 1rem;
+        }
+
+        .schedule-info p {
+            margin: 0;
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .schedule-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu">
+        <span>☰</span>
+    </button>
+    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
+
+    <div class="dashboard">
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🏥</span>
+                <span class="logo-text">MediConnect Pro</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard-admin.html" class="nav-item">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="admin-users.html" class="nav-item">
+                    <span>👥</span> Users
+                </a>
+                <a href="admin-settings.html" class="nav-item">
+                    <span>⚙️</span> System Settings
+                </a>
+                <a href="admin-reports.html" class="nav-item active">
+                    <span>📝</span> Reports
+                </a>
+                <a href="admin-analytics.html" class="nav-item">
+                    <span>📈</span> Analytics
+                </a>
+            </nav>
+            <button onclick="logout()" class="logout-btn">
+                <span>🚪</span> Logout
+            </button>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h1><span>📝</span> Reports</h1>
+                <div class="user-info">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <span class="user-role">Administrator</span>
+                </div>
+            </header>
+
+            <div class="content" id="main-content">
+                <div class="section">
+                    <h2>Generate Reports</h2>
+                    <div class="reports-grid">
+                        <div class="report-card" onclick="generateReport('users')">
+                            <div class="report-icon">👥</div>
+                            <div class="report-title">User Activity Report</div>
+                            <div class="report-description">Overview of user registrations, logins, and activity patterns</div>
+                            <div class="report-meta">
+                                <span>Last generated: Today</span>
+                                <button class="generate-btn">Generate</button>
+                            </div>
+                        </div>
+
+                        <div class="report-card" onclick="generateReport('appointments')">
+                            <div class="report-icon">📅</div>
+                            <div class="report-title">Appointments Report</div>
+                            <div class="report-description">Summary of scheduled, completed, and cancelled appointments</div>
+                            <div class="report-meta">
+                                <span>Last generated: Yesterday</span>
+                                <button class="generate-btn">Generate</button>
+                            </div>
+                        </div>
+
+                        <div class="report-card" onclick="generateReport('vitals')">
+                            <div class="report-icon">❤️</div>
+                            <div class="report-title">Vitals Summary Report</div>
+                            <div class="report-description">Aggregated vital signs data and health trends</div>
+                            <div class="report-meta">
+                                <span>Last generated: 2 days ago</span>
+                                <button class="generate-btn">Generate</button>
+                            </div>
+                        </div>
+
+                        <div class="report-card" onclick="generateReport('prescriptions')">
+                            <div class="report-icon">💊</div>
+                            <div class="report-title">Prescriptions Report</div>
+                            <div class="report-description">Prescription statistics and medication distribution</div>
+                            <div class="report-meta">
+                                <span>Last generated: 3 days ago</span>
+                                <button class="generate-btn">Generate</button>
+                            </div>
+                        </div>
+
+                        <div class="report-card" onclick="generateReport('security')">
+                            <div class="report-icon">🔐</div>
+                            <div class="report-title">Security Audit Report</div>
+                            <div class="report-description">Login attempts, access logs, and security events</div>
+                            <div class="report-meta">
+                                <span>Last generated: 1 week ago</span>
+                                <button class="generate-btn">Generate</button>
+                            </div>
+                        </div>
+
+                        <div class="report-card" onclick="generateReport('system')">
+                            <div class="report-icon">⚙️</div>
+                            <div class="report-title">System Performance Report</div>
+                            <div class="report-description">Server performance, uptime, and resource utilization</div>
+                            <div class="report-meta">
+                                <span>Last generated: Today</span>
+                                <button class="generate-btn">Generate</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Recent Reports</h2>
+                    <div class="filter-bar">
+                        <select id="reportTypeFilter">
+                            <option value="all">All Types</option>
+                            <option value="users">User Activity</option>
+                            <option value="appointments">Appointments</option>
+                            <option value="vitals">Vitals</option>
+                            <option value="prescriptions">Prescriptions</option>
+                        </select>
+                        <input type="date" id="dateFrom" placeholder="From">
+                        <input type="date" id="dateTo" placeholder="To">
+                    </div>
+                    <table class="recent-reports-table">
+                        <thead>
+                            <tr>
+                                <th>Report Name</th>
+                                <th>Type</th>
+                                <th>Generated</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportsTableBody">
+                            <tr>
+                                <td>User Activity Report - December 2025</td>
+                                <td>User Activity</td>
+                                <td>Dec 22, 2025 10:30 AM</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                                <td><button class="download-btn" onclick="downloadReport('1')">Download</button></td>
+                            </tr>
+                            <tr>
+                                <td>Appointments Summary - Week 51</td>
+                                <td>Appointments</td>
+                                <td>Dec 21, 2025 3:15 PM</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                                <td><button class="download-btn" onclick="downloadReport('2')">Download</button></td>
+                            </tr>
+                            <tr>
+                                <td>System Performance - Daily</td>
+                                <td>System</td>
+                                <td>Dec 22, 2025 12:00 AM</td>
+                                <td><span class="status-badge status-completed">Completed</span></td>
+                                <td><button class="download-btn" onclick="downloadReport('3')">Download</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="section">
+                    <h2>Scheduled Reports</h2>
+                    <div class="schedule-card">
+                        <div class="schedule-info">
+                            <h4>Daily System Performance Report</h4>
+                            <p>Runs every day at 12:00 AM</p>
+                        </div>
+                        <div class="schedule-toggle">
+                            <span>Enabled</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="schedule-card">
+                        <div class="schedule-info">
+                            <h4>Weekly User Activity Summary</h4>
+                            <p>Runs every Monday at 8:00 AM</p>
+                        </div>
+                        <div class="schedule-toggle">
+                            <span>Enabled</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="schedule-card">
+                        <div class="schedule-info">
+                            <h4>Monthly Security Audit</h4>
+                            <p>Runs on the 1st of every month</p>
+                        </div>
+                        <div class="schedule-toggle">
+                            <span>Enabled</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/dashboard-scripts.js"></script>
+    <script src="/utils/csrf.js"></script>
+    <script src="/dashboard-interactive.js"></script>
+    <script>
+        function generateReport(type) {
+            const reportNames = {
+                'users': 'User Activity Report',
+                'appointments': 'Appointments Report',
+                'vitals': 'Vitals Summary Report',
+                'prescriptions': 'Prescriptions Report',
+                'security': 'Security Audit Report',
+                'system': 'System Performance Report'
+            };
+            alert(`Generating ${reportNames[type]}...\n\nThis feature is coming soon!`);
+        }
+
+        function downloadReport(id) {
+            alert(`Downloading report ${id}...\n\nThis feature is coming soon!`);
+        }
+    </script>
+
+    <style>
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+    </style>
+</body>
+</html>

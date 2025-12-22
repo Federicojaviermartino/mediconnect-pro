@@ -23,22 +23,19 @@
                 <span class="logo-text">MediConnect Pro</span>
             </div>
             <nav class="nav-menu" aria-label="Dashboard navigation">
-                <a href="#" class="nav-item active" onclick="event.preventDefault(); showNotification('You are on the Dashboard', 'info')" aria-current="page">
+                <a href="dashboard-admin.html" class="nav-item active" aria-current="page">
                     <span aria-hidden="true">📊</span> Dashboard
                 </a>
-                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('AI Assistant')">
-                    <span aria-hidden="true">🤖</span> AI Assistant
-                </a>
-                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Users')">
+                <a href="admin-users.html" class="nav-item">
                     <span aria-hidden="true">👥</span> Users
                 </a>
-                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Settings')">
+                <a href="admin-settings.html" class="nav-item">
                     <span aria-hidden="true">⚙️</span> System Settings
                 </a>
-                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Reports')">
+                <a href="admin-reports.html" class="nav-item">
                     <span aria-hidden="true">📝</span> Reports
                 </a>
-                <a href="#" class="nav-item" onclick="event.preventDefault(); navigateTo('Analytics')">
+                <a href="admin-analytics.html" class="nav-item">
                     <span aria-hidden="true">📈</span> Analytics
                 </a>
             </nav>
@@ -193,7 +190,6 @@
     <script src="/utils/csrf.js"></script>
     <script src="/utils/lazy-load.js"></script>
     <script src="/dashboard-interactive.js"></script>
-    <script src="/ai-assistant.js"></script>
     <script>
         async function loadStats() {
             try {

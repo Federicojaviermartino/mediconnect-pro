@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - MediConnect Pro Admin</title>
+    <link rel="stylesheet" href="/dashboard-styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .metric-icon {
+            font-size: 2rem;
+        }
+
+        .metric-change {
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .change-positive {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .change-negative {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-label {
+            color: #666;
+            font-size: 0.875rem;
+        }
+
+        .chart-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .chart-section h2 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #1a1a2e;
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .time-filter {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .time-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .time-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-table th {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.875rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu">
+        <span>☰</span>
+    </button>
+    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
+
+    <div class="dashboard">
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🏥</span>
+                <span class="logo-text">MediConnect Pro</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard-admin.html" class="nav-item">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="admin-users.html" class="nav-item">
+                    <span>👥</span> Users
+                </a>
+                <a href="admin-settings.html" class="nav-item">
+                    <span>⚙️</span> System Settings
+                </a>
+                <a href="admin-reports.html" class="nav-item">
+                    <span>📝</span> Reports
+                </a>
+                <a href="admin-analytics.html" class="nav-item active">
+                    <span>📈</span> Analytics
+                </a>
+            </nav>
+            <button onclick="logout()" class="logout-btn">
+                <span>🚪</span> Logout
+            </button>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h1><span>📈</span> Analytics</h1>
+                <div class="user-info">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <span class="user-role">Administrator</span>
+                </div>
+            </header>
+
+            <div class="content" id="main-content">
+                <div class="time-filter">
+                    <button class="time-btn" onclick="setTimeRange('7d')">7 Days</button>
+                    <button class="time-btn active" onclick="setTimeRange('30d')">30 Days</button>
+                    <button class="time-btn" onclick="setTimeRange('90d')">90 Days</button>
+                    <button class="time-btn" onclick="setTimeRange('1y')">1 Year</button>
+                </div>
+
+                <div class="analytics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-icon">👥</span>
+                            <span class="metric-change change-positive">+12%</span>
+                        </div>
+                        <div class="metric-value">156</div>
+                        <div class="metric-label">Total Users</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-icon">📅</span>
+                            <span class="metric-change change-positive">+8%</span>
+                        </div>
+                        <div class="metric-value">342</div>
+                        <div class="metric-label">Appointments This Month</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-icon">❤️</span>
+                            <span class="metric-change change-positive">+15%</span>
+                        </div>
+                        <div class="metric-value">1,247</div>
+                        <div class="metric-label">Vital Signs Recorded</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-icon">💊</span>
+                            <span class="metric-change change-negative">-3%</span>
+                        </div>
+                        <div class="metric-value">89</div>
+                        <div class="metric-label">Active Prescriptions</div>
+                    </div>
+                </div>
+
+                <div class="charts-row">
+                    <div class="chart-section">
+                        <h2>User Registrations</h2>
+                        <div class="chart-container">
+                            <canvas id="userChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-section">
+                        <h2>Appointments Overview</h2>
+                        <div class="chart-container">
+                            <canvas id="appointmentsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-row">
+                    <div class="chart-section">
+                        <h2>User Distribution by Role</h2>
+                        <div class="chart-container">
+                            <canvas id="roleChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-section">
+                        <h2>System Usage (Requests/Hour)</h2>
+                        <div class="chart-container">
+                            <canvas id="usageChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-section">
+                    <h2>Top Performing Metrics</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Current</th>
+                                <th>Target</th>
+                                <th>Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>User Satisfaction</td>
+                                <td>94%</td>
+                                <td>95%</td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 94%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Appointment Completion Rate</td>
+                                <td>87%</td>
+                                <td>90%</td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 87%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>System Uptime</td>
+                                <td>99.9%</td>
+                                <td>99.5%</td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 100%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Average Response Time</td>
+                                <td>142ms</td>
+                                <td>200ms</td>
+                                <td>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 100%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/dashboard-scripts.js"></script>
+    <script src="/utils/csrf.js"></script>
+    <script src="/dashboard-interactive.js"></script>
+    <script>
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+        });
+
+        function initCharts() {
+            // User Registrations Chart
+            new Chart(document.getElementById('userChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'New Users',
+                        data: [12, 19, 15, 25],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Appointments Chart
+            new Chart(document.getElementById('appointmentsChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [
+                        {
+                            label: 'Completed',
+                            data: [12, 19, 15, 25, 22, 8, 5],
+                            backgroundColor: '#667eea'
+                        },
+                        {
+                            label: 'Cancelled',
+                            data: [2, 3, 1, 4, 2, 1, 0],
+                            backgroundColor: '#dc3545'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' } }
+                }
+            });
+
+            // Role Distribution Chart
+            new Chart(document.getElementById('roleChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Patients', 'Doctors', 'Admins'],
+                    datasets: [{
+                        data: [120, 30, 6],
+                        backgroundColor: ['#667eea', '#28a745', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right' } }
+                }
+            });
+
+            // System Usage Chart
+            new Chart(document.getElementById('usageChart'), {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                    datasets: [{
+                        label: 'Requests/Hour',
+                        data: [50, 30, 150, 280, 320, 180],
+                        borderColor: '#764ba2',
+                        backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function setTimeRange(range) {
+            document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            console.log('Time range set to:', range);
+            // Would reload charts with new data
+        }
+    </script>
+</body>
+</html>

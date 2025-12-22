@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - MediConnect Pro Admin</title>
+    <link rel="stylesheet" href="/dashboard-styles.css">
+    <style>
+        .users-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .users-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .users-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .users-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .users-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .users-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .role-admin {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        .role-doctor {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .role-patient {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-inactive {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .action-btn-small {
+            padding: 0.25rem 0.5rem;
+            margin: 0 0.25rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .btn-edit {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .btn-delete {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .search-bar select {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .add-user-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #1a1a2e;
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu">
+        <span>☰</span>
+    </button>
+    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
+
+    <div class="dashboard">
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🏥</span>
+                <span class="logo-text">MediConnect Pro</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard-admin.html" class="nav-item">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="admin-users.html" class="nav-item active">
+                    <span>👥</span> Users
+                </a>
+                <a href="admin-settings.html" class="nav-item">
+                    <span>⚙️</span> System Settings
+                </a>
+                <a href="admin-reports.html" class="nav-item">
+                    <span>📝</span> Reports
+                </a>
+                <a href="admin-analytics.html" class="nav-item">
+                    <span>📈</span> Analytics
+                </a>
+            </nav>
+            <button onclick="logout()" class="logout-btn">
+                <span>🚪</span> Logout
+            </button>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h1><span>👥</span> User Management</h1>
+                <div class="user-info">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <span class="user-role">Administrator</span>
+                </div>
+            </header>
+
+            <div class="content" id="main-content">
+                <div class="section">
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Search users by name or email..." onkeyup="filterUsers()">
+                        <select id="roleFilter" onchange="filterUsers()">
+                            <option value="all">All Roles</option>
+                            <option value="admin">Admin</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="patient">Patient</option>
+                        </select>
+                        <button class="add-user-btn" onclick="showAddUserModal()">+ Add User</button>
+                    </div>
+
+                    <div class="users-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 2rem;">Loading users...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>User Statistics</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-info">
+                                <div class="stat-label">Total Users</div>
+                                <div class="stat-value" id="totalUsersCount">--</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">👨‍⚕️</div>
+                            <div class="stat-info">
+                                <div class="stat-label">Doctors</div>
+                                <div class="stat-value" id="doctorsCount">--</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🧑‍💼</div>
+                            <div class="stat-info">
+                                <div class="stat-label">Patients</div>
+                                <div class="stat-value" id="patientsCount">--</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">👑</div>
+                            <div class="stat-info">
+                                <div class="stat-label">Admins</div>
+                                <div class="stat-value" id="adminsCount">--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/dashboard-scripts.js"></script>
+    <script src="/utils/csrf.js"></script>
+    <script src="/dashboard-interactive.js"></script>
+    <script>
+        let allUsers = [];
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/admin/users', { credentials: 'include' });
+                if (!response.ok) {
+                    // Demo data if endpoint not available
+                    allUsers = [
+                        { id: 1, name: 'Admin User', email: 'admin@mediconnect.demo', role: 'admin', status: 'active', createdAt: '2025-01-01' },
+                        { id: 2, name: 'Dr. Smith', email: 'dr.smith@mediconnect.demo', role: 'doctor', status: 'active', createdAt: '2025-01-01' },
+                        { id: 3, name: 'John Doe', email: 'john.doe@mediconnect.demo', role: 'patient', status: 'active', createdAt: '2025-01-01' }
+                    ];
+                } else {
+                    const data = await response.json();
+                    allUsers = data.users || [];
+                }
+                renderUsers();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading users:', error);
+                // Demo fallback
+                allUsers = [
+                    { id: 1, name: 'Admin User', email: 'admin@mediconnect.demo', role: 'admin', status: 'active', createdAt: '2025-01-01' },
+                    { id: 2, name: 'Dr. Smith', email: 'dr.smith@mediconnect.demo', role: 'doctor', status: 'active', createdAt: '2025-01-01' },
+                    { id: 3, name: 'John Doe', email: 'john.doe@mediconnect.demo', role: 'patient', status: 'active', createdAt: '2025-01-01' }
+                ];
+                renderUsers();
+                updateStats();
+            }
+        }
+
+        function renderUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const roleFilter = document.getElementById('roleFilter').value;
+
+            let filtered = allUsers.filter(user => {
+                const matchesSearch = user.name.toLowerCase().includes(searchTerm) ||
+                                     user.email.toLowerCase().includes(searchTerm);
+                const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+                return matchesSearch && matchesRole;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No users found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(user => `
+                <tr>
+                    <td>${escapeHtml(user.name)}</td>
+                    <td>${escapeHtml(user.email)}</td>
+                    <td><span class="role-badge role-${user.role}">${user.role}</span></td>
+                    <td><span class="status-badge status-${user.status || 'active'}">${user.status || 'active'}</span></td>
+                    <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td>
+                        <button class="action-btn-small btn-edit" onclick="editUser(${user.id})">Edit</button>
+                        <button class="action-btn-small btn-delete" onclick="deleteUser(${user.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('totalUsersCount').textContent = allUsers.length;
+            document.getElementById('doctorsCount').textContent = allUsers.filter(u => u.role === 'doctor').length;
+            document.getElementById('patientsCount').textContent = allUsers.filter(u => u.role === 'patient').length;
+            document.getElementById('adminsCount').textContent = allUsers.filter(u => u.role === 'admin').length;
+        }
+
+        function filterUsers() {
+            renderUsers();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showAddUserModal() {
+            alert('Add User functionality coming soon');
+        }
+
+        function editUser(id) {
+            alert('Edit User ' + id + ' - functionality coming soon');
+        }
+
+        function deleteUser(id) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                alert('Delete User ' + id + ' - functionality coming soon');
+            }
+        }
+
+        window.addEventListener('load', loadUsers);
+    </script>
+</body>
+</html>

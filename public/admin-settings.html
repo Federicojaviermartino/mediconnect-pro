@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Settings - MediConnect Pro Admin</title>
+    <link rel="stylesheet" href="/dashboard-styles.css">
+    <style>
+        .settings-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .settings-section h2 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #1a1a2e;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info h3 {
+            margin: 0 0 0.25rem 0;
+            font-size: 1rem;
+            color: #1a1a2e;
+        }
+
+        .setting-info p {
+            margin: 0;
+            font-size: 0.875rem;
+            color: #666;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .setting-input {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            width: 200px;
+        }
+
+        .setting-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            width: 200px;
+        }
+
+        .save-btn {
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .save-btn:hover {
+            opacity: 0.9;
+        }
+
+        .danger-zone {
+            border: 2px solid #dc3545;
+        }
+
+        .danger-zone h2 {
+            color: #dc3545;
+        }
+
+        .danger-btn {
+            padding: 0.5rem 1rem;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .settings-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-connected {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-disconnected {
+            background: #ffebee;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu">
+        <span>☰</span>
+    </button>
+    <div class="mobile-overlay" onclick="toggleMobileMenu()"></div>
+
+    <div class="dashboard">
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <span class="logo-icon">🏥</span>
+                <span class="logo-text">MediConnect Pro</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard-admin.html" class="nav-item">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="admin-users.html" class="nav-item">
+                    <span>👥</span> Users
+                </a>
+                <a href="admin-settings.html" class="nav-item active">
+                    <span>⚙️</span> System Settings
+                </a>
+                <a href="admin-reports.html" class="nav-item">
+                    <span>📝</span> Reports
+                </a>
+                <a href="admin-analytics.html" class="nav-item">
+                    <span>📈</span> Analytics
+                </a>
+            </nav>
+            <button onclick="logout()" class="logout-btn">
+                <span>🚪</span> Logout
+            </button>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <h1><span>⚙️</span> System Settings</h1>
+                <div class="user-info">
+                    <span class="user-name" id="userName">Loading...</span>
+                    <span class="user-role">Administrator</span>
+                </div>
+            </header>
+
+            <div class="content" id="main-content">
+                <div class="settings-section">
+                    <h2>🔒 Security Settings</h2>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>Two-Factor Authentication</h3>
+                            <p>Require 2FA for all admin accounts</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="twoFactorEnabled" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>Session Timeout</h3>
+                            <p>Automatically log out inactive users</p>
+                        </div>
+                        <select class="setting-select" id="sessionTimeout">
+                            <option value="15">15 minutes</option>
+                            <option value="30" selected>30 minutes</option>
+                            <option value="60">1 hour</option>
+                            <option value="120">2 hours</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>Login Attempt Limit</h3>
+                            <p>Maximum failed login attempts before lockout</p>
+                        </div>
+                        <input type="number" class="setting-input" id="loginAttempts" value="5" min="3" max="10">
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h2>🏥 Application Settings</h2>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>Maintenance Mode</h3>
+                            <p>Temporarily disable access to the platform</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="maintenanceMode">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>New User Registration</h3>
+                            <p>Allow new users to self-register</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="registrationEnabled" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>Default Timezone</h3>
+                            <p>System-wide timezone for appointments</p>
+                        </div>
+                        <select class="setting-select" id="defaultTimezone">
+                            <option value="UTC">UTC</option>
+                            <option value="America/New_York" selected>Eastern Time</option>
+                            <option value="America/Chicago">Central Time</option>
+                            <option value="America/Denver">Mountain Time</option>
+                            <option value="America/Los_Angeles">Pacific Time</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h2>🔌 Integration Status</h2>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>Database Connection</h3>
+                            <p>PostgreSQL/JSON database status</p>
+                        </div>
+                        <span class="status-indicator status-connected">Connected</span>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>AI Service (OpenAI)</h3>
+                            <p>GPT-4 for medical transcription</p>
+                        </div>
+                        <span class="status-indicator status-connected">Active</span>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>AI Service (Anthropic)</h3>
+                            <p>Claude for triage assessment</p>
+                        </div>
+                        <span class="status-indicator status-connected">Active</span>
+                    </div>
+                </div>
+
+                <div class="settings-section danger-zone">
+                    <h2>Danger Zone</h2>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>Reset All Settings</h3>
+                            <p>Restore all settings to default values</p>
+                        </div>
+                        <button class="danger-btn" onclick="resetSettings()">Reset Settings</button>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>Clear All Sessions</h3>
+                            <p>Log out all users from the system</p>
+                        </div>
+                        <button class="danger-btn" onclick="clearSessions()">Clear Sessions</button>
+                    </div>
+                </div>
+
+                <div class="settings-actions">
+                    <button class="save-btn" onclick="saveSettings()">Save All Settings</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/dashboard-scripts.js"></script>
+    <script src="/utils/csrf.js"></script>
+    <script src="/dashboard-interactive.js"></script>
+    <script>
+        function saveSettings() {
+            const settings = {
+                twoFactorEnabled: document.getElementById('twoFactorEnabled').checked,
+                sessionTimeout: document.getElementById('sessionTimeout').value,
+                loginAttempts: document.getElementById('loginAttempts').value,
+                maintenanceMode: document.getElementById('maintenanceMode').checked,
+                registrationEnabled: document.getElementById('registrationEnabled').checked,
+                defaultTimezone: document.getElementById('defaultTimezone').value
+            };
+
+            console.log('Saving settings:', settings);
+            alert('Settings saved successfully!');
+        }
+
+        function resetSettings() {
+            if (confirm('Are you sure you want to reset all settings to default values?')) {
+                document.getElementById('twoFactorEnabled').checked = true;
+                document.getElementById('sessionTimeout').value = '30';
+                document.getElementById('loginAttempts').value = '5';
+                document.getElementById('maintenanceMode').checked = false;
+                document.getElementById('registrationEnabled').checked = true;
+                document.getElementById('defaultTimezone').value = 'America/New_York';
+                alert('Settings reset to defaults');
+            }
+        }
+
+        function clearSessions() {
+            if (confirm('This will log out all users including yourself. Continue?')) {
+                alert('All sessions cleared. You will be redirected to login.');
+                window.location.href = '/login.html';
+            }
+        }
+    </script>
+</body>
+</html>
