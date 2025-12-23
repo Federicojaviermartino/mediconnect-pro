@@ -3,7 +3,7 @@ const { requireAuth, requireRole } = require('../middleware/auth');
 const { cacheMiddleware } = require('../utils/cache');
 const { validateParams, paramSchemas, validate } = require('../middleware/validators');
 const logger = require('../utils/logger');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 // Cache configurations
 const vitalsCache = cacheMiddleware({ ttl: 15000 }); // 15 seconds for vitals
