@@ -508,9 +508,12 @@
         async function checkUserRole() {
             try {
                 const response = await fetch('/api/auth/me', { credentials: 'include' });
+                console.log('Auth me response status:', response.status);
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('Auth me data:', data);
                     currentUserRole = data.user?.role;
+                    console.log('Set currentUserRole to:', currentUserRole);
                     return currentUserRole;
                 }
             } catch (error) {
@@ -635,8 +638,12 @@
         }
 
         async function createPrescription() {
+            // Debug: log current role
+            console.log('Current user role:', currentUserRole);
+
             // Show patient dropdown for doctors
             if (currentUserRole === 'doctor') {
+                console.log('Showing patient dropdown for doctor');
                 document.getElementById('patient-select-group').style.display = 'block';
                 document.getElementById('presc-patient').setAttribute('required', 'required');
 
@@ -646,6 +653,7 @@
                 }
                 populatePatientDropdown();
             } else {
+                console.log('Hiding patient dropdown, role is:', currentUserRole);
                 document.getElementById('patient-select-group').style.display = 'none';
                 document.getElementById('presc-patient').removeAttribute('required');
             }
