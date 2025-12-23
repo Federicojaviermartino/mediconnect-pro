@@ -620,150 +620,160 @@ window.showAudioDiagnosisForm = function showAudioDiagnosisForm() {
     }
 
     mainContent.innerHTML = `
-        <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-            <div class="header-title-group">
-                <h2 style="margin: 0; font-size: 28px; color: #1a1a2e;">🧠 AI Diagnosis Assistant</h2>
-                <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Clinical decision support powered by AI</p>
-            </div>
-            <button onclick="returnToDashboard()" class="btn-secondary">← Back to Dashboard</button>
-        </div>
-        <div class="ai-audio-diagnosis-form">
-            <div class="form-header">
-                <div class="ai-models-badge">
-                    <span class="badge-icon">🤖</span>
-                    <div class="badge-content">
-                        <strong>Demo Mode (Free)</strong>
-                        <small>Simulated AI responses for demonstration</small>
+        <div class="ai-diagnosis-page">
+            <div class="ai-page-header">
+                <div class="ai-header-content">
+                    <div class="ai-header-icon">🧠</div>
+                    <div class="ai-header-text">
+                        <h1>AI Diagnosis Assistant</h1>
+                        <p>Clinical decision support powered by artificial intelligence</p>
                     </div>
                 </div>
+                <button onclick="returnToDashboard()" class="ai-back-btn">
+                    <span>←</span> Back to Dashboard
+                </button>
             </div>
 
-            <div class="medical-disclaimer-banner">
-                <div class="disclaimer-icon">⚕️</div>
-                <div class="disclaimer-content">
-                    <h3>CLINICAL SUPPORT TOOL</h3>
-                    <p><strong>This AI provides diagnosis suggestions as a clinical support tool.</strong></p>
-                    <ul>
-                        <li>Suggestions are for reference only - NOT final diagnoses</li>
-                        <li>Always verify with your clinical judgment and examination</li>
-                        <li>Review differential diagnoses carefully</li>
-                        <li>Consider patient history and context not captured</li>
-                    </ul>
-                    <p class="consent-text">
-                        AI-generated suggestions should be validated by the treating physician.
-                    </p>
-                </div>
-            </div>
-
-            <div class="form-content">
-                <div class="form-group">
-                    <label for="patient-select">
-                        <span class="label-icon">👤</span>
-                        Select Patient (Optional)
-                    </label>
-                    <select id="patient-select" class="form-select">
-                        <option value="">-- Anonymous Patient --</option>
-                    </select>
-                    <small class="help-text">💡 Selecting a patient provides better context for diagnosis</small>
+            <div class="ai-audio-diagnosis-form">
+                <div class="ai-form-header">
+                    <div class="ai-models-badge">
+                        <span class="ai-badge-icon">🤖</span>
+                        <div class="ai-badge-content">
+                            <strong>Demo Mode</strong>
+                            <small>Simulated AI responses for demonstration</small>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Input Mode Tabs -->
-                <div class="input-mode-tabs">
-                    <button id="tab-text" class="tab-btn active" onclick="switchInputMode('text')">
-                        <span class="tab-icon">📝</span>
-                        <span class="tab-label">
-                            <strong>Text Input</strong>
-                            <small>Free - No API required</small>
-                        </span>
-                    </button>
-                    <button id="tab-audio" class="tab-btn" onclick="switchInputMode('audio')">
-                        <span class="tab-icon">🎤</span>
-                        <span class="tab-label">
-                            <strong>Audio Recording</strong>
-                            <small>Requires OpenAI API</small>
-                        </span>
-                    </button>
+                <div class="ai-disclaimer-banner">
+                    <div class="ai-disclaimer-icon">⚕️</div>
+                    <div class="ai-disclaimer-content">
+                        <h3>CLINICAL SUPPORT TOOL</h3>
+                        <p><strong>This AI provides diagnosis suggestions as a clinical support tool.</strong></p>
+                        <ul>
+                            <li>Suggestions are for reference only - NOT final diagnoses</li>
+                            <li>Always verify with your clinical judgment and examination</li>
+                            <li>Review differential diagnoses carefully</li>
+                            <li>Consider patient history and context not captured</li>
+                        </ul>
+                        <p class="ai-consent-text">
+                            AI-generated suggestions should be validated by the treating physician.
+                        </p>
+                    </div>
                 </div>
 
-                <!-- Text Input Section -->
-                <div id="text-input-section" class="text-input-section">
-                    <div class="section-header">
-                        <h3>📋 Describe Patient Symptoms</h3>
-                        <p>Enter the patient's symptoms, duration, and relevant clinical details</p>
+                <div class="ai-form-content">
+                    <div class="ai-form-group">
+                        <label for="patient-select">
+                            <span class="ai-label-icon">👤</span>
+                            Select Patient (Optional)
+                        </label>
+                        <select id="patient-select" class="ai-form-select">
+                            <option value="">-- Anonymous Patient --</option>
+                        </select>
+                        <small class="ai-help-text">💡 Selecting a patient provides better context for diagnosis</small>
                     </div>
 
-                    <div class="form-group">
-                        <label for="symptoms-text">Symptom Description:</label>
-                        <div class="textarea-wrapper">
-                            <textarea
-                                id="symptoms-text"
-                                class="symptoms-textarea"
-                                placeholder="Example: Patient reports persistent headache for 3 days, located in the frontal region, intensity 7/10. Associated with nausea in the morning and sensitivity to light. No fever. The pain worsens with physical activity..."
-                                rows="8"
-                                oninput="updateDiagnoseButton()"
-                            ></textarea>
-                            <div class="character-counter">
-                                <span id="char-count">0</span> / 20 characters minimum
+                    <!-- Input Mode Tabs -->
+                    <div class="ai-input-tabs">
+                        <button id="tab-text" class="ai-tab-btn active" onclick="switchInputMode('text')">
+                            <span class="ai-tab-icon">📝</span>
+                            <span class="ai-tab-label">
+                                <strong>Text Input</strong>
+                                <small>Free - No API required</small>
+                            </span>
+                        </button>
+                        <button id="tab-audio" class="ai-tab-btn" onclick="switchInputMode('audio')">
+                            <span class="ai-tab-icon">🎤</span>
+                            <span class="ai-tab-label">
+                                <strong>Audio Recording</strong>
+                                <small>Requires OpenAI API</small>
+                            </span>
+                        </button>
+                    </div>
+
+                    <!-- Text Input Section -->
+                    <div id="text-input-section" class="ai-text-section">
+                        <div class="ai-section-header">
+                            <h3>📋 Describe Patient Symptoms</h3>
+                            <p>Enter the patient's symptoms, duration, and relevant clinical details</p>
+                        </div>
+
+                        <div class="ai-form-group">
+                            <label for="symptoms-text">Symptom Description:</label>
+                            <div class="ai-textarea-wrapper">
+                                <textarea
+                                    id="symptoms-text"
+                                    class="ai-symptoms-textarea"
+                                    placeholder="Example: Patient reports persistent headache for 3 days, located in the frontal region, intensity 7/10. Associated with nausea in the morning and sensitivity to light. No fever. The pain worsens with physical activity..."
+                                    rows="8"
+                                    oninput="updateDiagnoseButton()"
+                                ></textarea>
+                                <div class="ai-char-counter">
+                                    <span id="char-count">0</span> / 20 characters minimum
+                                </div>
+                            </div>
+                            <small class="ai-help-text">💡 Be as detailed as possible - include onset, duration, severity, and associated symptoms</small>
+                        </div>
+
+                        <div class="ai-templates">
+                            <p class="ai-templates-title"><strong>🚀 Quick Templates:</strong></p>
+                            <div class="ai-templates-grid">
+                                <button class="ai-template-btn" onclick="insertTemplate('headache')">
+                                    <span class="ai-template-icon">🤕</span>
+                                    Headache
+                                </button>
+                                <button class="ai-template-btn" onclick="insertTemplate('respiratory')">
+                                    <span class="ai-template-icon">🫁</span>
+                                    Respiratory
+                                </button>
+                                <button class="ai-template-btn" onclick="insertTemplate('digestive')">
+                                    <span class="ai-template-icon">🫃</span>
+                                    Digestive
+                                </button>
+                                <button class="ai-template-btn" onclick="insertTemplate('pain')">
+                                    <span class="ai-template-icon">⚡</span>
+                                    General Pain
+                                </button>
                             </div>
                         </div>
-                        <small class="help-text">💡 Be as detailed as possible - include onset, duration, severity, and associated symptoms</small>
                     </div>
 
-                    <div class="symptom-templates">
-                        <p class="templates-title"><strong>🚀 Quick Templates:</strong></p>
-                        <div class="templates-grid">
-                            <button class="template-btn" onclick="insertTemplate('headache')">
-                                <span class="template-icon">🤕</span>
-                                Headache
+                    <!-- Audio Recording Section (hidden by default) -->
+                    <div id="audio-recorder-section" class="ai-audio-section hidden">
+                        <div class="ai-section-header">
+                            <h3>🎙️ Record Patient Description</h3>
+                            <p>Press the button and let the patient describe their symptoms</p>
+                        </div>
+                        <div class="ai-api-warning">
+                            <strong>⚠️ Note:</strong> Audio transcription requires OpenAI API key ($0.006/min).
+                            <br>Currently in demo mode - use Text Input for free diagnosis.
+                        </div>
+
+                        <div class="ai-recorder-controls">
+                            <button id="record-btn" onclick="toggleRecording()" class="ai-record-btn">
+                                <span id="record-icon">🎤</span>
+                                <span id="record-text">Start Recording</span>
                             </button>
-                            <button class="template-btn" onclick="insertTemplate('respiratory')">
-                                <span class="template-icon">🫁</span>
-                                Respiratory
-                            </button>
-                            <button class="template-btn" onclick="insertTemplate('digestive')">
-                                <span class="template-icon">🫃</span>
-                                Digestive
-                            </button>
-                            <button class="template-btn" onclick="insertTemplate('pain')">
-                                <span class="template-icon">⚡</span>
-                                General Pain
+                            <div id="recording-indicator" class="ai-recording-indicator hidden">
+                                <div class="ai-recording-pulse"></div>
+                                <span id="recording-time">00:00</span>
+                            </div>
+                        </div>
+
+                        <div id="audio-preview" class="ai-audio-preview hidden">
+                            <audio id="recorded-audio" controls></audio>
+                            <button onclick="clearRecording()" class="ai-clear-btn">
+                                Clear Recording
                             </button>
                         </div>
                     </div>
-                </div>
 
-                <!-- Audio Recording Section (hidden by default) -->
-                <div id="audio-recorder-section" class="audio-recorder-section hidden">
-                    <h3>Record Patient Description</h3>
-                    <p>Press the button and let the patient describe their symptoms</p>
-                    <div class="api-warning">
-                        <strong>Note:</strong> Audio transcription requires OpenAI API key ($0.006/min).
-                        <br>Currently in demo mode - use Text Input for free diagnosis.
-                    </div>
-
-                    <div class="recorder-controls">
-                        <button id="record-btn" onclick="toggleRecording()" class="btn-record">
-                            <span id="record-icon">🎤</span>
-                            <span id="record-text">Start Recording</span>
-                        </button>
-                        <div id="recording-indicator" class="recording-indicator hidden">
-                            <div class="recording-pulse"></div>
-                            <span id="recording-time">00:00</span>
-                        </div>
-                    </div>
-
-                    <div id="audio-preview" class="audio-preview hidden">
-                        <audio id="recorded-audio" controls></audio>
-                        <button onclick="clearRecording()" class="btn-secondary btn-small">
-                            Clear Recording
+                    <div class="ai-form-actions">
+                        <button id="diagnose-btn" onclick="submitDiagnosis()" class="ai-submit-btn" disabled>
+                            🧠 Generate AI Diagnosis
                         </button>
                     </div>
-                </div>
-
-                <div class="form-actions">
-                    <button id="diagnose-btn" onclick="submitDiagnosis()" class="btn-primary" disabled>
-                        🧠 Generate AI Diagnosis
-                    </button>
                 </div>
             </div>
         </div>
@@ -789,15 +799,15 @@ window.switchInputMode = function switchInputMode(mode) {
     const tabAudio = document.getElementById('tab-audio');
 
     if (mode === 'text') {
-        textSection.classList.remove('hidden');
-        audioSection.classList.add('hidden');
-        tabText.classList.add('active');
-        tabAudio.classList.remove('active');
+        if (textSection) textSection.classList.remove('hidden');
+        if (audioSection) audioSection.classList.add('hidden');
+        if (tabText) tabText.classList.add('active');
+        if (tabAudio) tabAudio.classList.remove('active');
     } else {
-        textSection.classList.add('hidden');
-        audioSection.classList.remove('hidden');
-        tabText.classList.remove('active');
-        tabAudio.classList.add('active');
+        if (textSection) textSection.classList.add('hidden');
+        if (audioSection) audioSection.classList.remove('hidden');
+        if (tabText) tabText.classList.remove('active');
+        if (tabAudio) tabAudio.classList.add('active');
     }
 
     updateDiagnoseButton();
@@ -1321,27 +1331,92 @@ function addAudioDiagnosisStyles() {
     const style = document.createElement('style');
     style.id = 'audio-diagnosis-styles';
     style.innerHTML = `
+        /* ============================================
+           AI DIAGNOSIS PAGE STYLES
+           ============================================ */
+
+        .ai-diagnosis-page {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 10px 0;
+        }
+
+        /* Page Header */
+        .ai-page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 20px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .ai-header-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .ai-header-icon {
+            font-size: 48px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .ai-header-text h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .ai-header-text p {
+            margin: 4px 0 0 0;
+            font-size: 14px;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .ai-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.95);
+            color: #667eea;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .ai-back-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .ai-back-btn span {
+            font-size: 18px;
+        }
+
+        /* Main Form Container */
         .ai-audio-diagnosis-form {
-            max-width: 900px;
-            margin: 20px auto;
             background: white;
             border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
             overflow: hidden;
-            transition: box-shadow 0.3s ease;
         }
 
-        .ai-audio-diagnosis-form:hover {
-            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
-        }
-
-        .header-title-group {
-            flex: 1;
-        }
-
-        .form-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 25px 30px;
+        /* Form Header */
+        .ai-form-header {
+            background: linear-gradient(135deg, #f8f9fc 0%, #e9ecf5 100%);
+            padding: 20px 28px;
+            border-bottom: 1px solid #e5e7eb;
             text-align: center;
         }
 
@@ -1349,350 +1424,597 @@ function addAudioDiagnosisStyles() {
             display: inline-flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 20px;
-            background: rgba(255,255,255,0.95);
-            border-radius: 24px;
+            padding: 12px 24px;
+            background: white;
+            border-radius: 50px;
             font-size: 14px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 1px solid #e5e7eb;
         }
 
-        .badge-icon {
-            font-size: 24px;
+        .ai-badge-icon {
+            font-size: 28px;
         }
 
-        .badge-content {
+        .ai-badge-content {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             gap: 2px;
         }
 
-        .badge-content strong {
+        .ai-badge-content strong {
             color: #667eea;
             font-size: 15px;
         }
 
-        .badge-content small {
-            color: #666;
+        .ai-badge-content small {
+            color: #6b7280;
             font-size: 12px;
         }
 
-        .audio-recorder-section {
-            background: #f8f9fa;
-            padding: 30px;
-            margin: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .recorder-controls {
-            margin: 20px 0;
-        }
-
-        .btn-record {
-            background: #4A90E2;
-            color: white;
-            border: none;
-            padding: 20px 40px;
-            font-size: 18px;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-record:hover {
-            background: #357ABD;
-            transform: scale(1.05);
-        }
-
-        .btn-record.recording {
-            background: #F44336;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4); }
-            50% { box-shadow: 0 0 0 20px rgba(244, 67, 54, 0); }
-        }
-
-        .recording-indicator {
-            margin-top: 20px;
+        /* Disclaimer Banner */
+        .ai-disclaimer-banner {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            gap: 16px;
+            padding: 20px 24px;
+            margin: 20px 24px;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            border-left: 6px solid #f59e0b;
         }
 
-        .recording-pulse {
-            width: 12px;
-            height: 12px;
-            background: #F44336;
-            border-radius: 50%;
-            animation: blink 1s infinite;
+        .ai-disclaimer-icon {
+            font-size: 36px;
+            flex-shrink: 0;
         }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+        .ai-disclaimer-content h3 {
+            margin: 0 0 8px 0;
+            color: #92400e;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
-        .hidden {
-            display: none !important;
-        }
-
-        .audio-preview {
-            margin-top: 20px;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-        }
-
-        .audio-preview audio {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .btn-small {
-            padding: 8px 16px;
+        .ai-disclaimer-content p {
+            margin: 8px 0;
+            color: #92400e;
             font-size: 14px;
+            line-height: 1.5;
         }
 
-        .form-group {
-            margin-bottom: 25px;
+        .ai-disclaimer-content ul {
+            margin: 10px 0;
+            padding-left: 20px;
+            color: #92400e;
+            font-size: 13px;
         }
 
-        .form-group label {
+        .ai-disclaimer-content ul li {
+            margin: 6px 0;
+        }
+
+        .ai-consent-text {
+            font-size: 12px !important;
+            font-style: italic;
+            opacity: 0.9;
+            margin-top: 12px !important;
+            padding-top: 10px;
+            border-top: 1px dashed #d97706;
+        }
+
+        /* Form Content */
+        .ai-form-content {
+            padding: 28px;
+        }
+
+        .ai-form-group {
+            margin-bottom: 24px;
+        }
+
+        .ai-form-group label {
             display: flex;
             align-items: center;
             gap: 8px;
             font-weight: 600;
-            color: #333;
+            color: #1f2937;
             margin-bottom: 10px;
             font-size: 15px;
         }
 
-        .label-icon {
-            font-size: 18px;
+        .ai-label-icon {
+            font-size: 20px;
         }
 
-        .help-text {
+        .ai-help-text {
             display: block;
             margin-top: 8px;
-            color: #666;
+            color: #6b7280;
             font-size: 13px;
             line-height: 1.5;
         }
 
-        .form-select {
+        .ai-form-select {
             width: 100%;
             padding: 14px 16px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #e5e7eb;
             border-radius: 10px;
             font-size: 15px;
             background: white;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+            color: #1f2937;
         }
 
-        .form-select:hover {
-            border-color: #4A90E2;
+        .ai-form-select:hover {
+            border-color: #667eea;
         }
 
-        .form-select:focus {
+        .ai-form-select:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
         /* Input Mode Tabs */
-        .input-mode-tabs {
+        .ai-input-tabs {
             display: flex;
-            margin: 25px 0;
+            margin: 24px 0;
             border-radius: 12px;
-            overflow: hidden;
-            background: #f5f7fa;
+            background: #f3f4f6;
             padding: 6px;
             gap: 6px;
         }
 
-        .tab-btn {
+        .ai-tab-btn {
             flex: 1;
-            padding: 16px 20px;
+            padding: 14px 20px;
             border: none;
             background: transparent;
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
+            color: #6b7280;
         }
 
-        .tab-icon {
-            font-size: 20px;
+        .ai-tab-icon {
+            font-size: 22px;
         }
 
-        .tab-label {
+        .ai-tab-label {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             gap: 2px;
         }
 
-        .tab-label strong {
+        .ai-tab-label strong {
             font-size: 14px;
+            color: inherit;
         }
 
-        .tab-label small {
-            font-size: 12px;
+        .ai-tab-label small {
+            font-size: 11px;
             opacity: 0.8;
         }
 
-        .tab-btn.active {
+        .ai-tab-btn.active {
             background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             color: #667eea;
         }
 
-        .tab-btn:hover:not(.active) {
-            background: rgba(255,255,255,0.5);
+        .ai-tab-btn:hover:not(.active) {
+            background: rgba(255,255,255,0.6);
+            color: #4b5563;
         }
 
         /* Text Input Section */
-        .text-input-section {
-            padding: 35px;
+        .ai-text-section {
+            padding: 24px;
+            background: #f9fafb;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .ai-section-header {
+            margin-bottom: 20px;
+        }
+
+        .ai-section-header h3 {
+            margin: 0 0 6px 0;
+            color: #1f2937;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .ai-section-header p {
             margin: 0;
-            background: #fafbfc;
-        }
-
-        .section-header {
-            margin-bottom: 25px;
-        }
-
-        .section-header h3 {
-            margin: 0 0 8px 0;
-            color: #1a1a2e;
-            font-size: 20px;
-        }
-
-        .section-header p {
-            margin: 0;
-            color: #666;
+            color: #6b7280;
             font-size: 14px;
         }
 
-        .textarea-wrapper {
+        .ai-textarea-wrapper {
             position: relative;
         }
 
-        .symptoms-textarea {
+        .ai-symptoms-textarea {
             width: 100%;
             padding: 16px;
-            border: 2px solid #e0e0e0;
+            padding-bottom: 40px;
+            border: 2px solid #e5e7eb;
             border-radius: 12px;
             font-size: 15px;
             font-family: inherit;
             resize: vertical;
             min-height: 180px;
             line-height: 1.6;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             background: white;
+            color: #1f2937;
         }
 
-        .symptoms-textarea:hover {
-            border-color: #4A90E2;
+        .ai-symptoms-textarea::placeholder {
+            color: #9ca3af;
         }
 
-        .symptoms-textarea:focus {
+        .ai-symptoms-textarea:hover {
+            border-color: #667eea;
+        }
+
+        .ai-symptoms-textarea:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
-        .character-counter {
+        .ai-char-counter {
             position: absolute;
             bottom: 12px;
-            right: 16px;
-            font-size: 13px;
-            color: #999;
+            right: 14px;
+            font-size: 12px;
+            color: #9ca3af;
             background: white;
-            padding: 4px 8px;
+            padding: 4px 10px;
             border-radius: 6px;
             font-weight: 500;
+            border: 1px solid #e5e7eb;
         }
 
-        .character-counter span {
-            color: #666;
-            font-weight: 600;
+        .ai-char-counter span {
+            font-weight: 700;
+            transition: color 0.2s ease;
         }
 
-        .symptom-templates {
-            margin-top: 25px;
+        /* Templates */
+        .ai-templates {
+            margin-top: 20px;
             padding: 20px;
             background: white;
             border-radius: 12px;
-            border: 1px solid #e8e8e8;
+            border: 1px solid #e5e7eb;
         }
 
-        .templates-title {
-            margin: 0 0 15px 0;
-            color: #333;
-            font-size: 15px;
+        .ai-templates-title {
+            margin: 0 0 14px 0;
+            color: #374151;
+            font-size: 14px;
         }
 
-        .templates-grid {
+        .ai-templates-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 10px;
         }
 
-        .template-btn {
+        .ai-template-btn {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 12px 18px;
-            border: 2px solid #e0e0e0;
+            gap: 10px;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
             background: white;
-            color: #333;
+            color: #374151;
             border-radius: 10px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
-            transition: all 0.3s ease;
-            text-align: left;
+            transition: all 0.2s ease;
         }
 
-        .template-icon {
+        .ai-template-icon {
             font-size: 20px;
         }
 
-        .template-btn:hover {
+        .ai-template-btn:hover {
             background: #667eea;
             border-color: #667eea;
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
         }
 
-        .template-btn:active {
-            transform: translateY(0);
-        }
-
-        /* API Warning */
-        .api-warning {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            color: #856404;
-            padding: 15px;
-            border-radius: 8px;
+        /* Audio Section */
+        .ai-audio-section {
+            padding: 28px;
+            background: #f9fafb;
+            border-radius: 12px;
             margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .ai-api-warning {
+            background: #fffbeb;
+            border: 2px solid #fcd34d;
+            color: #92400e;
+            padding: 16px;
+            border-radius: 10px;
+            margin: 20px 0;
             font-size: 13px;
+            text-align: left;
+        }
+
+        .ai-recorder-controls {
+            margin: 24px 0;
+        }
+
+        .ai-record-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 36px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .ai-record-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 24px rgba(102, 126, 234, 0.4);
+        }
+
+        .ai-record-btn.recording {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            animation: ai-pulse 1.5s infinite;
+        }
+
+        @keyframes ai-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+        }
+
+        .ai-recording-indicator {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #ef4444;
+        }
+
+        .ai-recording-pulse {
+            width: 14px;
+            height: 14px;
+            background: #ef4444;
+            border-radius: 50%;
+            animation: ai-blink 1s infinite;
+        }
+
+        @keyframes ai-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .ai-audio-preview {
+            margin-top: 24px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .ai-audio-preview audio {
+            width: 100%;
+            margin-bottom: 14px;
+            border-radius: 8px;
+        }
+
+        .ai-clear-btn {
+            padding: 10px 20px;
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .ai-clear-btn:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        /* Form Actions */
+        .ai-form-actions {
+            padding: 20px 0 0 0;
+            text-align: center;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 10px;
+        }
+
+        .ai-submit-btn {
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .ai-submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(102, 126, 234, 0.4);
+        }
+
+        .ai-submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Hidden utility class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ============================================
+           RESPONSIVE STYLES
+           ============================================ */
+
+        @media (max-width: 768px) {
+            .ai-diagnosis-page {
+                padding: 0;
+            }
+
+            .ai-page-header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+                padding: 20px;
+                border-radius: 0 0 16px 16px;
+                margin: -30px -20px 20px -20px;
+                width: calc(100% + 40px);
+            }
+
+            .ai-header-content {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .ai-header-icon {
+                font-size: 40px;
+            }
+
+            .ai-header-text h1 {
+                font-size: 22px;
+            }
+
+            .ai-back-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .ai-audio-diagnosis-form {
+                border-radius: 12px;
+            }
+
+            .ai-form-header {
+                padding: 16px 20px;
+            }
+
+            .ai-models-badge {
+                padding: 10px 18px;
+            }
+
+            .ai-disclaimer-banner {
+                flex-direction: column;
+                gap: 12px;
+                margin: 16px;
+                padding: 16px;
+            }
+
+            .ai-disclaimer-icon {
+                font-size: 28px;
+            }
+
+            .ai-form-content {
+                padding: 20px;
+            }
+
+            .ai-input-tabs {
+                flex-direction: column;
+            }
+
+            .ai-tab-btn {
+                justify-content: flex-start;
+                padding: 14px 16px;
+            }
+
+            .ai-text-section,
+            .ai-audio-section {
+                padding: 16px;
+            }
+
+            .ai-templates-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .ai-template-btn {
+                flex-direction: column;
+                padding: 12px 10px;
+                text-align: center;
+                font-size: 13px;
+            }
+
+            .ai-submit-btn {
+                width: 100%;
+                padding: 16px 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .ai-header-text h1 {
+                font-size: 20px;
+            }
+
+            .ai-header-text p {
+                font-size: 13px;
+            }
+
+            .ai-templates-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ai-disclaimer-content h3 {
+                font-size: 14px;
+            }
+
+            .ai-disclaimer-content p,
+            .ai-disclaimer-content ul {
+                font-size: 12px;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            .ai-page-header,
+            .ai-form-actions,
+            .ai-input-tabs,
+            .ai-back-btn {
+                display: none;
+            }
         }
     `;
     document.head.appendChild(style);
