@@ -420,6 +420,14 @@
                 <button class="close-modal" onclick="closeAppointmentModal()">&times;</button>
             </div>
             <form id="appointmentForm" onsubmit="submitAppointment(event)">
+                <div class="form-group" id="patient-select-group" style="display: none;">
+                    <label for="apt-patient">Patient *</label>
+                    <select id="apt-patient" name="patient_id">
+                        <option value="">Select patient...</option>
+                    </select>
+                    <span class="error-message" id="patient-error"></span>
+                </div>
+
                 <div class="form-group">
                     <label for="apt-date">Date *</label>
                     <input type="date" id="apt-date" name="date" required>
@@ -465,6 +473,47 @@
     <script>
         let allAppointments = [];
         let currentFilter = 'all';
+        let currentUserRole = null;
+        let patientsList = [];
+
+        async function checkUserRole() {
+            try {
+                const response = await fetch('/api/user', { credentials: 'include' });
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUserRole = data.user?.role;
+                    return currentUserRole;
+                }
+            } catch (error) {
+                console.error('Error checking user role:', error);
+            }
+            return null;
+        }
+
+        async function loadPatients() {
+            try {
+                const response = await fetch('/api/patients', { credentials: 'include' });
+                if (response.ok) {
+                    const data = await response.json();
+                    patientsList = data.patients || [];
+                    return patientsList;
+                }
+            } catch (error) {
+                console.error('Error loading patients:', error);
+            }
+            return [];
+        }
+
+        function populatePatientDropdown() {
+            const select = document.getElementById('apt-patient');
+            select.innerHTML = '<option value="">Select patient...</option>';
+            patientsList.forEach(patient => {
+                const option = document.createElement('option');
+                option.value = patient.id;
+                option.textContent = patient.name || patient.email;
+                select.appendChild(option);
+            });
+        }
 
         async function loadAppointments() {
             try {
@@ -562,10 +611,25 @@
             return date.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
         }
 
-        function scheduleAppointment() {
+        async function scheduleAppointment() {
             // Set minimum date to today
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('apt-date').setAttribute('min', today);
+
+            // Show patient dropdown for doctors
+            if (currentUserRole === 'doctor') {
+                document.getElementById('patient-select-group').style.display = 'block';
+                document.getElementById('apt-patient').setAttribute('required', 'required');
+
+                // Load patients if not already loaded
+                if (patientsList.length === 0) {
+                    await loadPatients();
+                }
+                populatePatientDropdown();
+            } else {
+                document.getElementById('patient-select-group').style.display = 'none';
+                document.getElementById('apt-patient').removeAttribute('required');
+            }
 
             // Open modal
             document.getElementById('appointmentModal').classList.add('show');
@@ -603,18 +667,14 @@
                 reason: document.getElementById('apt-reason').value
             };
 
-            try {
-                const csrfToken = window.csrfToken || '';
+            // Add patient_id for doctors
+            if (currentUserRole === 'doctor') {
+                formData.patient_id = document.getElementById('apt-patient').value;
+            }
 
-                const response = await fetch('/api/appointments', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'CSRF-Token': csrfToken
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify(formData)
-                });
+            try {
+                // Use csrfPost which handles CSRF token automatically
+                const response = await csrfPost('/api/appointments', formData);
 
                 const data = await response.json();
 
@@ -666,11 +726,12 @@
             }
         });
 
-        // Initialize CSRF and load appointments
+        // Initialize CSRF, check role, and load appointments
         (async () => {
             if (typeof initCsrfProtection === 'function') {
                 await initCsrfProtection();
             }
+            await checkUserRole();
             loadAppointments();
         })();
     </script>

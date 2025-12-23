@@ -1,8 +1,9 @@
 // API routes for demo data
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireRole } = require('../middleware/auth');
 const { cacheMiddleware } = require('../utils/cache');
-const { validateParams, paramSchemas } = require('../middleware/validators');
+const { validateParams, paramSchemas, validate } = require('../middleware/validators');
 const logger = require('../utils/logger');
+const bcrypt = require('bcrypt');
 
 // Cache configurations
 const vitalsCache = cacheMiddleware({ ttl: 15000 }); // 15 seconds for vitals
@@ -98,6 +99,59 @@ function setupApiRoutes(app, db) {
     } catch (error) {
       logger.logApiError(error, req, { context: 'Get patients' });
       res.status(500).json({ error: 'Failed to fetch patients' });
+    }
+  });
+
+  // Create new patient (for doctors)
+  app.post('/api/patients', requireAuth, requireRole('doctor'), async (req, res) => {
+    try {
+      const { name, email, phone, dateOfBirth, gender, bloodType, conditions, allergies } = req.body;
+
+      // Validate required fields
+      if (!name || !email) {
+        return res.status(400).json({ error: 'Name and email are required' });
+      }
+
+      // Check if email already exists
+      const existingUser = db.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ error: 'A user with this email already exists' });
+      }
+
+      // Generate a temporary password
+      const tempPassword = 'TempPass123!';
+      const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+      // Create user account
+      const user = db.createUser({
+        name,
+        email,
+        password: hashedPassword,
+        role: 'patient'
+      });
+
+      // Create patient record
+      const patient = db.createPatientRecord(user.id, {
+        name,
+        email,
+        phone: phone || '',
+        dateOfBirth: dateOfBirth || '',
+        gender: gender || '',
+        bloodType: bloodType || '',
+        conditions: conditions || '',
+        allergies: allergies || ''
+      });
+
+      logger.info(`Doctor ${req.session.user.id} created new patient ${patient.id}`);
+
+      res.status(201).json({
+        success: true,
+        patient,
+        message: `Patient created. Temporary password: ${tempPassword}`
+      });
+    } catch (error) {
+      logger.logApiError(error, req, { context: 'Create patient' });
+      res.status(500).json({ error: 'Failed to create patient' });
     }
   });
 

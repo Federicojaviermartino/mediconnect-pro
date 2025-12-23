@@ -113,16 +113,34 @@ function setupAppointmentRoutes(app, db) {
         return res.status(401).json({ error: 'Invalid session. Please login again.' });
       }
 
-      const { date, time, reason, doctor_id } = req.body;
+      const { date, time, reason, doctor_id, patient_id } = req.body;
       const userId = req.session.user.id;
+      const role = req.session.user.role;
 
-      const appointmentData = {
-        patient_id: userId,
-        doctor_id: doctor_id || 2,
-        date,
-        time,
-        reason
-      };
+      let appointmentData;
+
+      if (role === 'doctor') {
+        // Doctor creates appointment for a patient
+        if (!patient_id) {
+          return res.status(400).json({ error: 'Patient selection is required' });
+        }
+        appointmentData = {
+          patient_id: parseInt(patient_id),
+          doctor_id: userId,
+          date,
+          time,
+          reason
+        };
+      } else {
+        // Patient creates appointment for themselves
+        appointmentData = {
+          patient_id: userId,
+          doctor_id: doctor_id || 2,
+          date,
+          time,
+          reason
+        };
+      }
 
       const appointment = db.createAppointment(appointmentData);
       res.status(201).json({ success: true, appointment });

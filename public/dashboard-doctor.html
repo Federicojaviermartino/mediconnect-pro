@@ -49,7 +49,10 @@
 
         <main class="main-content" role="main">
             <header class="header">
-                <h1><span aria-hidden="true">👨‍⚕️</span> Doctor Dashboard</h1>
+                <div>
+                    <h1><span aria-hidden="true">👨‍⚕️</span> Doctor Dashboard</h1>
+                    <div id="refreshIndicator" style="font-size: 0.75rem; margin-top: 0.25rem;"></div>
+                </div>
                 <div class="user-info" aria-label="User information">
                     <span class="user-name" id="userName" aria-live="polite">Loading...</span>
                     <span class="user-role">Doctor</span>
@@ -149,8 +152,15 @@
     <script src="/dashboard-interactive.js"></script>
     <script src="/ai-assistant.js?v=3"></script>
     <script>
-        async function loadPatients() {
+        let refreshInterval = null;
+        const REFRESH_INTERVAL = 30000; // 30 seconds
+
+        async function loadPatients(showLoading = true) {
             try {
+                if (showLoading) {
+                    updateRefreshIndicator('loading');
+                }
+
                 const response = await fetch('/api/patients');
                 const data = await response.json();
 
@@ -175,6 +185,8 @@
                             </td>
                         </tr>
                     `).join('');
+
+                    updateRefreshIndicator('success');
                 } else {
                     throw new Error('Failed to load patients');
                 }
@@ -182,10 +194,80 @@
                 console.error('Error loading patients:', error);
                 document.getElementById('patientsTable').innerHTML =
                     '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #dc2626;">Error loading patients</td></tr>';
+                updateRefreshIndicator('error');
             }
         }
 
-        window.addEventListener('load', loadPatients);
+        async function loadDashboardStats() {
+            try {
+                // Load appointments count
+                const aptResponse = await fetch('/api/appointments', { credentials: 'include' });
+                if (aptResponse.ok) {
+                    const aptData = await aptResponse.json();
+                    const today = new Date().toISOString().split('T')[0];
+                    const todayAppointments = (aptData.appointments || []).filter(apt =>
+                        apt.date === today && apt.status !== 'cancelled'
+                    );
+                    document.querySelectorAll('.stat-value')[1].textContent = todayAppointments.length;
+                }
+
+                // Load prescriptions count for pending
+                const prescResponse = await fetch('/api/prescriptions', { credentials: 'include' });
+                if (prescResponse.ok) {
+                    const prescData = await prescResponse.json();
+                    const pending = (prescData.prescriptions || []).filter(p => p.status === 'pending');
+                    document.querySelectorAll('.stat-value')[3].textContent = pending.length;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function updateRefreshIndicator(status) {
+            const indicator = document.getElementById('refreshIndicator');
+            if (!indicator) return;
+
+            const now = new Date().toLocaleTimeString();
+            if (status === 'loading') {
+                indicator.innerHTML = '<span style="color: #667eea;">Refreshing...</span>';
+            } else if (status === 'success') {
+                indicator.innerHTML = `<span style="color: #28a745;">Last updated: ${now}</span>`;
+            } else if (status === 'error') {
+                indicator.innerHTML = '<span style="color: #dc3545;">Update failed</span>';
+            }
+        }
+
+        function startAutoRefresh() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(() => {
+                loadPatients(false);
+                loadDashboardStats();
+            }, REFRESH_INTERVAL);
+        }
+
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+                refreshInterval = null;
+            }
+        }
+
+        // Stop auto-refresh when page is hidden, restart when visible
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                stopAutoRefresh();
+            } else {
+                loadPatients(false);
+                loadDashboardStats();
+                startAutoRefresh();
+            }
+        });
+
+        window.addEventListener('load', () => {
+            loadPatients();
+            loadDashboardStats();
+            startAutoRefresh();
+        });
     </script>
 
     <footer class="dashboard-footer">

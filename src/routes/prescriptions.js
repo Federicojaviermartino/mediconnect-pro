@@ -147,18 +147,39 @@ function setupPrescriptionRoutes(app, db) {
         return res.status(401).json({ error: 'Invalid session. Please login again.' });
       }
 
-      const { medication, dosage, pharmacy, notes } = req.body;
+      const { medication, dosage, frequency, pharmacy, notes, patient_id } = req.body;
       const userId = req.session.user.id;
+      const role = req.session.user.role;
 
-      const prescriptionData = {
-        patient_id: userId,
-        doctor_id: 2,
-        medication,
-        dosage: dosage || 'As prescribed',
-        frequency: 'As directed',
-        pharmacy,
-        notes: notes || ''
-      };
+      let prescriptionData;
+
+      if (role === 'doctor') {
+        // Doctor creates prescription for a patient
+        if (!patient_id) {
+          return res.status(400).json({ error: 'Patient selection is required' });
+        }
+        prescriptionData = {
+          patient_id: parseInt(patient_id),
+          doctor_id: userId,
+          medication,
+          dosage: dosage || 'As prescribed',
+          frequency: frequency || 'As directed',
+          pharmacy,
+          notes: notes || '',
+          status: 'active' // Doctor-created prescriptions are immediately active
+        };
+      } else {
+        // Patient creates prescription request
+        prescriptionData = {
+          patient_id: userId,
+          doctor_id: 2,
+          medication,
+          dosage: dosage || 'As prescribed',
+          frequency: frequency || 'As directed',
+          pharmacy,
+          notes: notes || ''
+        };
+      }
 
       const prescription = db.createPrescription(prescriptionData);
       res.status(201).json({ success: true, prescription });

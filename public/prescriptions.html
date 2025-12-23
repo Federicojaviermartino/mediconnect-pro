@@ -423,6 +423,14 @@
                 <button class="close-modal" onclick="closePrescriptionModal()">&times;</button>
             </div>
             <form id="prescriptionForm" onsubmit="submitPrescription(event)">
+                <div class="form-group" id="patient-select-group" style="display: none;">
+                    <label for="presc-patient">Patient *</label>
+                    <select id="presc-patient" name="patient_id">
+                        <option value="">Select patient...</option>
+                    </select>
+                    <span class="error-message" id="patient-error"></span>
+                </div>
+
                 <div class="form-group">
                     <label for="presc-medication">Medication *</label>
                     <input type="text" id="presc-medication" name="medication" placeholder="Enter medication name" required>
@@ -494,6 +502,47 @@
     <script>
         let allPrescriptions = [];
         let currentFilter = 'all';
+        let currentUserRole = null;
+        let patientsList = [];
+
+        async function checkUserRole() {
+            try {
+                const response = await fetch('/api/user', { credentials: 'include' });
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUserRole = data.user?.role;
+                    return currentUserRole;
+                }
+            } catch (error) {
+                console.error('Error checking user role:', error);
+            }
+            return null;
+        }
+
+        async function loadPatients() {
+            try {
+                const response = await fetch('/api/patients', { credentials: 'include' });
+                if (response.ok) {
+                    const data = await response.json();
+                    patientsList = data.patients || [];
+                    return patientsList;
+                }
+            } catch (error) {
+                console.error('Error loading patients:', error);
+            }
+            return [];
+        }
+
+        function populatePatientDropdown() {
+            const select = document.getElementById('presc-patient');
+            select.innerHTML = '<option value="">Select patient...</option>';
+            patientsList.forEach(patient => {
+                const option = document.createElement('option');
+                option.value = patient.id;
+                option.textContent = patient.name || patient.email;
+                select.appendChild(option);
+            });
+        }
 
         async function loadPrescriptions() {
             try {
@@ -585,7 +634,22 @@
             return div.innerHTML;
         }
 
-        function createPrescription() {
+        async function createPrescription() {
+            // Show patient dropdown for doctors
+            if (currentUserRole === 'doctor') {
+                document.getElementById('patient-select-group').style.display = 'block';
+                document.getElementById('presc-patient').setAttribute('required', 'required');
+
+                // Load patients if not already loaded
+                if (patientsList.length === 0) {
+                    await loadPatients();
+                }
+                populatePatientDropdown();
+            } else {
+                document.getElementById('patient-select-group').style.display = 'none';
+                document.getElementById('presc-patient').removeAttribute('required');
+            }
+
             // Open modal
             document.getElementById('prescriptionModal').classList.add('show');
         }
@@ -625,18 +689,14 @@
                 notes: document.getElementById('presc-notes').value || undefined
             };
 
-            try {
-                const csrfToken = window.csrfToken || '';
+            // Add patient_id for doctors
+            if (currentUserRole === 'doctor') {
+                formData.patient_id = document.getElementById('presc-patient').value;
+            }
 
-                const response = await fetch('/api/prescriptions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'CSRF-Token': csrfToken
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify(formData)
-                });
+            try {
+                // Use csrfPost which handles CSRF token automatically
+                const response = await csrfPost('/api/prescriptions', formData);
 
                 const data = await response.json();
 
@@ -688,11 +748,12 @@
             }
         });
 
-        // Initialize CSRF and load prescriptions
+        // Initialize CSRF, check role, and load prescriptions
         (async () => {
             if (typeof initCsrfProtection === 'function') {
                 await initCsrfProtection();
             }
+            await checkUserRole();
             loadPrescriptions();
         })();
     </script>

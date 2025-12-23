@@ -191,7 +191,10 @@
 
         <main class="main-content">
             <div class="content" id="main-content">
-                <h1>📈 Analytics Dashboard</h1>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h1 style="margin: 0;">📈 Analytics Dashboard</h1>
+                    <div id="refreshIndicator" style="font-size: 0.8rem;"></div>
+                </div>
 
                 <div class="stats-grid" id="statsGrid">
             <div class="loading">Loading analytics...</div>
@@ -221,18 +224,35 @@
     <script src="/ai-assistant.js?v=3"></script>
     <script src="/dashboard-interactive.js"></script>
     <script>
-        async function loadAnalytics() {
-            try {
-                const response = await fetch('/api/analytics/dashboard', {
-                    credentials: 'include'
-                });
+        let refreshInterval = null;
+        const REFRESH_INTERVAL = 30000; // 30 seconds
 
-                if (!response.ok) {
-                    throw new Error('Failed to load analytics');
+        async function loadAnalytics(showLoading = true) {
+            try {
+                if (showLoading) {
+                    updateRefreshIndicator('loading');
                 }
 
-                const data = await response.json();
+                // Fetch real data from multiple endpoints
+                const [patientsRes, appointmentsRes, prescriptionsRes] = await Promise.all([
+                    fetch('/api/patients', { credentials: 'include' }),
+                    fetch('/api/appointments', { credentials: 'include' }),
+                    fetch('/api/prescriptions', { credentials: 'include' })
+                ]);
+
+                const patientsData = patientsRes.ok ? await patientsRes.json() : { patients: [] };
+                const appointmentsData = appointmentsRes.ok ? await appointmentsRes.json() : { appointments: [] };
+                const prescriptionsData = prescriptionsRes.ok ? await prescriptionsRes.json() : { prescriptions: [] };
+
+                const data = {
+                    totalPatients: patientsData.patients?.length || 0,
+                    totalAppointments: appointmentsData.appointments?.length || 0,
+                    totalPrescriptions: prescriptionsData.prescriptions?.length || 0,
+                    activePrescriptions: (prescriptionsData.prescriptions || []).filter(p => p.status === 'active').length
+                };
+
                 renderStats(data);
+                updateRefreshIndicator('success');
             } catch (error) {
                 console.error('Error loading analytics:', error);
                 document.getElementById('statsGrid').innerHTML = `
@@ -240,37 +260,37 @@
                         Failed to load analytics. Please try again.
                     </div>
                 `;
+                updateRefreshIndicator('error');
             }
         }
 
         function renderStats(data) {
             const statsGrid = document.getElementById('statsGrid');
 
-            // Default stats if data is not available
             const stats = [
                 {
-                    icon: '📊',
-                    title: 'Total Users',
-                    value: data.totalUsers || '3',
-                    trend: '+12% from last month'
-                },
-                {
-                    icon: '📈',
-                    title: 'Active Sessions',
-                    value: data.activeSessions || '1',
-                    trend: '+5% from last week'
+                    icon: '👥',
+                    title: 'Total Patients',
+                    value: data.totalPatients,
+                    trend: 'Live data'
                 },
                 {
                     icon: '📅',
-                    title: 'Appointments',
-                    value: data.totalAppointments || '0',
-                    trend: '+8% this month'
+                    title: 'Total Appointments',
+                    value: data.totalAppointments,
+                    trend: 'Live data'
                 },
                 {
                     icon: '💊',
-                    title: 'Prescriptions',
-                    value: data.totalPrescriptions || '0',
-                    trend: '+15% this month'
+                    title: 'Total Prescriptions',
+                    value: data.totalPrescriptions,
+                    trend: 'Live data'
+                },
+                {
+                    icon: '✅',
+                    title: 'Active Prescriptions',
+                    value: data.activePrescriptions,
+                    trend: 'Live data'
                 }
             ];
 
@@ -288,6 +308,44 @@
             statsGrid.innerHTML = statsHTML;
         }
 
+        function updateRefreshIndicator(status) {
+            const indicator = document.getElementById('refreshIndicator');
+            if (!indicator) return;
+
+            const now = new Date().toLocaleTimeString();
+            if (status === 'loading') {
+                indicator.innerHTML = '<span style="color: #667eea;">Refreshing...</span>';
+            } else if (status === 'success') {
+                indicator.innerHTML = `<span style="color: #28a745;">Live - Last updated: ${now}</span>`;
+            } else if (status === 'error') {
+                indicator.innerHTML = '<span style="color: #dc3545;">Update failed</span>';
+            }
+        }
+
+        function startAutoRefresh() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(() => {
+                loadAnalytics(false);
+            }, REFRESH_INTERVAL);
+        }
+
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+                refreshInterval = null;
+            }
+        }
+
+        // Stop auto-refresh when page is hidden, restart when visible
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                stopAutoRefresh();
+            } else {
+                loadAnalytics(false);
+                startAutoRefresh();
+            }
+        });
+
         function generateReport() {
             alert('Report generation feature coming soon! This will create a comprehensive PDF report with all your analytics data.');
         }
@@ -298,6 +356,7 @@
                 await initCsrfProtection();
             }
             loadAnalytics();
+            startAutoRefresh();
         })();
     </script>
 </body>
