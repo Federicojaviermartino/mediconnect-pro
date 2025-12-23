@@ -478,7 +478,7 @@
 
         async function checkUserRole() {
             try {
-                const response = await fetch('/api/user', { credentials: 'include' });
+                const response = await fetch('/api/auth/me', { credentials: 'include' });
                 if (response.ok) {
                     const data = await response.json();
                     currentUserRole = data.user?.role;
