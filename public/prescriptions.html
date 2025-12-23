@@ -710,15 +710,13 @@
 
                 if (!response.ok) {
                     // Handle validation errors
-                    if (data.details) {
+                    if (data.details && Array.isArray(data.details)) {
                         data.details.forEach(detail => {
-                            const fieldName = detail.path[0];
+                            const fieldName = detail.path?.[0] || 'general';
                             showError(fieldName, detail.message);
                         });
-                    } else {
-                        throw new Error(data.error || 'Failed to create prescription');
                     }
-                    return;
+                    throw new Error(data.error || 'Failed to create prescription');
                 }
 
                 // Success
