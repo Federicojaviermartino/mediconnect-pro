@@ -112,6 +112,10 @@ const appointmentSchemas = {
 // Prescription validation schemas
 const prescriptionSchemas = {
   create: Joi.object({
+        patient_id: Joi.number().integer().positive().optional().messages({
+                'number.base': 'Patient ID must be a number',
+                'number.positive': 'Patient ID must be positive'
+        }),
     medication: Joi.string().min(2).max(200).required().messages({
       'string.min': 'Medication name must be at least 2 characters',
       'string.max': 'Medication name cannot exceed 200 characters',
@@ -121,10 +125,19 @@ const prescriptionSchemas = {
       'string.min': 'Dosage must be at least 2 characters',
       'string.max': 'Dosage cannot exceed 100 characters'
     }),
-    pharmacy: Joi.string().min(2).max(200).required().messages({
-      'string.min': 'Pharmacy name must be at least 2 characters',
+        frequency: Joi.string().max(100).optional().messages({
+                'string.max': 'Frequency cannot exceed 100 characters'
+        }),
+        duration: Joi.number().integer().positive().optional().messages({
+                'number.base': 'Duration must be a number',
+                'number.positive': 'Duration must be positive'
+        }),
+        quantity: Joi.number().integer().positive().optional().messages({
+                'number.base': 'Quantity must be a number',
+                'number.positive': 'Quantity must be positive'
+        }),
+    pharmacy: Joi.string().min(2).max(200).optional().allow('').messages({
       'string.max': 'Pharmacy name cannot exceed 200 characters',
-      'any.required': 'Pharmacy is required'
     }),
     notes: Joi.string().max(1000).optional().allow('').messages({
       'string.max': 'Notes cannot exceed 1000 characters'
