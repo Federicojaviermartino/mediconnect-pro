@@ -85,7 +85,11 @@ const appointmentSchemas = {
     doctor_id: Joi.number().integer().positive().optional().messages({
       'number.base': 'Doctor ID must be a number',
       'number.positive': 'Doctor ID must be positive'
-    })
+    }),
+        patient_id: Joi.number().integer().positive().optional().messages({
+                'number.base': 'Patient ID must be a number',
+                'number.positive': 'Patient ID must be positive'
+        })
   }),
   update: Joi.object({
     date: Joi.date().iso().min('now').optional().messages({
