@@ -669,7 +669,7 @@
             submitBtn.textContent = 'Scheduling...';
 
             const formData = {
-                date: document.getElementById('apt-date').value,
+                date: new Date(`${document.getElementById('apt-date').value}T${document.getElementById('apt-time').value}:00`).toISOString(),
                 time: document.getElementById('apt-time').value,
                 type: document.getElementById('apt-type').value,
                 reason: document.getElementById('apt-reason').value
