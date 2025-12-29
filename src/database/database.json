@@ -1,0 +1,105 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "admin@mediconnect.demo",
+      "password": "$2a$10$Yzk8Gmo.8YBE9fvO2qEQ.uLlUcQsmVhJ/2AzXr2jycSQ0TcrSOGea",
+      "role": "admin",
+      "name": "Admin User",
+      "specialization": null,
+      "twoFactorEnabled": false,
+      "twoFactorSecret": null,
+      "twoFactorBackupCodes": [],
+      "created_at": "2025-12-29T21:12:17.645Z"
+    },
+    {
+      "id": 2,
+      "email": "dr.smith@mediconnect.demo",
+      "password": "$2a$10$noBRP9qYB6AFhmF5aHhWZ.EqZQHAE9/VAkKEUy0VTh7ZgWi3JL6Ui",
+      "role": "doctor",
+      "name": "Dr. Sarah Smith",
+      "specialization": "General Practitioner",
+      "twoFactorEnabled": false,
+      "twoFactorSecret": null,
+      "twoFactorBackupCodes": [],
+      "created_at": "2025-12-29T21:12:17.645Z"
+    },
+    {
+      "id": 3,
+      "email": "john.doe@mediconnect.demo",
+      "password": "$2a$10$m1TFw7jRNLfdQpWcoszi5ezLGx.4Xd0S9tH5kFuJthHf86upqBwxm",
+      "role": "patient",
+      "name": "John Doe",
+      "specialization": null,
+      "twoFactorEnabled": false,
+      "twoFactorSecret": null,
+      "twoFactorBackupCodes": [],
+      "created_at": "2025-12-29T21:12:17.645Z"
+    }
+  ],
+  "patients": [
+    {
+      "id": 1,
+      "user_id": 3,
+      "blood_type": "A+",
+      "allergies": "Penicillin",
+      "conditions": "Hypertension"
+    }
+  ],
+  "vitalSigns": [
+    {
+      "id": 1,
+      "patient_id": 1,
+      "heart_rate": 72,
+      "blood_pressure": "120/80",
+      "temperature": 36.6,
+      "oxygen_saturation": 98,
+      "recorded_at": "2025-12-29T20:12:17.645Z"
+    },
+    {
+      "id": 2,
+      "patient_id": 1,
+      "heart_rate": 75,
+      "blood_pressure": "125/82",
+      "temperature": 36.7,
+      "oxygen_saturation": 97,
+      "recorded_at": "2025-12-29T19:12:17.645Z"
+    },
+    {
+      "id": 3,
+      "patient_id": 1,
+      "heart_rate": 68,
+      "blood_pressure": "118/78",
+      "temperature": 36.5,
+      "oxygen_saturation": 99,
+      "recorded_at": "2025-12-29T18:12:17.645Z"
+    }
+  ],
+  "appointments": [
+    {
+      "id": 1,
+      "patient_id": 3,
+      "doctor_id": 2,
+      "date": "2025-12-30",
+      "time": "10:00",
+      "reason": "Regular checkup",
+      "status": "scheduled",
+      "created_at": "2025-12-29T21:12:17.645Z"
+    }
+  ],
+  "prescriptions": [
+    {
+      "id": 1,
+      "patient_id": 3,
+      "doctor_id": 2,
+      "medication": "Lisinopril",
+      "dosage": "10mg",
+      "frequency": "Once daily",
+      "pharmacy": "Main Street Pharmacy",
+      "status": "active",
+      "created_at": "2025-12-28T21:12:17.645Z"
+    }
+  ],
+  "messages": [],
+  "passwordResetTokens": []
+}

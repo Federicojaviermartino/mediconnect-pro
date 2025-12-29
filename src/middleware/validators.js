@@ -86,10 +86,10 @@ const appointmentSchemas = {
       'number.base': 'Doctor ID must be a number',
       'number.positive': 'Doctor ID must be positive'
     }),
-        patient_id: Joi.number().integer().positive().optional().messages({
-                'number.base': 'Patient ID must be a number',
-                'number.positive': 'Patient ID must be positive'
-        })
+    patient_id: Joi.number().integer().positive().optional().messages({
+      'number.base': 'Patient ID must be a number',
+      'number.positive': 'Patient ID must be positive'
+    })
   }),
   update: Joi.object({
     date: Joi.date().iso().min('now').optional().messages({
@@ -141,6 +141,10 @@ const prescriptionSchemas = {
     }),
     notes: Joi.string().max(1000).optional().allow('').messages({
       'string.max': 'Notes cannot exceed 1000 characters'
+    }),
+    patient_id: Joi.number().integer().positive().optional().messages({
+      'number.base': 'Patient ID must be a number',
+      'number.positive': 'Patient ID must be positive'
     })
   }),
   update: Joi.object({

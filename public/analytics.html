@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics - MediConnect Pro</title>
     <link rel="stylesheet" href="dashboard-styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .analytics-container {
             padding: 2rem;
@@ -98,17 +99,35 @@
             color: #1a1a2e;
         }
 
-        .chart-placeholder {
-            width: 100%;
-            height: 300px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-            margin-top: 1rem;
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .chart-container {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            min-height: 300px;
+        }
+
+        .chart-container h3 {
+            margin: 0 0 1rem 0;
+            color: #1a1a2e;
+            font-size: 1.1rem;
+        }
+
+        .chart-canvas-wrapper {
+            position: relative;
+            height: 250px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .actions-section {
@@ -202,9 +221,20 @@
 
         <div class="charts-section">
             <h2>Advanced Analytics</h2>
-            <p>📊 Advanced analytics charts and visualizations coming soon!</p>
-            <div class="chart-placeholder">
-                Interactive charts will be displayed here
+            <p>📊 Real-time data visualization from your medical records</p>
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>📅 Appointments by Status</h3>
+                    <div class="chart-canvas-wrapper">
+                        <canvas id="appointmentsChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h3>💊 Prescriptions by Status</h3>
+                    <div class="chart-canvas-wrapper">
+                        <canvas id="prescriptionsChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -226,6 +256,9 @@
     <script>
         let refreshInterval = null;
         const REFRESH_INTERVAL = 30000; // 30 seconds
+        let analyticsData = {}; // Store data for report generation
+        let appointmentsChart = null;
+        let prescriptionsChart = null;
 
         async function loadAnalytics(showLoading = true) {
             try {
@@ -244,14 +277,40 @@
                 const appointmentsData = appointmentsRes.ok ? await appointmentsRes.json() : { appointments: [] };
                 const prescriptionsData = prescriptionsRes.ok ? await prescriptionsRes.json() : { prescriptions: [] };
 
-                const data = {
-                    totalPatients: patientsData.patients?.length || 0,
-                    totalAppointments: appointmentsData.appointments?.length || 0,
-                    totalPrescriptions: prescriptionsData.prescriptions?.length || 0,
-                    activePrescriptions: (prescriptionsData.prescriptions || []).filter(p => p.status === 'active').length
+                const appointments = appointmentsData.appointments || [];
+                const prescriptions = prescriptionsData.prescriptions || [];
+
+                // Calculate stats by status
+                const appointmentsByStatus = {
+                    scheduled: appointments.filter(a => a.status === 'scheduled').length,
+                    confirmed: appointments.filter(a => a.status === 'confirmed').length,
+                    completed: appointments.filter(a => a.status === 'completed').length,
+                    cancelled: appointments.filter(a => a.status === 'cancelled').length
                 };
 
-                renderStats(data);
+                const prescriptionsByStatus = {
+                    pending: prescriptions.filter(p => p.status === 'pending').length,
+                    active: prescriptions.filter(p => p.status === 'active').length,
+                    completed: prescriptions.filter(p => p.status === 'completed').length,
+                    rejected: prescriptions.filter(p => p.status === 'rejected').length
+                };
+
+                // Store data for report
+                analyticsData = {
+                    patients: patientsData.patients || [],
+                    appointments,
+                    prescriptions,
+                    appointmentsByStatus,
+                    prescriptionsByStatus,
+                    totalPatients: (patientsData.patients || []).length,
+                    totalAppointments: appointments.length,
+                    totalPrescriptions: prescriptions.length,
+                    activePrescriptions: prescriptionsByStatus.active,
+                    generatedAt: new Date().toLocaleString()
+                };
+
+                renderStats(analyticsData);
+                renderCharts(appointmentsByStatus, prescriptionsByStatus);
                 updateRefreshIndicator('success');
             } catch (error) {
                 console.error('Error loading analytics:', error);
@@ -268,30 +327,10 @@
             const statsGrid = document.getElementById('statsGrid');
 
             const stats = [
-                {
-                    icon: '👥',
-                    title: 'Total Patients',
-                    value: data.totalPatients,
-                    trend: 'Live data'
-                },
-                {
-                    icon: '📅',
-                    title: 'Total Appointments',
-                    value: data.totalAppointments,
-                    trend: 'Live data'
-                },
-                {
-                    icon: '💊',
-                    title: 'Total Prescriptions',
-                    value: data.totalPrescriptions,
-                    trend: 'Live data'
-                },
-                {
-                    icon: '✅',
-                    title: 'Active Prescriptions',
-                    value: data.activePrescriptions,
-                    trend: 'Live data'
-                }
+                { icon: '👥', title: 'Total Patients', value: data.totalPatients, trend: 'Live data' },
+                { icon: '📅', title: 'Total Appointments', value: data.totalAppointments, trend: 'Live data' },
+                { icon: '💊', title: 'Total Prescriptions', value: data.totalPrescriptions, trend: 'Live data' },
+                { icon: '✅', title: 'Active Prescriptions', value: data.activePrescriptions, trend: 'Live data' }
             ];
 
             const statsHTML = stats.map(stat => `
@@ -306,6 +345,66 @@
             `).join('');
 
             statsGrid.innerHTML = statsHTML;
+        }
+
+        function renderCharts(appointmentsByStatus, prescriptionsByStatus) {
+            // Destroy existing charts to prevent memory leaks
+            if (appointmentsChart) appointmentsChart.destroy();
+            if (prescriptionsChart) prescriptionsChart.destroy();
+
+            // Appointments Chart
+            const aptCtx = document.getElementById('appointmentsChart').getContext('2d');
+            appointmentsChart = new Chart(aptCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Scheduled', 'Confirmed', 'Completed', 'Cancelled'],
+                    datasets: [{
+                        data: [
+                            appointmentsByStatus.scheduled,
+                            appointmentsByStatus.confirmed,
+                            appointmentsByStatus.completed,
+                            appointmentsByStatus.cancelled
+                        ],
+                        backgroundColor: ['#667eea', '#28a745', '#17a2b8', '#dc3545'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Prescriptions Chart
+            const prescCtx = document.getElementById('prescriptionsChart').getContext('2d');
+            prescriptionsChart = new Chart(prescCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'Active', 'Completed', 'Rejected'],
+                    datasets: [{
+                        data: [
+                            prescriptionsByStatus.pending,
+                            prescriptionsByStatus.active,
+                            prescriptionsByStatus.completed,
+                            prescriptionsByStatus.rejected
+                        ],
+                        backgroundColor: ['#ffc107', '#28a745', '#17a2b8', '#dc3545'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
         }
 
         function updateRefreshIndicator(status) {
@@ -347,7 +446,98 @@
         });
 
         function generateReport() {
-            alert('Report generation feature coming soon! This will create a comprehensive PDF report with all your analytics data.');
+            if (!analyticsData.generatedAt) {
+                alert('Please wait for data to load before generating a report.');
+                return;
+            }
+
+            // Create a printable report in a new window
+            const reportWindow = window.open('', '_blank');
+            reportWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>MediConnect Pro - Analytics Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+                        h1 { color: #1a1a2e; border-bottom: 3px solid #667eea; padding-bottom: 10px; }
+                        h2 { color: #667eea; margin-top: 30px; }
+                        .report-header { text-align: center; margin-bottom: 40px; }
+                        .report-header img { width: 60px; }
+                        .stats-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                        .stats-table th, .stats-table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+                        .stats-table th { background: #f8f9fa; color: #1a1a2e; }
+                        .summary-box { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
+                        .summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+                        .summary-item { background: white; padding: 15px; border-radius: 8px; text-align: center; }
+                        .summary-value { font-size: 2rem; font-weight: bold; color: #667eea; }
+                        .summary-label { color: #666; font-size: 0.9rem; }
+                        .footer { margin-top: 40px; text-align: center; color: #666; font-size: 0.9rem; border-top: 1px solid #ddd; padding-top: 20px; }
+                        @media print { body { padding: 20px; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="report-header">
+                        <h1>🏥 MediConnect Pro</h1>
+                        <p><strong>Analytics Report</strong></p>
+                        <p>Generated: ${analyticsData.generatedAt}</p>
+                    </div>
+
+                    <h2>📊 Summary Overview</h2>
+                    <div class="summary-box">
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <div class="summary-value">${analyticsData.totalPatients}</div>
+                                <div class="summary-label">Total Patients</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value">${analyticsData.totalAppointments}</div>
+                                <div class="summary-label">Total Appointments</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value">${analyticsData.totalPrescriptions}</div>
+                                <div class="summary-label">Total Prescriptions</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value">${analyticsData.activePrescriptions}</div>
+                                <div class="summary-label">Active Prescriptions</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2>📅 Appointments Breakdown</h2>
+                    <table class="stats-table">
+                        <tr><th>Status</th><th>Count</th><th>Percentage</th></tr>
+                        <tr><td>Scheduled</td><td>${analyticsData.appointmentsByStatus.scheduled}</td><td>${analyticsData.totalAppointments ? ((analyticsData.appointmentsByStatus.scheduled / analyticsData.totalAppointments) * 100).toFixed(1) : 0}%</td></tr>
+                        <tr><td>Confirmed</td><td>${analyticsData.appointmentsByStatus.confirmed}</td><td>${analyticsData.totalAppointments ? ((analyticsData.appointmentsByStatus.confirmed / analyticsData.totalAppointments) * 100).toFixed(1) : 0}%</td></tr>
+                        <tr><td>Completed</td><td>${analyticsData.appointmentsByStatus.completed}</td><td>${analyticsData.totalAppointments ? ((analyticsData.appointmentsByStatus.completed / analyticsData.totalAppointments) * 100).toFixed(1) : 0}%</td></tr>
+                        <tr><td>Cancelled</td><td>${analyticsData.appointmentsByStatus.cancelled}</td><td>${analyticsData.totalAppointments ? ((analyticsData.appointmentsByStatus.cancelled / analyticsData.totalAppointments) * 100).toFixed(1) : 0}%</td></tr>
+                    </table>
+
+                    <h2>💊 Prescriptions Breakdown</h2>
+                    <table class="stats-table">
+                        <tr><th>Status</th><th>Count</th><th>Percentage</th></tr>
+                        <tr><td>Pending</td><td>${analyticsData.prescriptionsByStatus.pending}</td><td>${analyticsData.totalPrescriptions ? ((analyticsData.prescriptionsByStatus.pending / analyticsData.totalPrescriptions) * 100).toFixed(1) : 0}%</td></tr>
+                        <tr><td>Active</td><td>${analyticsData.prescriptionsByStatus.active}</td><td>${analyticsData.totalPrescriptions ? ((analyticsData.prescriptionsByStatus.active / analyticsData.totalPrescriptions) * 100).toFixed(1) : 0}%</td></tr>
+                        <tr><td>Completed</td><td>${analyticsData.prescriptionsByStatus.completed}</td><td>${analyticsData.totalPrescriptions ? ((analyticsData.prescriptionsByStatus.completed / analyticsData.totalPrescriptions) * 100).toFixed(1) : 0}%</td></tr>
+                        <tr><td>Rejected</td><td>${analyticsData.prescriptionsByStatus.rejected}</td><td>${analyticsData.totalPrescriptions ? ((analyticsData.prescriptionsByStatus.rejected / analyticsData.totalPrescriptions) * 100).toFixed(1) : 0}%</td></tr>
+                    </table>
+
+                    <div class="footer">
+                        <p>This report was automatically generated by MediConnect Pro</p>
+                        <p>© ${new Date().getFullYear()} MediConnect Pro. All rights reserved.</p>
+                    </div>
+
+                    <script>
+                        // Auto-trigger print dialog
+                        window.onload = function() {
+                            window.print();
+                        };
+                    </script>
+                </body>
+                </html>
+            `);
+            reportWindow.document.close();
         }
 
         // Initialize CSRF and load analytics

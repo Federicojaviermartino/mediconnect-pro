@@ -166,16 +166,25 @@ if (useRedis) {
     redisClient = null;
   });
 
-  // Create Redis store if client connected
-  if (redisClient) {
-    sessionStore = new RedisStore({
-      client: redisClient,
-      prefix: 'mediconnect:sess:',
-      ttl: 24 * 60 * 60 // 24 hours in seconds
-    });
-    logger.info('✅ Redis session store configured');
-    logger.info('✅ Sessions will persist across server restarts');
-    logger.info('✅ Ready for production scale (1,000+ concurrent users)');
+  // Create Redis store if client connected and RedisStore is available
+  if (redisClient && typeof RedisStore === 'function') {
+    try {
+      sessionStore = new RedisStore({
+        client: redisClient,
+        prefix: 'mediconnect:sess:',
+        ttl: 24 * 60 * 60 // 24 hours in seconds
+      });
+      logger.info('✅ Redis session store configured');
+      logger.info('✅ Sessions will persist across server restarts');
+      logger.info('✅ Ready for production scale (1,000+ concurrent users)');
+    } catch (err) {
+      logger.error('❌ Failed to create Redis store:', err.message);
+      logger.warn('⚠️  Falling back to memory sessions');
+      sessionStore = null;
+    }
+  } else if (redisClient && typeof RedisStore !== 'function') {
+    logger.warn('⚠️  RedisStore not available (connect-redis version issue)');
+    logger.warn('⚠️  Falling back to memory sessions');
   }
 } else {
   logger.warn('⚠️  Redis not configured. Using in-memory sessions.');
