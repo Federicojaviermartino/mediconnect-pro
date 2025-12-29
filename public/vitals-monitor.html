@@ -213,11 +213,11 @@
                         <section class="card charts-section">
                             <h2>📈 Vitals Trends (30 Days)</h2>
                             <div class="chart-tabs">
-                                <button class="tab-btn active" onclick="showChart('heartRate')">Heart Rate</button>
-                                <button class="tab-btn" onclick="showChart('bloodPressure')">Blood Pressure</button>
-                                <button class="tab-btn" onclick="showChart('temperature')">Temperature</button>
-                                <button class="tab-btn" onclick="showChart('oxygenSaturation')">Oxygen Sat</button>
-                                <button class="tab-btn" onclick="showChart('bloodGlucose')">Blood Glucose</button>
+                                <button class="tab-btn active" onclick="showChart('heartRate', event)">Heart Rate</button>
+                                <button class="tab-btn" onclick="showChart('bloodPressure', event)">Blood Pressure</button>
+                                <button class="tab-btn" onclick="showChart('temperature', event)">Temperature</button>
+                                <button class="tab-btn" onclick="showChart('oxygenSaturation', event)">Oxygen Sat</button>
+                                <button class="tab-btn" onclick="showChart('bloodGlucose', event)">Blood Glucose</button>
                             </div>
                             <div class="chart-container">
                                 <canvas id="vitalsChart"></canvas>

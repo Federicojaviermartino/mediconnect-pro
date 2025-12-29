@@ -226,10 +226,21 @@ function initializeChart() {
     });
 }
 
-function showChart(type) {
+function showChart(type, evt) {
     if (!vitalsChart || allVitals.length === 0) return;
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
+
+    // Update active tab - handle both click events and programmatic calls
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        // If called programmatically, find the matching button by its onclick content
+        if (!evt && btn.getAttribute('onclick')?.includes(`'${type}'`)) {
+            btn.classList.add('active');
+        }
+    });
+    // If called via click event, use the event target
+    if (evt && evt.target) {
+        evt.target.classList.add('active');
+    }
 
     let datasets = [];
     const sortedVitals = [...allVitals].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
