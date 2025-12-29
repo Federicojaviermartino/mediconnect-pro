@@ -61,7 +61,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://api.openai.com", "https://api.anthropic.com"],
+      connectSrc: ["'self'", "https://api.openai.com", "https://api.anthropic.com", "https://cdn.jsdelivr.net"],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
