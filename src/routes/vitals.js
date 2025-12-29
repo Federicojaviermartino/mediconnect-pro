@@ -237,8 +237,36 @@ function setupVitalsRoutes(app, db) {
         db.database.vitalSigns = [];
       }
 
+      // Get both user ID and patient record ID for matching
+      const userIdNum = parseInt(patientId);
+      const patientRecordId = patient.patient_id || patient.id;
+
+      // Filter vitals - support both field naming conventions and ID types
       let vitals = db.database.vitalSigns
-        .filter(v => v.patientId === patientId)
+        .filter(v => {
+          const vPatientId = v.patient_id || v.patientId;
+          // Match by patient record ID, user ID (as number), or user ID (as string)
+          return vPatientId === patientRecordId ||
+                 vPatientId === userIdNum ||
+                 vPatientId === patientId ||
+                 String(vPatientId) === String(patientId);
+        })
+        .map(v => ({
+          // Normalize field names from snake_case to camelCase
+          id: v.id,
+          patientId: v.patient_id || v.patientId,
+          timestamp: v.timestamp || v.recorded_at,
+          heartRate: v.heartRate ?? v.heart_rate,
+          systolicBP: v.systolicBP ?? (v.blood_pressure ? parseInt(v.blood_pressure.split('/')[0]) : null),
+          diastolicBP: v.diastolicBP ?? (v.blood_pressure ? parseInt(v.blood_pressure.split('/')[1]) : null),
+          temperature: v.temperature,
+          oxygenSaturation: v.oxygenSaturation ?? v.oxygen_saturation,
+          respiratoryRate: v.respiratoryRate ?? v.respiratory_rate,
+          bloodGlucose: v.bloodGlucose ?? v.blood_glucose,
+          weight: v.weight,
+          notes: v.notes,
+          recordedBy: v.recordedBy || v.recorded_by
+        }))
         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
       // Filter by days if specified
@@ -320,8 +348,19 @@ function setupVitalsRoutes(app, db) {
         db.database.vitalAlerts = [];
       }
 
+      // Get both user ID and patient record ID for matching
+      const userIdNum = parseInt(patientId);
+      const patientRecordId = patient.patient_id || patient.id;
+
       let alerts = db.database.vitalAlerts
-        .filter(a => a.patientId === patientId)
+        .filter(a => {
+          const aPatientId = a.patientId || a.patient_id;
+          // Match by patient record ID, user ID (as number), or user ID (as string)
+          return aPatientId === patientRecordId ||
+                 aPatientId === userIdNum ||
+                 aPatientId === patientId ||
+                 String(aPatientId) === String(patientId);
+        })
         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
       // Filter out acknowledged alerts unless requested

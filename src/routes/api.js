@@ -48,14 +48,16 @@ function setupApiRoutes(app, db) {
       res.json({
         success: true,
         patient: {
-          id: patient.id,
-          userId: patient.userId,
-          name: patient.name,
-          dateOfBirth: patient.dateOfBirth,
+          id: patient.user_id || userId, // Use user_id (the actual user ID for API calls)
+          patientRecordId: patient.id,   // Keep patient record ID if needed
+          userId: patient.user_id || userId,
+          name: req.session.user.name,
+          dateOfBirth: patient.dateOfBirth || patient.date_of_birth,
           gender: patient.gender,
           conditions: patient.conditions,
           allergies: patient.allergies,
-          medications: patient.medications
+          medications: patient.medications,
+          blood_type: patient.blood_type
         }
       });
     } catch (error) {
