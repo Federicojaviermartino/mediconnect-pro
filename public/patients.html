@@ -44,11 +44,43 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            /* Responsive: Horizontal scroll on mobile */
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .patients-table table {
             width: 100%;
+            min-width: 600px;
             border-collapse: collapse;
+        }
+
+        /* Mobile responsive improvements */
+        @media (max-width: 768px) {
+            .patients-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .patients-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .patients-table th,
+            .patients-table td {
+                padding: 0.75rem;
+                font-size: 0.875rem;
+            }
+
+            .view-btn {
+                padding: 0.4rem 0.75rem;
+                font-size: 0.8rem;
+            }
         }
 
         .patients-table thead {
@@ -469,6 +501,7 @@
                 return;
             }
 
+            // ID-008/009: Normalize data - support both camelCase and snake_case
             const tableHTML = `
                 <table>
                     <thead>
@@ -481,19 +514,24 @@
                         </tr>
                     </thead>
                     <tbody>
-                        ${filteredPatients.map(patient => `
-                            <tr>
-                                <td>${escapeHtml(patient.name)}</td>
-                                <td>${escapeHtml(patient.email)}</td>
-                                <td><span class="blood-type-badge">${escapeHtml(patient.bloodType || 'N/A')}</span></td>
-                                <td>${escapeHtml(patient.conditions || 'None')}</td>
-                                <td>
-                                    <button class="view-btn" onclick="viewPatient(${patient.id})">
-                                        View Details
-                                    </button>
-                                </td>
-                            </tr>
-                        `).join('')}
+                        ${filteredPatients.map(patient => {
+                            const bloodType = patient.bloodType || patient.blood_type || 'N/A';
+                            const conditions = patient.conditions || patient.medical_conditions || 'None';
+                            const patientName = patient.name || patient.full_name || 'Unknown';
+                            return `
+                                <tr>
+                                    <td>${escapeHtml(patientName)}</td>
+                                    <td>${escapeHtml(patient.email || '')}</td>
+                                    <td><span class="blood-type-badge">${escapeHtml(bloodType)}</span></td>
+                                    <td>${escapeHtml(conditions)}</td>
+                                    <td>
+                                        <button class="view-btn" onclick="viewPatient(${patient.id})">
+                                            View Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
                     </tbody>
                 </table>
             `;
@@ -517,11 +555,14 @@
             const bloodTypeFilter = document.getElementById('filterBloodType').value;
 
             filteredPatients = allPatients.filter(patient => {
+                const patientName = patient.name || patient.full_name || '';
                 const matchesSearch = !searchTerm ||
-                    (patient.name && patient.name.toLowerCase().includes(searchTerm)) ||
+                    patientName.toLowerCase().includes(searchTerm) ||
                     (patient.email && patient.email.toLowerCase().includes(searchTerm));
 
-                const matchesBloodType = !bloodTypeFilter || patient.bloodType === bloodTypeFilter;
+                // ID-008/009: Support both camelCase and snake_case for blood type
+                const patientBloodType = patient.bloodType || patient.blood_type || '';
+                const matchesBloodType = !bloodTypeFilter || patientBloodType === bloodTypeFilter;
 
                 return matchesSearch && matchesBloodType;
             });

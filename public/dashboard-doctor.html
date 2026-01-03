@@ -173,18 +173,26 @@
                         return;
                     }
 
-                    tbody.innerHTML = data.patients.map(patient => `
-                        <tr>
-                            <td><strong>${patient.name}</strong></td>
-                            <td>${patient.email}</td>
-                            <td><span class="badge">${patient.blood_type || 'N/A'}</span></td>
-                            <td>${patient.conditions || 'None'}</td>
-                            <td>${patient.allergies || 'None'}</td>
-                            <td>
-                                <button class="btn-small" onclick="viewPatientDetails(${patient.id}, '${patient.name}')">View Details</button>
-                            </td>
-                        </tr>
-                    `).join('');
+                    // ID-008/009: Normalize data - support both camelCase and snake_case
+                    tbody.innerHTML = data.patients.map(patient => {
+                        const bloodType = patient.bloodType || patient.blood_type || 'N/A';
+                        const conditions = patient.conditions || patient.medical_conditions || 'None';
+                        const allergies = patient.allergies || 'None';
+                        const patientName = patient.name || patient.full_name || 'Unknown';
+                        const safePatientName = patientName.replace(/'/g, "\\'");
+                        return `
+                            <tr>
+                                <td><strong>${patientName}</strong></td>
+                                <td>${patient.email || 'N/A'}</td>
+                                <td><span class="badge">${bloodType}</span></td>
+                                <td>${conditions}</td>
+                                <td>${allergies}</td>
+                                <td>
+                                    <button class="btn-small" onclick="viewPatientDetails(${patient.id}, '${safePatientName}')">View Details</button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
 
                     updateRefreshIndicator('success');
                 } else {

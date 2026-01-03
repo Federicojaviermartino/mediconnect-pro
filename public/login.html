@@ -356,6 +356,41 @@
             outline: 2px solid #667eea;
             outline-offset: 2px;
         }
+
+        /* ID-004: Password strength indicator */
+        .password-strength {
+            margin-top: 8px;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s, background 0.3s;
+            border-radius: 2px;
+        }
+
+        .strength-fill.weak { width: 25%; background: #ef4444; }
+        .strength-fill.fair { width: 50%; background: #f59e0b; }
+        .strength-fill.good { width: 75%; background: #22c55e; }
+        .strength-fill.strong { width: 100%; background: #10b981; }
+
+        .strength-text {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+
+        .strength-text.weak { color: #ef4444; }
+        .strength-text.fair { color: #f59e0b; }
+        .strength-text.good { color: #22c55e; }
+        .strength-text.strong { color: #10b981; }
     </style>
 </head>
 <body>
@@ -410,12 +445,20 @@
                         required
                         placeholder="Enter your password"
                         aria-label="Password"
-                        aria-describedby="password-hint"
+                        aria-describedby="password-hint password-strength-text"
                         autocomplete="current-password"
                         minlength="8"
                         maxlength="128"
+                        oninput="updatePasswordStrength(this.value)"
                     >
                     <span id="password-hint" class="sr-only">Enter your account password (minimum 8 characters)</span>
+                    <!-- ID-004: Password strength indicator -->
+                    <div class="password-strength" id="passwordStrength" style="display: none;">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <span class="strength-text" id="password-strength-text" aria-live="polite"></span>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn" id="loginBtn" aria-label="Sign in to your account">Sign In</button>
@@ -477,6 +520,54 @@
 
         // Clear any previous session on page load
         clearPreviousSession();
+
+        // ID-004: Password strength indicator
+        function updatePasswordStrength(password) {
+            const strengthContainer = document.getElementById('passwordStrength');
+            const strengthFill = document.getElementById('strengthFill');
+            const strengthText = document.getElementById('password-strength-text');
+
+            if (!password) {
+                strengthContainer.style.display = 'none';
+                return;
+            }
+
+            strengthContainer.style.display = 'block';
+
+            let strength = 0;
+            const checks = {
+                length: password.length >= 8,
+                lowercase: /[a-z]/.test(password),
+                uppercase: /[A-Z]/.test(password),
+                numbers: /\d/.test(password),
+                special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+            };
+
+            strength = Object.values(checks).filter(Boolean).length;
+
+            // Remove all classes
+            strengthFill.className = 'strength-fill';
+            strengthText.className = 'strength-text';
+
+            let level, text;
+            if (strength <= 2) {
+                level = 'weak';
+                text = 'Weak - Add uppercase, numbers, and symbols';
+            } else if (strength === 3) {
+                level = 'fair';
+                text = 'Fair - Add more character types';
+            } else if (strength === 4) {
+                level = 'good';
+                text = 'Good - Almost there!';
+            } else {
+                level = 'strong';
+                text = 'Strong password';
+            }
+
+            strengthFill.classList.add(level);
+            strengthText.classList.add(level);
+            strengthText.textContent = text;
+        }
 
         // Fetch CSRF token on page load
         async function fetchCsrfToken() {
