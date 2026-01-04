@@ -541,6 +541,31 @@ body {
     }
 }
 
+/* POL-001: Improved responsive tables for medium screens */
+@media (max-width: 900px) {
+    .data-table,
+    .patients-table table,
+    .users-table table {
+        font-size: 0.875rem;
+    }
+
+    .data-table th,
+    .data-table td,
+    .patients-table th,
+    .patients-table td,
+    .users-table th,
+    .users-table td {
+        padding: 0.625rem 0.5rem;
+    }
+
+    /* Allow text wrapping for long content */
+    .data-table td,
+    .patients-table td,
+    .users-table td {
+        word-break: break-word;
+    }
+}
+
 /* Small tablet / Large mobile (640px - 768px) */
 @media (max-width: 768px) {
     .sidebar {

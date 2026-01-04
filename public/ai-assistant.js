@@ -257,23 +257,25 @@ function displayTriageResults(triage) {
                 transition: all 0.3s;
             }
 
+            /* CON-002: Unified button styles matching app theme */
             .btn-primary {
-                background: #4A90E2;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: white;
             }
 
             .btn-primary:hover {
-                background: #357ABD;
+                opacity: 0.9;
+                transform: translateY(-1px);
             }
 
             .btn-secondary {
                 background: white;
-                color: #4A90E2;
-                border: 2px solid #4A90E2;
+                color: #667eea;
+                border: 2px solid #667eea;
             }
 
             .btn-secondary:hover {
-                background: #4A90E2;
+                background: #667eea;
                 color: white;
             }
         `;

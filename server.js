@@ -489,6 +489,16 @@ async function startServer() {
     setupCsrfEndpoint(app);
     logger.info('✅ Routes configured');
 
+    // EDGE-005: Custom 404 handler - must be after all routes
+    app.use((req, res, next) => {
+      // Only handle non-API requests with 404 page
+      if (!req.path.startsWith('/api/')) {
+        res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+      } else {
+        res.status(404).json({ error: 'Endpoint not found' });
+      }
+    });
+
     // Start listening
     const server = app.listen(PORT, '0.0.0.0', () => {
       logger.info(`🏥 MediConnect Pro running on port ${PORT}`);

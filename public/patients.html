@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <title>Patients - MediConnect Pro</title>
     <link rel="stylesheet" href="dashboard-styles.css">
     <style>
@@ -390,11 +391,11 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="patient-name">Full Name *</label>
-                        <input type="text" id="patient-name" name="name" placeholder="John Doe" required>
+                        <input type="text" id="patient-name" name="name" placeholder="John Doe" required minlength="2" maxlength="100">
                     </div>
                     <div class="form-group">
                         <label for="patient-email">Email *</label>
-                        <input type="email" id="patient-email" name="email" placeholder="patient@example.com" required>
+                        <input type="email" id="patient-email" name="email" placeholder="patient@example.com" required maxlength="254">
                     </div>
                 </div>
 
@@ -437,12 +438,12 @@
 
                 <div class="form-group">
                     <label for="patient-conditions">Medical Conditions</label>
-                    <input type="text" id="patient-conditions" name="conditions" placeholder="e.g., Hypertension, Diabetes">
+                    <input type="text" id="patient-conditions" name="conditions" placeholder="e.g., Hypertension, Diabetes" maxlength="500">
                 </div>
 
                 <div class="form-group">
                     <label for="patient-allergies">Allergies</label>
-                    <input type="text" id="patient-allergies" name="allergies" placeholder="e.g., Penicillin, Peanuts">
+                    <input type="text" id="patient-allergies" name="allergies" placeholder="e.g., Penicillin, Peanuts" maxlength="500">
                 </div>
 
                 <div id="formError" class="error-message" style="display: none;"></div>
